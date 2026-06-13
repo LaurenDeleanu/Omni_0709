@@ -1,0 +1,26 @@
+{
+  "Navigation": {
+    "dashboard": "Visão Geral",
+    "people": "Pessoas",
+    "hire": "Recrutamento",
+    "work": "Trabalho",
+    "calendar": "Calendário",
+    "pay": "Folha de Pagamento",
+    "grow": "Desenvolvimento",
+    "intelligence": "Inteligência",
+    "ops": "Operações",
+    "settings": "Configurações",
+    "logout": "Sair"
+  },
+  "Dashboard": {
+    "welcome": "Bem-vindo de volta",
+    "add_widget": "Adicionar Widget"
+  },
+  "Pay": {
+    "gross_salary": "Salário Bruto",
+    "net_salary": "Salário Líquido",
+    "taxes": "Impostos e Deduções",
+    "download_payslip": "Baixar Holerite",
+    "currency_symbol": "R$"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "Navigation": {
+    "dashboard": "Aperçu",
+    "people": "Personnes",
+    "hire": "Recrutement",
+    "work": "Travail",
+    "calendar": "Calendrier",
+    "pay": "Paie",
+    "grow": "Développement",
+    "intelligence": "Intelligence",
+    "ops": "Opérations",
+    "settings": "Paramètres",
+    "logout": "Se Déconnecter"
+  },
+  "Dashboard": {
+    "welcome": "Bon retour",
+    "add_widget": "Ajouter un Widget"
+  },
+  "Pay": {
+    "gross_salary": "Salaire Brut",
+    "net_salary": "Salaire Net",
+    "taxes": "Impôts et Déductions",
+    "download_payslip": "Télécharger la fiche de paie",
+    "currency_symbol": "€"
+  }
+}

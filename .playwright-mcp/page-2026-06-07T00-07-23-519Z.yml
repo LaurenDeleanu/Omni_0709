@@ -1,0 +1,76 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e9]:
+        - img [ref=e11]
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: SuccessCore
+          - paragraph [ref=e17]: HR Platform
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - img [ref=e21]
+            - generic [ref=e24]: Enterprise SaaS · Multi-tenant
+          - heading "El HR del futuro, disponible hoy." [level=1] [ref=e25]:
+            - text: El HR del futuro,
+            - text: disponible hoy.
+          - paragraph [ref=e26]: Gestiona tu plantilla, automatiza reportes y controla el acceso de cada empleado con seguridad de nivel enterprise.
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - img [ref=e30]
+            - generic [ref=e35]:
+              - paragraph [ref=e36]: Gestión de empleados
+              - paragraph [ref=e37]: CRUD completo con historial laboral y soft-delete.
+          - generic [ref=e38]:
+            - img [ref=e40]
+            - generic [ref=e42]:
+              - paragraph [ref=e43]: Reportes ejecutivos
+              - paragraph [ref=e44]: Dashboard en tiempo real + exportación PDF / Excel.
+          - generic [ref=e45]:
+            - img [ref=e47]
+            - generic [ref=e50]:
+              - paragraph [ref=e51]: Carga masiva
+              - paragraph [ref=e52]: Importa miles de empleados desde CSV/Excel con validación atómica.
+          - generic [ref=e53]:
+            - img [ref=e55]
+            - generic [ref=e58]:
+              - paragraph [ref=e59]: Seguridad enterprise
+              - paragraph [ref=e60]: Auth0 SSO, RBAC por roles y aislamiento por tenant.
+      - paragraph [ref=e62]: © 2026 SuccessCore HR · Todos los derechos reservados
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - heading "Bienvenido de vuelta" [level=2] [ref=e67]
+        - paragraph [ref=e68]: Inicia sesión con tus credenciales o mediante SSO corporativo.
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - text: Correo Electrónico
+          - textbox "lauren.deleanu@gmail.com" [ref=e71]
+        - generic [ref=e72]:
+          - text: Contraseña
+          - textbox "••••••••" [ref=e73]
+        - button "Iniciar sesión" [ref=e74]:
+          - text: Iniciar sesión
+          - img [ref=e75]
+      - generic [ref=e79]: o continúa con SSO
+      - generic [ref=e81]:
+        - img [ref=e82]
+        - paragraph [ref=e85]:
+          - strong [ref=e86]: SSO Corporativo
+          - text: — Si tu empresa requiere autenticación federada, usa los accesos rápidos a continuación.
+      - link "Continuar con Auth0 SSO" [ref=e87] [cursor=pointer]:
+        - /url: /api/auth/login
+        - img [ref=e88]
+        - text: Continuar con Auth0 SSO
+      - generic [ref=e90]:
+        - link "Google" [ref=e91] [cursor=pointer]:
+          - /url: /api/auth/login?connection=google-oauth2
+          - img [ref=e92]
+          - text: Google
+        - link "Microsoft" [ref=e97] [cursor=pointer]:
+          - /url: /api/auth/login?connection=windowslive
+          - img [ref=e98]
+          - text: Microsoft
+      - paragraph [ref=e100]: Al iniciar sesión aceptas los Términos de servicio y la Política de privacidad.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e108] [cursor=pointer]:
+    - img [ref=e109]

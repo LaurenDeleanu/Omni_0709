@@ -1,0 +1,5 @@
+Health status: ERROR
+Health response: [WinError 10061] No connection could be made because the target machine actively refused it
+
+Notifications status: ERROR
+Notifications response: [WinError 10061] No connection could be made because the target machine actively refused it

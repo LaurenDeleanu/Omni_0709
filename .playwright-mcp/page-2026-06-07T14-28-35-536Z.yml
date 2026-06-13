@@ -1,0 +1,183 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e5]: SuccessCore
+      - navigation [ref=e6]:
+        - generic [ref=e7]: Menu
+        - link "Overview" [ref=e8] [cursor=pointer]:
+          - /url: /en/dashboard
+          - img [ref=e9]
+          - text: Overview
+        - link "My Profile" [ref=e14] [cursor=pointer]:
+          - /url: /en/dashboard/profile
+          - img [ref=e15]
+          - text: My Profile
+        - link "Kudos" [ref=e18] [cursor=pointer]:
+          - /url: /en/dashboard/kudos
+          - img [ref=e19]
+          - text: Kudos
+        - link "People" [ref=e22] [cursor=pointer]:
+          - /url: /en/dashboard/employees
+          - img [ref=e23]
+          - text: People
+        - link "Chat" [ref=e28] [cursor=pointer]:
+          - /url: /en/dashboard/chat
+          - img [ref=e29]
+          - text: Chat
+        - link "Agent Studio" [ref=e31] [cursor=pointer]:
+          - /url: /en/dashboard/agent-studio
+          - img [ref=e32]
+          - text: Agent Studio
+        - link "Workflows" [ref=e35] [cursor=pointer]:
+          - /url: /en/dashboard/workflows
+          - img [ref=e36]
+          - text: Workflows
+        - link "CRM & Contacts" [ref=e41] [cursor=pointer]:
+          - /url: /en/dashboard/crm
+          - img [ref=e42]
+          - text: CRM & Contacts
+        - link "Code Lab" [ref=e45] [cursor=pointer]:
+          - /url: /en/dashboard/codelab
+          - img [ref=e46]
+          - text: Code Lab
+        - link "AI Harness" [ref=e48] [cursor=pointer]:
+          - /url: /en/dashboard/harness
+          - img [ref=e49]
+          - text: AI Harness
+        - link "AI Observability" [ref=e52] [cursor=pointer]:
+          - /url: /en/dashboard/monitoring
+          - img [ref=e53]
+          - text: AI Observability
+        - link "Grow" [ref=e55] [cursor=pointer]:
+          - /url: /en/dashboard/grow
+          - img [ref=e56]
+          - text: Grow
+        - link "Recruiting" [ref=e60] [cursor=pointer]:
+          - /url: /en/dashboard/hire
+          - img [ref=e61]
+          - text: Recruiting
+        - link "IT" [ref=e64] [cursor=pointer]:
+          - /url: /en/dashboard/it
+          - img [ref=e65]
+          - text: IT
+        - link "Finance" [ref=e67] [cursor=pointer]:
+          - /url: /en/dashboard/finance
+          - img [ref=e68]
+          - text: Finance
+        - link "Payroll" [ref=e70] [cursor=pointer]:
+          - /url: /en/dashboard/pay
+          - img [ref=e71]
+          - text: Payroll
+        - link "Training" [ref=e73] [cursor=pointer]:
+          - /url: /en/dashboard/training
+          - img [ref=e74]
+          - text: Training
+        - link "Work" [ref=e77] [cursor=pointer]:
+          - /url: /en/dashboard/work
+          - img [ref=e78]
+          - text: Work
+        - link "Sales & CRM" [ref=e81] [cursor=pointer]:
+          - /url: /en/dashboard/sales
+          - img [ref=e82]
+          - text: Sales & CRM
+        - link "Data Imports" [ref=e85] [cursor=pointer]:
+          - /url: /en/dashboard/imports
+          - img [ref=e86]
+          - text: Data Imports
+        - link "Reports (Classic)" [ref=e89] [cursor=pointer]:
+          - /url: /en/dashboard/reports
+          - img [ref=e90]
+          - text: Reports (Classic)
+        - link "Legal & Compliance" [ref=e93] [cursor=pointer]:
+          - /url: /en/dashboard/legal
+          - img [ref=e94]
+          - text: Legal & Compliance
+        - link "Operations" [ref=e96] [cursor=pointer]:
+          - /url: /en/dashboard/ops
+          - img [ref=e97]
+          - text: Operations
+        - link "Intelligence" [ref=e100] [cursor=pointer]:
+          - /url: /en/dashboard/intelligence
+          - img [ref=e101]
+          - text: Intelligence
+        - link "Schedules & Shifts" [ref=e104] [cursor=pointer]:
+          - /url: /en/dashboard/schedules
+          - img [ref=e105]
+          - text: Schedules & Shifts
+        - link "Calendar" [ref=e109] [cursor=pointer]:
+          - /url: /en/dashboard/calendar
+          - img [ref=e110]
+          - text: Calendar
+        - link "Integrations" [ref=e112] [cursor=pointer]:
+          - /url: /en/dashboard/settings/integrations
+          - img [ref=e113]
+          - text: Integrations
+        - link "Admin Panel" [ref=e116] [cursor=pointer]:
+          - /url: /en/dashboard/admin
+          - img [ref=e117]
+          - text: Admin Panel
+        - link "Developer Portal" [ref=e119] [cursor=pointer]:
+          - /url: /en/dashboard/admin/developer-portal
+          - img [ref=e120]
+          - text: Developer Portal
+        - link "Infrastructure" [ref=e123] [cursor=pointer]:
+          - /url: /en/dashboard/admin/infrastructure
+          - img [ref=e124]
+          - text: Infrastructure
+        - link "Connectors" [ref=e127] [cursor=pointer]:
+          - /url: /en/dashboard/admin/connectors
+          - img [ref=e128]
+          - text: Connectors
+        - link "Email Templates" [ref=e130] [cursor=pointer]:
+          - /url: /en/dashboard/admin/email-templates
+          - img [ref=e131]
+          - text: Email Templates
+        - link "PDF Templates" [ref=e134] [cursor=pointer]:
+          - /url: /en/dashboard/admin/document-templates
+          - img [ref=e135]
+          - text: PDF Templates
+        - link "Run Comparison" [ref=e138] [cursor=pointer]:
+          - /url: /en/dashboard/admin/runs/compare
+          - img [ref=e139]
+          - text: Run Comparison
+        - link "Plugin Store" [ref=e144] [cursor=pointer]:
+          - /url: /en/dashboard/admin/plugin-store
+          - img [ref=e145]
+          - text: Plugin Store
+        - link "Settings" [ref=e147] [cursor=pointer]:
+          - /url: /en/dashboard/settings
+          - img [ref=e148]
+          - text: Settings
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - button "Light theme" [ref=e153]:
+            - img
+          - button "Dark theme" [ref=e154]:
+            - img
+          - button "Blue theme" [ref=e155]:
+            - img
+        - generic [ref=e156] [cursor=pointer]:
+          - generic [ref=e157]: AD
+          - generic [ref=e158]:
+            - generic [ref=e159]: Admin User
+            - generic [ref=e160]: Acme Corp
+    - banner [ref=e162]:
+      - generic [ref=e163]:
+        - heading "Dashboard" [level=1] [ref=e164]
+        - button "Type / to search... ⌘K" [ref=e165]:
+          - img [ref=e166]
+          - generic [ref=e169]: Type / to search...
+          - generic [ref=e170]: ⌘K
+      - generic [ref=e171]:
+        - button "Notificaciones" [ref=e173]:
+          - img [ref=e174]
+        - button "Menú de usuario" [ref=e178]:
+          - generic [ref=e179]: U
+          - generic [ref=e180]:
+            - generic [ref=e181]: lauren.deleanu@gmail.com
+            - generic [ref=e182]: lauren.deleanu@gmail.com
+          - img [ref=e183]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e212] [cursor=pointer]:
+    - img [ref=e213]
+  - alert [ref=e216]

@@ -1,0 +1,26 @@
+{
+  "Navigation": {
+    "dashboard": "Übersicht",
+    "people": "Mitarbeiter",
+    "hire": "Rekrutierung",
+    "work": "Arbeit",
+    "calendar": "Kalender",
+    "pay": "Gehaltsabrechnung",
+    "grow": "Entwicklung",
+    "intelligence": "Intelligenz",
+    "ops": "Betrieb",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "Dashboard": {
+    "welcome": "Willkommen zurück",
+    "add_widget": "Widget hinzufügen"
+  },
+  "Pay": {
+    "gross_salary": "Bruttogehalt",
+    "net_salary": "Nettogehalt",
+    "taxes": "Steuern & Abzüge",
+    "download_payslip": "Gehaltsabrechnung herunterladen",
+    "currency_symbol": "€"
+  }
+}

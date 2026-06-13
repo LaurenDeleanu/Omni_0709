@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SuccessCore Report</title>
+<style>
+    @page { 
+        size: A4; 
+        margin: 2cm 1.5cm;
+        @bottom-left {
+            content: "SuccessCore HR Platform";
+            font-size: 9pt;
+            color: #64748b;
+        }
+        @bottom-right {
+            content: "Page " counter(page) " of " counter(pages);
+            font-size: 9pt;
+            color: #64748b;
+        }
+    }
+    body { 
+        font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+        color: #0f172a; 
+        line-height: 1.5;
+    }
+    .header {
+        text-align: right;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .header img {
+        height: 40px; 
+    }
+    h1 { 
+        color: #1e40af; 
+        font-size: 24pt;
+        margin: 0 0 10px 0;
+    }
+    .subtitle {
+        color: #64748b;
+        font-size: 11pt;
+        margin-bottom: 30px;
+    }
+    .grid {
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+    }
+    .metric-card { 
+        background: #f8fafc; 
+        border: 1px solid #cbd5e1; 
+        padding: 20px; 
+        border-radius: 8px; 
+        width: 40%; 
+        display: inline-block;
+        vertical-align: top;
+        box-sizing: border-box;
+    }
+    .metric-title {
+        font-size: 10pt;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+    .metric-value { 
+        font-size: 28pt; 
+        font-weight: 700; 
+        color: #0f172a; 
+    }
+    .table-container {
+        margin-top: 40px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+        background-color: #f1f5f9;
+        color: #334155;
+        font-weight: 600;
+        font-size: 10pt;
+    }
+</style>
+</head>
+<body>
+    <div class="header">
+        <h1>Reporte Ejecutivo</h1>
+        <div style="font-size: 14pt; color: #334155;">{{ tenant_name }}</div>
+    </div>
+    
+    <div class="subtitle">
+        Documento generado el: <strong>{{ report_date }}</strong>
+    </div>
+    
+    <div class="grid">
+        <div class="metric-card">
+            <div class="metric-title">Total Empleados</div>
+            <div class="metric-value">{{ total_employees }}</div>
+        </div>
+        <div class="metric-card" style="margin-left: 5%;">
+            <div class="metric-title">Usuarios Activos</div>
+            <div class="metric-value">{{ active_users }}</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="metric-title">Desglose por Rol</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Cantidad</th>
+                    <th>Porcentaje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for role in roles %}
+                <tr>
+                    <td>{{ role.name }}</td>
+                    <td>{{ role.count }}</td>
+                    <td>{{ role.percentage }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+name = "successcore-agent-edge"
+main = "agent_edge.js"
+compatibility_date = "2026-06-08"
+
+[[kv_namespaces]]
+binding = "AGENT_CACHE"
+id = "your-kv-namespace-id"
+preview_id = "your-preview-kv-id"
+
+[vars]
+ORIGIN_URL = "https://your-successcore-origin.com"
+
+[env.production]
+vars = { ORIGIN_URL = "https://api.successcore.com" }

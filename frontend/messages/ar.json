@@ -1,0 +1,26 @@
+{
+  "Navigation": {
+    "dashboard": "ملخص",
+    "people": "الموظفين",
+    "hire": "التوظيف",
+    "work": "العمل",
+    "calendar": "التقويم",
+    "pay": "الرواتب",
+    "grow": "تطوير",
+    "intelligence": "ذكاء الأعمال",
+    "ops": "عمليات",
+    "settings": "الإعدادات",
+    "logout": "تسجيل خروج"
+  },
+  "Dashboard": {
+    "welcome": "مرحباً بعودتك",
+    "add_widget": "إضافة واجهة"
+  },
+  "Pay": {
+    "gross_salary": "الراتب الإجمالي",
+    "net_salary": "الراتب الصافي",
+    "taxes": "الضرائب والاستقطاعات",
+    "download_payslip": "تحميل قسيمة الراتب",
+    "currency_symbol": "ر.س"
+  }
+}
