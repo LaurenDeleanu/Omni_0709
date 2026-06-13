@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     # ── Redis ─────────────────────────────────────────────────────────────────
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+    REDIS_URL: str = ""  # Full connection URL (e.g. Upstash: redis://default:password@host:port)
 
     # ── Auth0 ─────────────────────────────────────────────────────────────────
     AUTH0_DOMAIN:       str = "your-tenant.auth0.com"
@@ -112,6 +113,8 @@ class Settings(BaseSettings):
 
     @property
     def REDIS_URI(self) -> str:
+        if self.REDIS_URL:
+            return self.REDIS_URL
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
     model_config = SettingsConfigDict(
