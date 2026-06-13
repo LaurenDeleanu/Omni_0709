@@ -4,12 +4,15 @@ services:
     runtime: python
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    preDeployCommand: python -c "from app.core.config import settings; print(f'SECRET_KEY={bool(settings.SECRET_KEY)}, DB={bool(settings.DATABASE_URL)}, REDIS={bool(settings.REDIS_URL)}')"
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level info
     healthCheckPath: /health
     envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
       - key: PYTHON_VERSION
-        value: "3.11.0"
+        value: "3.11.11"
       - key: ENVIRONMENT
         value: production
       - key: DEBUG_MODE
