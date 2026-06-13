@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { fetchClient } from "@/lib/api/client";
 
 interface ExecutionRun {
   id: string;
@@ -46,7 +47,6 @@ export default function UsageBreakdown({ runs, isLoading }: UsageBreakdownProps)
   React.useEffect(() => {
     async function loadModelCosts() {
       try {
-        const { fetchClient } = await import("@/lib/api/client");
         const data = await fetchClient("/monitoring/agent-costs?weeks=12");
         if (data && data.model_costs) {
           setModelCosts(data.model_costs);
