@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import {
   Building2,
   MapPin,
@@ -173,21 +173,21 @@ export default function CareersPage() {
   const displayJob = selectedJob;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* ── NAV ──────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-                <Building2 className="h-5 w-5 text-white" />
+                <Building2 className="h-5 w-5 text-foreground" />
               </div>
-              <span className="text-white font-bold text-lg">SuccessCore</span>
+              <span className="text-foreground font-bold text-lg">SuccessCore</span>
               <span className="text-indigo-400 text-xs font-semibold hidden sm:inline ml-1">Careers</span>
             </Link>
             <Link
               href="/login"
-              className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors"
+              className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold rounded-lg transition-colors"
             >
               Employee login
             </Link>
@@ -235,13 +235,13 @@ export default function CareersPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search jobs..."
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
             >
               <option value="">All departments</option>
               {departments.map((d) => (
@@ -251,7 +251,7 @@ export default function CareersPage() {
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
             >
               <option value="">All locations</option>
               {locations.map((l) => (
@@ -261,7 +261,7 @@ export default function CareersPage() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
             >
               <option value="">All types</option>
               {employmentTypes.map((t) => (
@@ -276,7 +276,7 @@ export default function CareersPage() {
                   setLocationFilter("");
                   setTypeFilter("");
                 }}
-                className="text-slate-400 hover:text-white text-sm transition-colors px-3"
+                className="text-slate-400 hover:text-foreground text-sm transition-colors px-3"
               >
                 Clear
               </button>
@@ -328,7 +328,7 @@ export default function CareersPage() {
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-2 flex-1">
-                      <h3 className="text-white font-semibold text-lg group-hover:text-indigo-300 transition-colors">
+                      <h3 className="text-foreground font-semibold text-lg group-hover:text-indigo-300 transition-colors">
                         {job.title}
                       </h3>
                       <div className="flex flex-wrap items-center gap-3">
@@ -358,7 +358,7 @@ export default function CareersPage() {
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={() => openApply(job)}
-                        className="py-2.5 px-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-indigo-500/25"
+                        className="py-2.5 px-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-foreground text-sm font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-indigo-500/25"
                       >
                         Apply
                       </button>
@@ -386,8 +386,8 @@ export default function CareersPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
-              <h2 className="text-2xl font-bold text-white">{displayJob.title}</h2>
-              <button onClick={closeDetail} className="text-slate-400 hover:text-white transition-colors">
+              <h2 className="text-2xl font-bold text-foreground">{displayJob.title}</h2>
+              <button onClick={closeDetail} className="text-slate-400 hover:text-foreground transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -421,7 +421,7 @@ export default function CareersPage() {
                 closeDetail();
                 openApply(displayJob);
               }}
-              className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-indigo-500/25"
+              className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-foreground font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-indigo-500/25"
             >
               Apply for this position
             </button>
@@ -438,10 +438,10 @@ export default function CareersPage() {
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-xl font-bold text-white">Apply</h2>
+                <h2 className="text-xl font-bold text-foreground">Apply</h2>
                 <p className="text-slate-400 text-sm mt-0.5">{displayJob.title}</p>
               </div>
-              <button onClick={() => setFormModal(false)} className="text-slate-400 hover:text-white transition-colors">
+              <button onClick={() => setFormModal(false)} className="text-slate-400 hover:text-foreground transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -449,11 +449,11 @@ export default function CareersPage() {
             {submitted ? (
               <div className="text-center py-8">
                 <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto mb-4" />
-                <h3 className="text-white font-bold text-lg mb-2">Application submitted</h3>
+                <h3 className="text-foreground font-bold text-lg mb-2">Application submitted</h3>
                 <p className="text-slate-400 text-sm mb-6">We will review your application and get back to you soon.</p>
                 <button
                   onClick={() => setFormModal(false)}
-                  className="w-full py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl transition-colors"
+                  className="w-full py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-foreground rounded-xl transition-colors"
                 >
                   Close
                 </button>
@@ -473,7 +473,7 @@ export default function CareersPage() {
                       value={formData.first_name}
                       onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                       required
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
                       placeholder="John"
                     />
                   </div>
@@ -484,7 +484,7 @@ export default function CareersPage() {
                       value={formData.last_name}
                       onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                       required
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
                       placeholder="Doe"
                     />
                   </div>
@@ -496,7 +496,7 @@ export default function CareersPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -506,7 +506,7 @@ export default function CareersPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
                     placeholder="+34 600 000 000"
                   />
                 </div>
@@ -516,14 +516,14 @@ export default function CareersPage() {
                     value={formData.cover_letter}
                     onChange={(e) => setFormData({ ...formData, cover_letter: e.target.value })}
                     rows={4}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
                     placeholder="Tell us why you are interested in this role..."
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-foreground font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

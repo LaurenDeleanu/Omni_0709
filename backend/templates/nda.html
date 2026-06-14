@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  body { font-family: DejaVu Sans, sans-serif; font-size: 10pt; color: #1e293b; margin: 50px; }
+  .header { border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 30px; text-align: center; }
+  .header h1 { font-size: 20pt; margin: 0; color: #dc2626; text-transform: uppercase; letter-spacing: 2px; }
+  .header .sub { color: #64748b; font-size: 9pt; }
+  .section { margin-bottom: 20px; }
+  .section h2 { font-size: 12pt; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 10px; }
+  p { line-height: 1.6; text-align: justify; }
+  .field { margin-bottom: 6px; }
+  .field label { font-weight: bold; display: inline-block; width: 180px; }
+  .signature { margin-top: 50px; }
+  .signature table { width: 100%; }
+  .signature td { width: 50%; vertical-align: top; }
+  .signature .line { border-top: 1px solid #94a3b8; width: 200px; margin-top: 50px; margin-bottom: 5px; }
+  .footer { margin-top: 50px; font-size: 8pt; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+</style></head>
+<body>
+<div class="header">
+  <h1>Non-Disclosure Agreement</h1>
+  <div class="sub">Confidential — {{ company_name }}</div>
+</div>
+
+<div class="section">
+  <h2>1. Parties</h2>
+  <p>This Non-Disclosure Agreement ("NDA") is entered into on <strong>{{ date }}</strong> between:</p>
+  <p><strong>{{ company_name }}</strong> ("Disclosing Party"), and</p>
+  <p><strong>{{ employee_name }}</strong> ("Receiving Party").</p>
+</div>
+
+<div class="section">
+  <h2>2. Definition of Confidential Information</h2>
+  <p>"Confidential Information" means any information disclosed by the Disclosing Party to the Receiving Party, either directly or indirectly, in writing, orally, or by inspection of tangible objects, including but not limited to: business plans, customer lists, financial data, technical specifications, source code, marketing strategies, trade secrets, and any other information designated as confidential.</p>
+</div>
+
+<div class="section">
+  <h2>3. Obligations of Receiving Party</h2>
+  <p>The Receiving Party agrees to:</p>
+  <p>(a) Hold all Confidential Information in strict confidence.</p>
+  <p>(b) Not disclose Confidential Information to any third party without prior written consent.</p>
+  <p>(c) Use Confidential Information solely for the purpose of {{ purpose }}.</p>
+  <p>(d) Return or destroy all Confidential Information upon request or termination of this Agreement.</p>
+</div>
+
+<div class="section">
+  <h2>4. Exclusions</h2>
+  <p>Confidential Information does not include information that: (a) is or becomes publicly available through no fault of the Receiving Party; (b) was rightfully in the Receiving Party's possession prior to disclosure; (c) is independently developed by the Receiving Party without use of Confidential Information.</p>
+</div>
+
+<div class="section">
+  <h2>5. Term & Termination</h2>
+  <p>This Agreement shall remain in effect for a period of <strong>{{ duration }}</strong> from the date hereof. The confidentiality obligations shall survive termination for a period of <strong>5 years</strong>.</p>
+</div>
+
+<div class="section">
+  <h2>6. Governing Law</h2>
+  <p>This Agreement shall be governed by the laws of {{ jurisdiction }}.</p>
+</div>
+
+<div class="signature">
+  <table>
+    <tr>
+      <td>
+        <div class="line"></div>
+        <p>{{ company_name }}<br/>By: ________________________</p>
+      </td>
+      <td>
+        <div class="line"></div>
+        <p>{{ employee_name }}<br/>Receiving Party</p>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div class="footer">
+  <p>{{ company_name }} | Confidential | {{ date }}</p>
+</div>
+</body>
+</html>

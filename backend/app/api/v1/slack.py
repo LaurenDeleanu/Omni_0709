@@ -12,6 +12,9 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db
 from app.core.config import settings
 from app.models.calendar import VacationRequest
@@ -23,6 +26,7 @@ from app.services.event_sourcing import publish_event
 
 logger = logging.getLogger("successcore.slack")
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -239,6 +243,7 @@ async def _handle_status(db: AsyncSession, user_id: str) -> dict:
 
 
 @router.post("/commands")
+@limiter.limit("30/minute")
 async def slack_commands(request: Request, db: AsyncSession = Depends(get_tenant_db)):
     raw_body = await request.body()
     try:
@@ -282,6 +287,7 @@ async def slack_commands(request: Request, db: AsyncSession = Depends(get_tenant
 
 
 @router.post("/events")
+@limiter.limit("30/minute")
 async def slack_events(request: Request, db: AsyncSession = Depends(get_tenant_db)):
     raw_body = await request.body()
 

@@ -58,12 +58,12 @@ export function BillingDashboard() {
   };
 
   const providers = [
-    { key: "customOpenAiKey", name: "OpenAI", color: "from-emerald-500/20 to-green-500/20 border-emerald-500/30", short: "openai" },
-    { key: "customGeminiKey", name: "Google Gemini", color: "from-blue-500/20 to-cyan-500/20 border-blue-500/30", short: "gemini" },
-    { key: "customAnthropicKey", name: "Anthropic Claude", color: "from-orange-500/20 to-amber-500/20 border-orange-500/30", short: "anthropic" },
-    { key: "customGroqKey", name: "Groq", color: "from-purple-500/20 to-violet-500/20 border-purple-500/30", short: "groq" },
-    { key: "customOpenRouterKey", name: "OpenRouter", color: "from-rose-500/20 to-pink-500/20 border-rose-500/30", short: "openrouter" },
-    { key: "customGrokKey", name: "Grok (xAI)", color: "from-slate-500/20 to-zinc-500/20 border-slate-500/30", short: "grok" },
+    { key: "customOpenAiKey", name: "OpenAI", color: "from-success/20 to-success/10 border-success/30", short: "openai" },
+    { key: "customGeminiKey", name: "Google Gemini", color: "from-primary/20 to-primary/10 border-primary/30", short: "gemini" },
+    { key: "customAnthropicKey", name: "Anthropic Claude", color: "from-warning/20 to-warning/10 border-warning/30", short: "anthropic" },
+    { key: "customGroqKey", name: "Groq", color: "from-secondary/20 to-secondary/10 border-secondary/30", short: "groq" },
+    { key: "customOpenRouterKey", name: "OpenRouter", color: "from-destructive/20 to-destructive/10 border-destructive/30", short: "openrouter" },
+    { key: "customGrokKey", name: "Grok (xAI)", color: "from-muted/20 to-muted/10 border-muted/30", short: "grok" },
   ];
 
   const usageLimit = quota?.quotas?.agent_runs?.limit || 1000;

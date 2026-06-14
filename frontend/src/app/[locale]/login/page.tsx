@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@/hooks/use-user";
 import { useRouter } from "@/i18n/routing";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import {
   ShieldCheck,
   Users,
@@ -358,6 +358,10 @@ export default function LoginPage() {
                 Política de privacidad
               </span>
               .
+            </p>
+            <p className="text-center text-muted-foreground text-xs mt-3">
+              ¿No tienes cuenta?{" "}
+              <Link href="/signup" className="text-primary hover:underline">Crea tu espacio de trabajo</Link>
             </p>
           </div>
 

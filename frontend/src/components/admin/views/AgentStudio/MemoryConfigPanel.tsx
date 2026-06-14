@@ -74,41 +74,41 @@ export default function MemoryConfigPanel({
     <div className="space-y-6">
       {/* Short/Long Term Memory configuration */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-5 rounded-2xl border border-white/5 bg-zinc-950/20">
+        <div className="p-5 rounded-2xl border border-border/10 bg-muted/30">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
               <Database className="w-4 h-4" />
             </div>
-            <span className="text-sm font-bold text-white">Conversation Memory</span>
+            <span className="text-sm font-bold text-foreground">Conversation Memory</span>
           </div>
-          <p className="text-xs text-zinc-400 leading-relaxed font-light mb-4">
+          <p className="text-xs text-muted-foreground leading-relaxed font-light mb-4">
             Holds direct conversational exchanges. Short-term dialogue context length.
           </p>
           <div className="flex gap-2">
             <span className="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-mono px-2.5 py-1 rounded">
               Window: 20 turns
             </span>
-            <span className="text-[10px] bg-zinc-800 text-zinc-400 font-mono px-2.5 py-1 rounded">
+            <span className="text-[10px] bg-secondary text-muted-foreground font-mono px-2.5 py-1 rounded">
               Summarized storage
             </span>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl border border-white/5 bg-zinc-950/20">
+        <div className="p-5 rounded-2xl border border-border/10 bg-muted/30">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
               <FileText className="w-4 h-4" />
             </div>
-            <span className="text-sm font-bold text-white">Vector Storage (RAG)</span>
+            <span className="text-sm font-bold text-foreground">Vector Storage (RAG)</span>
           </div>
-          <p className="text-xs text-zinc-400 leading-relaxed font-light mb-4">
+          <p className="text-xs text-muted-foreground leading-relaxed font-light mb-4">
             Long-term semantic retrieval. Matches knowledge documents to customer query vector embeddings.
           </p>
           <div className="flex gap-2">
             <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono px-2.5 py-1 rounded">
               TopK: 5 chunks
             </span>
-            <span className="text-[10px] bg-zinc-800 text-zinc-400 font-mono px-2.5 py-1 rounded">
+            <span className="text-[10px] bg-secondary text-muted-foreground font-mono px-2.5 py-1 rounded">
               pgvector indexed
             </span>
           </div>
@@ -116,19 +116,19 @@ export default function MemoryConfigPanel({
       </div>
 
       {/* RAG Vector Files List */}
-      <div className="p-6 rounded-2xl border border-white/5 bg-zinc-950/20">
+      <div className="p-6 rounded-2xl border border-border/10 bg-muted/30">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h3 className="text-sm font-bold text-white">Vector Knowledge Base</h3>
-            <p className="text-[11px] text-zinc-400 font-light mt-0.5">Upload text, markdown, or PDF files. The engine splits and embeds chunks.</p>
+            <h3 className="text-sm font-bold text-foreground">Vector Knowledge Base</h3>
+            <p className="text-[11px] text-muted-foreground font-light mt-0.5">Upload text, markdown, or PDF files. The engine splits and embeds chunks.</p>
           </div>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onOpenScrape}
-              className="text-xs bg-zinc-850 hover:bg-zinc-800 border border-white/10 text-white font-medium py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors"
+              className="text-xs bg-muted hover:bg-secondary border border-border/20 text-foreground font-medium py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors"
             >
-              <Globe className="w-3.5 h-3.5 text-zinc-400" />
+              <Globe className="w-3.5 h-3.5 text-muted-foreground" />
               Scrape URL
             </button>
             <label className="text-xs bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/80 text-black font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors">
@@ -147,24 +147,24 @@ export default function MemoryConfigPanel({
         </div>
 
         {knowledgeDocs.length > 0 ? (
-          <div className="space-y-2 max-h-56 overflow-y-auto custom-scrollbar border border-white/5 bg-black/10 rounded-xl p-3">
+          <div className="space-y-2 max-h-56 overflow-y-auto custom-scrollbar border border-border/10 bg-muted/20 rounded-xl p-3">
             {knowledgeDocs.map((doc) => (
               <div
                 key={doc.id}
-                className="flex justify-between items-center bg-zinc-950/40 hover:bg-zinc-900/60 border border-white/5 py-2 px-3 rounded-xl group transition-all"
+                className="flex justify-between items-center bg-card/50 hover:bg-muted/60 border border-border/10 py-2 px-3 rounded-xl group transition-all"
               >
                 <div className="flex items-center gap-2">
                   <FileText className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                  <span className="text-xs text-white truncate max-w-[250px] font-mono">{doc.filename}</span>
+                  <span className="text-xs text-foreground truncate max-w-[250px] font-mono">{doc.filename}</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-[10px] text-zinc-500 font-light">
+                  <span className="text-[10px] text-muted-foreground font-light">
                     {new Date(doc.createdAt).toLocaleDateString()}
                   </span>
                   <button
                     type="button"
                     onClick={() => handleDeleteDoc(doc.id)}
-                    className="opacity-0 group-hover:opacity-100 text-rose-500 hover:text-rose-400 transition-opacity p-0.5"
+                    className="opacity-0 group-hover:opacity-100 text-rose-500 hover:text-destructive transition-opacity p-0.5"
                     title="Delete document"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -174,28 +174,28 @@ export default function MemoryConfigPanel({
             ))}
           </div>
         ) : (
-          <div className="text-center p-8 border border-dashed border-white/10 rounded-xl text-zinc-500 text-xs font-light">
+          <div className="text-center p-8 border border-dashed border-border/20 rounded-xl text-muted-foreground text-xs font-light">
             No vectorized documents found. Drag and drop file or scrape url.
           </div>
         )}
       </div>
 
       {/* Global static information base */}
-      <div className="p-6 rounded-2xl border border-white/5 bg-zinc-950/20">
-        <h3 className="text-sm font-bold text-white mb-1">Global Core Context (Static FAQs / Pricing)</h3>
-        <p className="text-[11px] text-zinc-400 font-light mb-4">
+      <div className="p-6 rounded-2xl border border-border/10 bg-muted/30">
+        <h3 className="text-sm font-bold text-foreground mb-1">Global Core Context (Static FAQs / Pricing)</h3>
+        <p className="text-[11px] text-muted-foreground font-light mb-4">
           This system information will be loaded for every user instruction in the system prompt. Do not exceed 8,000 characters.
         </p>
         <textarea
-          className="input font-mono text-xs leading-relaxed bg-zinc-950/60 border-zinc-800"
+          className="input font-mono text-xs leading-relaxed bg-card/60 border-border"
           rows={10}
           placeholder="Paste FAQs, price matrixes, address descriptions, or company details here..."
           value={aiKnowledgeBase}
           onChange={(e) => onKnowledgeBaseChange(e.target.value)}
         />
         <div className="flex justify-between items-center mt-2">
-          <span className="text-[10px] text-zinc-500">Always appended to System Prompt</span>
-          <span className={`text-[10px] ${aiKnowledgeBase.length > 8000 ? "text-rose-400 font-bold" : "text-zinc-500"}`}>
+          <span className="text-[10px] text-muted-foreground">Always appended to System Prompt</span>
+          <span className={`text-[10px] ${aiKnowledgeBase.length > 8000 ? "text-destructive font-bold" : "text-muted-foreground"}`}>
             {aiKnowledgeBase.length} / 8000 chars
           </span>
         </div>

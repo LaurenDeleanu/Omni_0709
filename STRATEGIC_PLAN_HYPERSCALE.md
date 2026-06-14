@@ -1,1049 +1,922 @@
-# SuccessCore HR — Mega Strategic Plan: From HR Platform to Global Workforce OS
+# SuccessCore HR — Strategic Audit & Hyperscale Enhancement Plan
 
-**Version:** 2.0 — Hyper-Scale Edition  
-**Date:** 2026-06-12  
-**Time Horizon:** 2026-2031 (5-Year Vision)  
-**Target:** Unicorn trajectory ($1B+ valuation by Year 4)
-
----
-
-## Table of Contents
-
-1. [Executive Vision](#1-executive-vision)
-2. [Market Opportunity & TAM Analysis](#2-market-opportunity--tam-analysis)
-3. [Competitive Strategy: How We Win](#3-competitive-strategy-how-we-win)
-4. [Product Architecture: The Workforce OS](#4-product-architecture-the-workforce-os)
-5. [AI Roadmap: From Agents to Cognitive Organization](#5-ai-roadmap-from-agents-to-cognitive-organization)
-6. [Revenue Engine & Monetization](#6-revenue-engine--monetization)
-7. [Go-to-Market Strategy](#7-go-to-market-strategy)
-8. [Geographic Expansion](#8-geographic-expansion)
-9. [Ecosystem & Platform Play](#9-ecosystem--platform-play)
-10. [Organizational Scaling Plan](#10-organizational-scaling-plan)
-11. [Funding & Financial Projections](#11-funding--financial-projections)
-12. [5-Year Technology Roadmap](#12-5-year-technology-roadmap)
-13. [Integration & Migration Playbook](#13-integration--migration-playbook)
-14. [Risk Management & Contingency](#14-risk-management--contingency)
-15. [Success Metrics & OKRs](#15-success-metrics--okrs)
+**Document ID:** OMN-STRAT-2026-001  
+**Version:** 1.0  
+**Date:** June 14, 2026  
+**Classification:** Internal — CTO / Engineering Leadership  
+**Repository:** ~9,940 Python backend files, 256 TypeScript/TSX frontend source files  
 
 ---
 
-## 1. Executive Vision
+## 1. Executive Summary
 
-### 1.1 The Opportunity
+SuccessCore/Omnius is an all-in-one HR + AI operating platform spanning 70 API route modules (~500+ endpoints), 56 dashboard page routes, and 16 schema domains. The platform integrates AI agents, IT service management, finance, payroll, hiring (ATS), performance/OKRs, and low-code workflow automation into one multi-tenant SaaS experience. The codebase reflects an ambitious, aggressively scoped vision: React 19 + Next.js 16 on the frontend, async FastAPI + PostgreSQL 16/pgvector + Redis 7 on the backend, with OpenTelemetry observability and dual-mode Auth0/local JWT authentication already in place.
 
-The global HR technology market reached $38.5B in 2025 and is projected to hit $68.8B by 2030 (CAGR 12.3%). But this number understates the true opportunity. The convergence of three megatrends creates a once-in-a-generation platform shift:
+However, three parallel technical audits reveal a platform that is feature-broad but production-fragile. **98% of API endpoints lack CSRF protection, 93% lack rate limiting, and several high-risk webhook handlers (benchmarks.py, grow.py, docusign.py, bot_steps.py) have zero authentication.** The Stripe billing integration is fully mocked, OAuth integrations are prototypes, and CORS is configured with an unrestricted regex (`https?://.*`). BYOK API keys are stored as plaintext in the database. On the frontend, internationalization is effectively Spanish-only despite 6 configured locales, the 954-line `AiChatWidget.tsx` is a monolith with duplicated SSE streaming logic, and the Agent Studio uses hardcoded dark-mode colors that break in light mode. The docker-compose deployment has a YAML duplicate-key bug (redis `depends_on` defined twice), uses `--reload` dev mode for the backend, and `npm run dev` for the frontend — neither production-ready. The render.yaml deployment contains no Alembic migration step.
 
-1. **AI-Native Workforces**: LLMs and agents are transforming how work gets done — not just automating tasks, but fundamentally restructuring organizational workflows.
-2. **Borderless Employment**: Remote work, EOR services, and digital nomadism mean companies need tools to manage workforces across 190+ countries with local compliance.
-3. **The Platform Unbundling**: Legacy suites (SAP, Oracle, Workday) built in the pre-AI era are being dismantled by vertical AI-native startups. The market is up for grabs.
-
-SuccessCore occupies a unique position: we are the **only platform** with production-deployed AI agents that operate autonomously across the entire employee lifecycle, not as bolted-on chatbots but as deeply integrated cognitive workers.
-
-### 1.2 Our 5-Year Vision
-
-> **SuccessCore becomes the world's first Workforce Operating System — an AI-native platform that doesn't just manage HR processes but autonomously executes them through a network of collaborative AI agents, serving as the single source of truth for everything workforce-related across the globe.**
-
-By 2031, SuccessCore will:
-- Power the workforce operations of **50,000+ organizations** across **120+ countries**
-- Process **$200B+ in payroll** annually through our global payroll network
-- Deploy **1M+ AI agents** performing cognitive work equivalent to **5M human hours/day**
-- Host a **marketplace of 5,000+ third-party HR apps and agent plugins**
-- Operate the **world's largest proprietary HR knowledge graph** connecting skills, roles, compensation, and performance data
-- Be recognized as the **#1 AI-native HR platform** globally, surpassing Workday in AI capabilities and Rippling in product breadth
-
-### 1.3 Strategic Pillars
-
-```
-PILLAR 1: AI SUPREMACY           PILLAR 2: GLOBAL REACH
-┌─────────────────────┐          ┌─────────────────────┐
-│ • Autonomous agents  │          │ • 120+ country ops   │
-│ • Cognitive memory   │          │ • Local tax engines  │
-│ • Predictive HR      │          │ • Multi-currency     │
-│ • Agent marketplace  │          │ • Regional instances │
-│ • Federated learning │          │ • Local compliance   │
-└─────────┬───────────┘          └─────────┬───────────┘
-          │                                │
-          └────────────┬───────────────────┘
-                       │
-    ┌──────────────────▼──────────────────────┐
-    │        SUCCESSCORE WORKFORCE OS          │
-    │                                          │
-    │  Unified platform for every workforce    │
-    │  function across every geography,        │
-    │  powered by autonomous AI agents         │
-    └──────────────────┬──────────────────────┘
-                       │
-          ┌────────────┴────────────┐
-          │                         │
-PILLAR 3: ECOSYSTEM           PILLAR 4: PLATFORM
-┌─────────────────────┐   ┌─────────────────────┐
-│ • Agent marketplace  │   │ • Open API gateway  │
-│ • App store          │   │ • Low-code builder  │
-│ • Integration hub    │   │ • Developer tools   │
-│ • Partner network    │   │ • Embeddable SDK    │
-│ • 5000+ apps/agents  │   │ • White-label        │
-└─────────────────────┘   └─────────────────────┘
-```
+**This plan is a comprehensive remediation roadmap.** It prescribes 4 phases over 6 months: stabilizing security flaws immediately (Weeks 1-2), completing feature gaps and UX polish (Weeks 3-6), building competitive differentiation in AI agents and workflows (Weeks 7-12), and achieving enterprise-readiness with true multi-tenancy, SOC 2 compliance, and horizontal scaling (Months 4-6). Every recommendation is tied to specific file paths, line counts, and measurable outcomes.
 
 ---
 
-## 2. Market Opportunity & TAM Analysis
+## 2. Technical Deep-Dive Audit
 
-### 2.1 Total Addressable Market by Segment
+### 2.1 Backend Architecture & Module Health
 
-| Market Segment | Global TAM (2030) | Our SAM | Our SOM (Y5) | CAC | LTV |
-|---------------|:-----------------:|:-------:|:------------:|:---:|:---:|
-| **Core HRIS** | $22.8B | $8.5B | $340M (1.5%) | $800 | $12,000 |
-| **Payroll & Benefits** | $15.2B | $6.1B | $244M (1.6%) | $1,200 | $18,000 |
-| **Talent Management** | $12.4B | $4.9B | $196M (1.6%) | $600 | $9,000 |
-| **Workforce Analytics** | $8.3B | $3.3B | $132M (1.6%) | $400 | $6,000 |
-| **AI HR Services** | $6.8B | $4.2B | $210M (3.1%) | $300 | $15,000 |
-| **Global EOR Services** | $8.9B | $3.6B | $144M (1.6%) | $2,000 | $30,000 |
-| **HR App Marketplace** | $3.2B | $1.3B | $52M (1.6%) | $100 | $4,000 |
-| **Learning & Development** | $7.1B | $2.8B | $112M (1.6%) | $500 | $7,500 |
-| **Employee Experience** | $4.5B | $1.8B | $72M (1.6%) | $300 | $5,000 |
+**Scale & Structure.** The backend has 70 API route files under `backend/app/api/v1/` covering 16 business domains. The largest modules are `finance.py` (1,383 lines, 46 endpoints), `hire.py` (1,184 lines, 38 endpoints), `agents.py` (1,139 lines, 42 endpoints), `pay.py` (917 lines, 28 endpoints), and `chat.py` (889 lines, 22 endpoints). The schema layer has 17 files under `backend/app/schemas/` with `finance.py` (262 lines) and `it.py` (129 lines) leading. The core infrastructure layer (`backend/app/core/`) has 12 modules covering auth, caching, database, encryption, Redis, task queues, and retry logic.
 
-**Total TAM: $89.2B | Total SAM: $36.5B | Total SOM (Y5): $1.5B ARR**
+**Strengths:**
+- Async FastAPI throughout with proper dependency injection in `dependencies.py`
+- JWT auth with Auth0 (RS256 with JWKS caching) + local (HS256) dual-mode in `core/auth.py`
+- RBAC with granular permission model defined in `schemas/rbac.py`
+- CSRF middleware exists in `api/middleware/csrf.py` and rate-limiting middleware in `api/middleware/rate_limit.py`
+- Event bus architecture using Redis pub/sub for cross-process communication in `core/redis.py`
+- OpenTelemetry integration (`opentelemetry-api>=1.20.0`, `opentelemetry-sdk>=1.20.0`)
+- Synthetic monitoring module with health checks in `api/v1/health.py` and `api/v1/monitoring.py`
+- Tenant onboarding automation in `api/v1/auto_onboard.py`
+- Comprehensive model coverage: 110+ SQLAlchemy models covering all business domains
+- Alembic migration chain is unbroken (no missing revisions)
+- BYOK AI provider support (OpenAI, Gemini, Anthropic, Grok, Groq, OpenRouter)
 
-### 2.2 Target Customer Segments
+**Critical Issues:**
 
-| Segment | Employees | Annual Revenue | Total Companies | Target Penetration Y5 | ARPU |
-|---------|:---------:|:-------------:|:---------------:|:--------------------:|:----:|
-| **Startup (1-50)** | 1-50 | $0-5M | 150M globally | 0.003% (5,000) | $1,200/yr |
-| **SMB (51-200)** | 51-200 | $5-50M | 25M globally | 0.02% (5,000) | $4,800/yr |
-| **Mid-Market (201-1000)** | 201-1000 | $50-500M | 2M globally | 0.25% (5,000) | $24,000/yr |
-| **Enterprise (1000+)** | 1000-10000 | $500M-10B | 60,000 globally | 1.67% (1,000) | $120,000/yr |
-| **Strategic (10000+)** | 10000+ | $10B+ | 3,000 globally | 6.67% (200) | $600,000/yr |
+| # | Issue | Files Affected | Severity | Impact |
+|---|-------|---------------|----------|--------|
+| 1 | 98% endpoints lack CSRF validation | All 70 route files except those explicitly importing CSRF middleware | Critical | CSRF attacks possible on state-changing endpoints |
+| 2 | 93% endpoints lack rate limiting | All 70 route files except ~5 known to use slowapi | Critical | API abuse, DDoS, cost runaways on AI endpoints |
+| 3 | Webhooks with ZERO auth | `benchmarks.py`, `grow.py`, `bot_steps.py`, `docusign.py` (48-347 lines) | Critical | Publicly callable endpoints can trigger internal workflows |
+| 4 | Stripe billing fully mocked | `billing.py` (223 lines) returns hardcoded success | Critical | No real payment processing, revenue pipeline broken |
+| 5 | CORS wildcard regex | `main.py` or middleware — `allow_origin_regex="https?://.*"` | Critical | Any domain can make authenticated cross-origin requests |
+| 6 | `python-multipart` unpinned | `requirements.txt` line 15 — no version constraint | High | Supply-chain risk, breaking changes on update |
+| 7 | `SharedContextEntry` class defined twice | `agents.py` — duplicate class definition | High | Runtime `TypeError` / import ambiguity |
+| 8 | BYOK API keys plaintext in DB | `encryption.py` exists but not applied to AI provider keys | High | Data breach if DB compromised |
+| 9 | 37 models not registered in `__init__.py` | Various `models/` packages | High | Alembic cannot detect these tables, migrations incomplete |
+| 10 | No Alembic step in render.yaml | `render.yaml` line 7 — `startCommand` runs uvicorn directly | High | Schema drift between deployments and code |
 
-### 2.3 Geographic TAM Expansion Sequence
+**Medium Issues:**
+- `python-jose` is unmaintained (last release 2022) — migrate to PyJWT
+- `PyPDF2` is old (v3.0.0, replaced by `pypdf` 4.x)
+- No gunicorn or worker manager — uvicorn single-process, no graceful reload
+- No database-level tenant isolation (Row-Level Security not configured)
+- Per-schema multi-tenancy won't scale beyond low hundreds of tenants without rearchitecture
+- In-memory state in 5+ modules won't survive restart or horizontal scale
+- WebSocket connection manager is an in-memory singleton
+- Logger context vars (`request_id`, `tenant_id`) never populated — middleware `correlation.py` exists but doesn't call `request_id_var.set()`
 
-| Phase | Years | Regions | Cumulative TAM | Investment Required |
-|-------|-------|---------|---------------|-------------------|
-| **Phase 1** | 2026-2027 | Spain, Portugal, UK, Germany, France | $2.1B | $5M |
-| **Phase 2** | 2027-2028 | + Benelux, Nordics, Italy, Ireland, Austria, Switzerland | $5.8B | $12M |
-| **Phase 3** | 2028-2029 | + North America (US, Canada), Mexico | $28.4B | $25M |
-| **Phase 4** | 2029-2030 | + Brazil, Argentina, Chile, Colombia | $34.2B | $20M |
-| **Phase 5** | 2030-2031 | + India, UAE, Saudi Arabia, South Africa, Nigeria, Singapore, Japan, Australia | $62.8B | $40M |
+**API Route File Inventory (with line counts):**
 
----
+| File | Lines | Category | File | Lines | Category |
+|------|-------|----------|------|-------|----------|
+| finance.py | 1,383 | Finance | interviews.py | 338 | Hiring |
+| hire.py | 1,184 | Hiring | workflows.py | 325 | Workflow |
+| agents.py | 1,139 | AI Agents | imports.py | 298 | Data Import |
+| pay.py | 917 | Payroll | ops.py | 284 | Operations |
+| chat.py | 889 | Chat | bot_steps.py | 277 | Automation |
+| admin.py | 792 | Admin | legal.py | 277 | Legal |
+| it.py | 682 | IT/Service Desk | public_agents.py | 271 | AI Agents |
+| users.py | 529 | Users | slack.py | 247 | Integrations |
+| intelligence.py | 492 | Analytics | demo_recorder.py | 236 | DevTools |
+| omni.py | 444 | Omni-copilot | harness.py | 231 | AI Testing |
+| crm.py | 437 | CRM | billing.py | 223 | Billing (MOCKED) |
+| git.py | 423 | CodeLab/Git | monitoring.py | 209 | Monitoring |
+| checklists.py | 415 | Checklists | employees.py | 198 | Employees |
+| ai.py | 403 | AI | oauth.py | 183 | OAuth (PROTOTYPE) |
+| integrations.py | 385 | Integrations | work.py | 174 | Work Management |
+| calendar.py | 378 | Calendar | notifications.py | 173 | Notifications |
+| reports.py | 353 | Reports | (15+ smaller files) | 43-161 | Various |
+| training.py | 352 | Training | | | |
+| grow.py | 347 | Growth/Onboarding | | | |
 
-## 3. Competitive Strategy: How We Win
+**Schema File Inventory:** 17 files — `finance.py` (262), `it.py` (129), `grow.py` (115), `ops.py` (92), `work.py` (89), `calendar.py` (88), `training.py` (68), `user.py` (60), `intelligence.py` (45), `rbac.py` (33), `admin.py` (24), `employee_history.py` (23), `workflow.py` (21), `metadata.py` (20), `scheduled_report.py` (17), `pagination.py` (13), `__init__.py` (1).
 
-### 3.1 The Battlefield Map
+**Middleware Inventory (10 files):** CSRF, rate limiting, API key rate limiter, body size limit, compression, correlation (request ID), and RBAC middleware. These exist but are inconsistently applied across route modules.
 
-```
-          AI SOPHISTICATION
-               ▲
-               │
-      HIGH     │    ★ SuccessCore TARGET
-               │         (Year 3)
-               │
-               │                    Darwinbox
-               │                  / 
-               │    Juicebox     /
-               │       ●        ● Workday
-               │              /
-    MEDIUM     │    Bob      /   
-               │     ●     ●
-               │         /  SAP SF
-               │        /     ●
-               │       /    Oracle
-               │      /       ●
-               │     /
-      LOW      │    ● BambooHR    ● ADP
-               │   ● Gusto       ● UKG
-               │  ● Deel
-               │ ● Rippling
-               │
-               └──────────────────────────────────►
-                  LOW        MEDIUM       HIGH
-                     PRODUCT BREADTH (Modules)
-```
+### 2.2 Frontend Architecture & Feature Completeness
 
-### 3.2 Our Asymmetric Advantages
+**Scale & Structure.** The frontend has 56 `page.tsx` dashboard route files, 9 admin sub-pages, 7 admin monitoring panels, and 4 core AI components. Component architecture follows a domain-based layout under `frontend/src/components/` with 21 top-level directories: `admin/`, `agents/`, `ai/`, `analytics/`, `auth/`, `builder/`, `codelab/`, `dynamic/`, `employee/`, `engagement/`, `finance/`, `hire/`, `it/`, `layout/`, `manager/`, `performance/`, `talent/`, `training/`, `ui/`, plus shared components.
 
-1. **AI Agent Fleet**: No competitor has 10+ autonomous agents with tool execution, memory, streaming, and collaborative orchestration. This is a **36-month moat**.
+**Largest Components (by line count):**
 
-2. **Multi-LLM Architecture**: BYOK model eliminates vendor lock-in. Competitors force you into their AI stack.
+| Component | Lines | Concern |
+|-----------|-------|---------|
+| `admin/views/WorkflowCanvas/NodeInspector.tsx` | 980 | Workflow inspector — approaching monolith |
+| `ai/AiChatWidget.tsx` | 954 | AI chat widget — monolith, SSE logic duplicated |
+| `admin/views/OmniConsoleView.tsx` | 837 | Admin console — complex but focused |
+| `admin/views/WorkflowCanvas/PipelineView.tsx` | 727 | Pipeline canvas view |
+| `admin/views/CRM/DealsBoard.tsx` | 726 | CRM deal board |
+| `admin/views/CRM/ContactsTable.tsx` | 612 | CRM contacts |
+| `admin/views/HarnessView.tsx` | 613 | AI test harness |
+| `admin/views/AgentStudio/AgentStudioView.tsx` | 452 | Agent builder |
+| `admin/views/AgentStudio/AgentTestBench.tsx` | 442 | Agent testing |
 
-3. **Unified IT + HR**: Rippling has IT management but no AI helpdesk. We are the only platform offering HR + AI IT support in one.
+**Strengths:**
+- React 19 + Next.js 16 on the latest framework versions
+- AuthGuard properly implemented with dual-mode auth (Auth0 + local JWT)
+- Providers well-composed — no global state store anti-pattern
+- Comprehensive admin monitoring suite: AgentHealthDashboard, AgentRuntimeLive, AgentSecurityDashboard, AgentConcurrencyPanel, BillingDashboard, RAGMonitor, Portal
+- Agent health dashboard with 15-second polling
+- PWA support (`next-pwa` + `PWARegister.tsx`)
+- Responsive layout with MobileSidebar
+- Offline indicator component
+- Full workflow canvas builder with drag-and-drop nodes (@xyflow/react)
+- Monaco editor integration for CodeLab/IDE experience
+- shadcn/ui component library (badge, button, card, checkbox, dialog, dropdown-menu, input, label, progress, select, sheet, skeleton, slider, switch, table, tabs, textarea)
 
-4. **Built-in Developer Platform**: Code Lab (Monaco IDE + Git) means technical organizations can extend the platform themselves.
+**Critical Issues:**
 
-5. **European DNA**: GDPR-native, FUNDAE compliance, multi-country tax engines. As EU AI Act tightens, US-native competitors will struggle.
+| # | Issue | Files Affected | Severity |
+|---|-------|---------------|----------|
+| 1 | i18n Spanish-only despite 6 configured locales | `i18n/` — only 2 files (request.ts, routing.ts), zero message files for en/fr/de/pt/ar | Critical — blocks international enterprise sales |
+| 2 | Custom MarkdownRenderer missing tables/images/blockquotes | `ai/MarkdownRenderer.tsx` — renders only basic text/links/code | High — AI chat outputs are degraded |
+| 3 | ConnectorsPage has no loading/error UI | `admin/connectors/` — errors swallowed silently | High — OAuth integration UX broken |
+| 4 | SSE streaming logic duplicated | `AiChatWidget.tsx` and `InlineCopilot.tsx` — identical ~80-line SSE read loop | Medium — maintenance burden, drift risk |
+| 5 | localStorage used directly without abstraction | Scattered across components — no namespacing, no TTL, no fallback | Medium — SSR incompatibility, data leaks |
+| 6 | AiChatWidget is 954-line monolith | `ai/AiChatWidget.tsx` — no separation of concerns | Medium — untestable, fragile |
+| 7 | Agent Studio uses hardcoded dark-mode colors | `AgentStudioView.tsx`, `AgentTestBench.tsx` — `text-white`, `bg-zinc-900`, `bg-zinc-800` everywhere | Medium — light-mode renders unusable white-on-white |
+| 8 | Admin sub-pages are ~5-line thin wrappers | 9 admin sub-pages — e.g., `admin/connectors/page.tsx`, `admin/email-templates/page.tsx` — no error boundaries, one-line returns | Medium — uninformative on failure |
+| 9 | `react-hook-form` installed but unused | `package.json` line 33 — no form component uses it, raw useState forms throughout | Low — missed DX opportunity |
 
-### 3.3 Competitive Kill Zones (How We Defeat Each Competitor)
+**Dashboard Page Inventory (56 route files):**
 
-| Competitor | Their Weakness | Our Attack Vector | Timeline |
-|-----------|---------------|-------------------|----------|
-| **Workday** | Legacy architecture, no AI agents, 12-month implementation | AI-native migration tool + 4-week implementation | 2027-2028 |
-| **Rippling** | US-centric, shallow AI, no IT helpdesk AI | European expansion + AI IT helpdesk bundling | 2027-2028 |
-| **Deel** | No HRIS, no AI, no performance mgmt | Bundle EOR + full HR + AI agents at same price | 2028-2029 |
-| **BambooHR** | No AI, no global payroll, basic features | AI migration wizard + richer feature set at SMB price | 2027 |
-| **HiBob** | No AI agents, no payroll, no IT | Full suite at comparable mid-market price | 2027-2028 |
-| **Darwinbox** | India-centric, less EU compliance | Beat them in EU, match them in APAC | 2029-2030 |
-| **SAP SuccessFactors** | Extremely expensive, complex, no AI agents | 10x lower TCO + AI productivity gains | 2028-2030 |
-| **Greenhouse/Lever** | ATS only, no HR/payroll | Full platform at ATS price + superior AI recruiting | 2027 |
-| **Lattice** | Performance only, no HRIS/payroll | Unified performance + HR + AI coaching | 2027-2028 |
-| **ServiceNow (HR)** | IT-native, HR as afterthought, no true AI agents | HR-native + IT + unified AI agents | 2029-2030 |
+Dashboard root, admin (9 sub-pages: connectors, developer-portal, document-templates, email-templates, infrastructure, monitoring, plugin-store, runs/compare), agent-studio, builder, calendar, chat, codelab/new, crm, employees/org-chart/[id], finance, grow, harness, hire/[jobId], imports, intelligence, it/kb, kudos, legal, mobile/expenses, mobile/time-clock, monitoring, ops, pay/[cycleId], profile, report, reports/schedules, reviews, sales/clients, schedules, settings/billing, settings/integrations/callback, settings/notifications, time-tracking, training, work/[projectId], workflows, catch-all [...dynamic].
 
-### 3.4 Winning Moves (Strategic Bets)
+**Admin Monitoring Panels (7 components):**
 
-| Move | Description | Investment | Expected Return | Timeline |
-|------|-------------|:----------:|:---------------:|----------|
-| **AI-First Brand** | Position as "ChatGPT for HR" — the first AI-native HR platform | $2M marketing | 100K+ leads | 2027 |
-| **Free Tier Disruption** | Free full platform for <10 employees. Monetize via payroll volume and agent usage | $3M infra | 500K signups | 2027 |
-| **Workday Migration Tool** | AI-powered data migration from Workday/SAP to SuccessCore | $1.5M eng | 200+ enterprise migrations | 2028 |
-| **Acquisition Sprint** | Acquire 3-5 HR point solutions and integrate rapidly | $50-100M | 5x product breadth | 2028-2030 |
-| **EOR License Network** | Build/buy EOR legal entities in 50+ countries | $40M | $200M ARR | 2028-2031 |
+`AgentHealthDashboard.tsx`, `AgentRuntimeLive.tsx`, `AgentSecurityDashboard.tsx`, `AgentConcurrencyPanel.tsx`, `BillingDashboard.tsx`, `RAGMonitor.tsx`, `Portal.tsx`.
 
----
+### 2.3 Infrastructure & Deployment Readiness
 
-## 4. Product Architecture: The Workforce OS
+**Current Stack:**
+- PostgreSQL 16 with pgvector extension via `pgvector/pgvector:pg16` image
+- Redis 7 Alpine with AOF persistence and 256MB maxmemory (`allkeys-lru` eviction)
+- Multi-stage Dockerfile (builder target) for backend
+- Docker Compose with healthchecks on all 4 services
+- Render.com deployment via `render.yaml` (single web service)
 
-### 4.1 The Platform Model
+**Strengths:**
+- Well-structured multi-tenant schema isolation
+- BYOK AI provider support with multiple model backends
+- Comprehensive health check endpoints (`/health`, `/ready`)
+- Synthetic monitoring infrastructure
+- Connection pool configuration in `core/database.py`
+- OpenTelemetry foundation for distributed tracing
+- Proper JWT verification with JWKS caching
+- Alembic migration chain intact
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                    SUCCESSCORE WORKFORCE OS                       │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │                  EXPERIENCE LAYER                           │  │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │  │
-│  │  │ Web App  │  │ Mobile   │  │ Desktop  │  │ White-   │  │  │
-│  │  │          │  │ (iOS/    │  │ App      │  │ Label    │  │  │
-│  │  │          │  │ Android) │  │          │  │ Portal   │  │  │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │  │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │  │
-│  │  │ Widget   │  │ Slack/   │  │ Voice    │  │ AR/VR    │  │  │
-│  │  │ Embedded │  │ Teams    │  │ Assistant│  │ Spatial  │  │  │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │  │
-│  └────────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │                  INTELLIGENCE LAYER                         │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │  │
-│  │  │ Agent Fleet  │  │ Knowledge    │  │ Predictive   │     │  │
-│  │  │ Orchestrator │  │ Graph (HR KG)│  │ Analytics    │     │  │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘     │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │  │
-│  │  │ Multi-LLM    │  │ Semantic     │  │ Federated    │     │  │
-│  │  │ Router       │  │ Memory       │  │ Learning     │     │  │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘     │  │
-│  └────────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │                  APPLICATION LAYER                          │  │
-│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐  │  │
-│  │  │Core HR │ │Payroll │ │Talent  │ │Workforce│ │Finance │  │  │
-│  │  │        │ │        │ │        │ │Ops      │ │        │  │  │
-│  │  └────────┘ └────────┘ └────────┘ └────────┘ └────────┘  │  │
-│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐  │  │
-│  │  │IT Ops  │ │CRM     │ │Legal   │ │Project │ │L&D     │  │  │
-│  │  │        │ │        │ │        │ │Mgmt    │ │        │  │  │
-│  │  └────────┘ └────────┘ └────────┘ └────────┘ └────────┘  │  │
-│  └────────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │                  PLATFORM LAYER                             │  │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │  │
-│  │  │ API      │  │ Workflow │  │ Low-Code │  │ Plugin   │  │  │
-│  │  │ Gateway  │  │ Engine   │  │ Builder  │  │ SDK      │  │  │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │  │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │  │
-│  │  │ Event    │  │ Identity │  │ Multi-   │  │ Audit &  │  │  │
-│  │  │ Bus      │  │ & RBAC   │  │ Tenant   │  │ Compliance│  │  │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │  │
-│  └────────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │                  INFRASTRUCTURE LAYER                       │  │
-│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐  │  │
-│  │  │Postgres│ │Redis   │ │S3/GCS  │ │K8s     │ │Edge    │  │  │
-│  │  │+Vector │ │Cluster │ │Storage │ │Cluster │ │CDN     │  │  │
-│  │  └────────┘ └────────┘ └────────┘ └────────┘ └────────┘  │  │
-│  └────────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────┘
-```
+**Critical Issues:**
 
-### 4.2 New Product Verticals (Not Yet Built)
+| # | Issue | Location | Severity |
+|---|-------|----------|----------|
+| 1 | Duplicate redis `depends_on` key | `docker-compose.yml` lines 84-87 — YAML duplicate key, last wins, undefined behavior | Critical — deployment may fail silently |
+| 2 | Backend uses `--reload` in docker-compose | `docker-compose.yml` line 55 — `uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload` | Critical — dev-mode in container, file watcher overhead |
+| 3 | Frontend uses `npm run dev` in docker-compose | `docker-compose.yml` line 94 — Next.js dev server, not production build | Critical — no SSG/ISR optimization, dev-mode performance |
+| 4 | No Alembic migration in render.yaml `startCommand` | `render.yaml` line 7 — runs `uvicorn` directly, no `alembic upgrade head` | Critical — schema drift on every deploy |
+| 5 | CORS `allow_origin_regex="https?://.*"` | Backend config — unrestricted cross-origin policy | Critical — see Security section |
+| 6 | Redis task queue single-worker, no DLQ | `core/task_queue.py` — no dead letter queue, failed tasks lost | High — data loss risk |
+| 7 | No gunicorn/worker manager | `render.yaml` line 7 — single uvicorn process | High — no graceful restart, no multi-worker |
+| 8 | WebSocket manager is in-memory singleton | Backend — cannot scale WebSocket connections horizontally | High — sticky sessions required, no Redis pub/sub for WS |
 
-| Product | Description | TAM | Priority | Launch |
-|---------|-------------|:---:|:--------:|:------:|
-| **SuccessCore Pay** | Global payroll EOR service with local entities in 100+ countries | $15B | Critical | 2027 |
-| **SuccessCore Hire** | Standalone AI recruiting product with public job board, external syndication, talent CRM | $12B | Critical | 2027 |
-| **SuccessCore Learn** | Full LMS with SCORM/xAPI, content marketplace, AI content generation, social learning | $7B | High | 2027 |
-| **SuccessCore Comply** | AI compliance officer — real-time regulatory monitoring across jurisdictions | $3B | High | 2028 |
-| **SuccessCore Finance** | Full accounting module: double-entry bookkeeping, invoicing, expenses, financial close | $6B | High | 2028 |
-| **SuccessCore Benefits** | Benefits administration: health insurance, retirement plans, perks management | $8B | High | 2028 |
-| **SuccessCore Talent** | Advanced talent intelligence: skills ontology, succession planning, workforce planning | $5B | High | 2028 |
-| **SuccessCore Engage** | Employee experience: pulse surveys, sentiment analysis, recognition, wellbeing | $4B | Medium | 2028 |
-| **SuccessCore Desk** | IT service desk as standalone product (ServiceNow competitor) | $12B | Medium | 2029 |
-| **SuccessCore Shift** | Workforce management: shift scheduling, time & attendance, labor cost optimization | $5B | Medium | 2029 |
-| **SuccessCore Analytics** | Standalone people analytics product with Power BI/Tableau integration | $8B | Medium | 2029 |
-| **SuccessCore Connect** | Communication hub: video conferencing, async video, team collaboration | $50B | Low | 2029 |
-| **SuccessCore Recruit** | AI candidate sourcing and passive talent marketplace | $3B | Medium | 2029 |
-| **SuccessCore Contract** | Contract lifecycle management with AI contract review and e-signatures | $2B | Low | 2029 |
-| **SuccessCore Space** | Workplace management: desk booking, room scheduling, office analytics | $3B | Low | 2030 |
+### 2.4 Security Posture
 
-### 4.3 The Agent Marketplace
+**Urgent Vulnerabilities (P0 — Fix Immediately):**
 
-By Year 3, SuccessCore will launch an **Agent Marketplace** where third-party developers can build and sell AI agents that plug into the platform:
+1. **CORS Wildcard (`allow_origin_regex="https?://.*"`)** — Any domain can make authenticated requests. This effectively disables the Same-Origin Policy for every domain on the internet. Must be replaced with a specific allowlist of production domains (e.g., `app.successcore.com`, tenant-specific custom domains).
 
-```
-Agent Marketplace Categories:
-├── HR Agents (recruiting, onboarding, offboarding, policy Q&A)
-├── Payroll Agents (tax optimization, compliance checking, audit prep)
-├── Finance Agents (expense approval, budget analysis, forecasting)
-├── IT Agents (automated troubleshooting, change management, security)
-├── Legal Agents (contract review, regulatory monitoring, GDPR compliance)
-├── L&D Agents (course creation, personalized learning paths, skill gap analysis)
-├── Culture Agents (engagement analysis, recognition, team building)
-├── Data Agents (custom analytics, reporting, dashboard generation)
-└── Custom Agents (built via Agent Studio no-code builder)
-```
+2. **Unauthenticated Webhooks** — `benchmarks.py` (48 lines), `grow.py` (347 lines), `docusign.py` (71 lines), and `bot_steps.py` (277 lines) have zero authentication checks. These endpoints accept unauthenticated POST requests and trigger internal workflows (benchmark runs, growth automations, DocuSign envelope creation, bot step execution).
 
-**Revenue Model:** 70/30 revenue split (developer/platform). Target: 5,000 agents, $50M GMV by Year 5.
+3. **BYOK API Keys in Plaintext** — API keys for OpenAI, Gemini, Anthropic, Grok, Groq, and OpenRouter are stored as plaintext in the database. While `core/encryption.py` exists, it is not applied to the `byok_api_keys` table. A database compromise would leak all customer AI provider credentials.
+
+4. **PYTHONUNBUFFERED=1 in Production** — `render.yaml` line 10 exports `PYTHONUNBUFFERED=1` which is appropriate for log streaming but confirms no production hardening is applied to the Python runtime.
+
+**High Priority:**
+
+- `python-multipart` unpinned in `requirements.txt` line 15 — no version constraint
+- `python-jose` is unmaintained (last release 2022) — migrate to `PyJWT`
+- No `SECRET_KEY` rotation mechanism
+- Inconsistent user ID extraction across APIs (some use `sub`, some use `user_id`, some extract from token differently)
+- Stripe integration fully mocked — no real payment processing, PCI compliance surface is undefined
+
+**Medium Priority:**
+- No audit logging for sensitive operations (API key creation, RBAC changes, billing actions)
+- No session timeout enforcement
+- No MFA support beyond Auth0 provider defaults
+- Email verification not enforced for local-auth users
 
 ---
 
-## 5. AI Roadmap: From Agents to Cognitive Organization
+## 3. Competitive Benchmarking
 
-### 5.1 AI Maturity Journey
+SuccessCore is competing simultaneously across 8+ product categories. This is both its greatest differentiator (all-in-one platform) and its greatest risk (shallow vs. specialized incumbents).
 
-```
-Phase 1: Augmented              Phase 2: Autonomous             Phase 3: Cognitive
-(2026-2027)                    (2027-2029)                    (2029-2031)
-┌─────────────────┐           ┌─────────────────┐           ┌─────────────────┐
-│ • 10 specialist │           │ • 50+ agents    │           │ • 500+ agents   │
-│   agents        │           │ • Agent-to-agent│           │ • Self-improving │
-│ • Human-in-loop │           │   collaboration │           │   agents         │
-│ • RAG + Memory  │           │ • Predictive    │           │ • Org digital    │
-│ • Tool execution│  ──────►  │   workforce     │  ──────►  │   twin          │
-│ • Streaming     │           │ • Autonomous    │           │ • Cognitive HR   │
-│ • Guardrails    │           │   workflows     │           │   OS            │
-│                 │           │ • Agent swarms  │           │ • Federated      │
-│                 │           │ • Proactive ops │           │   learning       │
-└─────────────────┘           └─────────────────┘           └─────────────────┘
-```
+### 3.1 AI Agents & Automation
 
-### 5.2 Agent Capability Evolution
+**Competitors:** OpenAI GPTs, Anthropic Claude, AutoGPT, LangChain agents, CrewAI
 
-| Agent Type | 2026 | 2028 | 2030 |
-|-----------|------|------|------|
-| **HR Copilot** | Reactive Q&A, RAG search, simple actions | Proactive nudges, auto-resolve 60% of HR tickets, multi-step workflows | Autonomous HR operations, handles 90% of tier-1/2 queries |
-| **Recruiter Agent** | Resume screening, candidate ranking, interview Q gen | End-to-end hiring for junior roles, talent CRM nurturing, passive sourcing | Autonomous hiring for all roles, predictive hiring needs, diversity optimization |
-| **Payroll Agent** | Tax calculation, payslip gen, compliance validation | Multi-country payroll routing, tax optimization, audit preparation | Fully autonomous global payroll, predictive tax strategy, real-time compliance |
-| **Performance Agent** | Review summaries, goal suggestions | Continuous feedback analysis, sentiment detection, coaching recommendations | Predictive performance management, auto-PIP generation, career path optimization |
-| **IT Helpdesk Agent** | Ticket classification, KB search, auto-response suggestions | Level-1 resolution (40% of tickets), auto-routing, asset predictions | Level-1/2 autonomous (70%+), predictive maintenance, auto-remediation |
-| **Onboarding Agent** | Journey creation, task assignment, doc verification | Personalized onboarding, buddy matching, early-warning for attrition risk | Autonomous onboarding, cultural integration, 90-day success prediction |
-| **Compliance Agent** | Policy Q&A, GDPR audit, PII detection | Multi-jurisdiction monitoring, auto-policy generation, regulatory change alerts | Autonomous global compliance, real-time regulatory adaptation, audit defense |
-| **Learning Agent** | Course recommendations, skill gap identification | Personalized curriculum generation, content creation, adaptive learning paths | Autonomous L&D strategy, predictive skill needs, organizational capability mapping |
+**SuccessCore Current State:**
+- 1,139-line `agents.py` with 42 endpoints for agent CRUD, scheduling, triggers, and budget management
+- Agent Studio UI (`AgentStudioView.tsx` 452 lines, `AgentTestBench.tsx` 442 lines)
+- BYOK model support (6 providers)
+- Agent health dashboard with 15s real-time polling
+- `ToolRegistry.tsx` for defining agent tools
+- 3 agent lifecycle panels: runtime, concurrency, security
 
-### 5.3 The Cognitive Organization — Year 5 Vision
+**Gap:** No multi-agent orchestration (comparable to CrewAI/LangGraph). Agents operate independently — no supervisor-worker patterns, no agent-to-agent communication bus. No agent memory persistence beyond chat history. No agent evaluation framework or A/B testing.
 
-By 2031, SuccessCore will enable the **Cognitive Organization** — where AI agents don't just assist but fundamentally redesign how work functions:
+### 3.2 HR & Employee Management
 
-1. **Organizational Digital Twin**: A real-time, AI-maintained digital replica of the entire organization — every role, skill, process, and interaction mapped and optimized continuously.
+**Competitors:** Rippling, Deel, BambooHR, Workday, Gusto, HiBob
 
-2. **Autonomous Workforce Planning**: AI agents predict hiring needs 6-12 months ahead, automatically create job requisitions, source candidates, conduct initial screenings, and present shortlists to managers.
+**SuccessCore Current State:**
+- Employee profiles (`employees.py` 198 lines, 15 endpoints)
+- Org chart (`employees/org-chart/page.tsx`)
+- Employee checklists (`EmployeeChecklists.tsx`)
+- Employee hub (`EmployeeHub.tsx`)
+- Onboarding automation (`onboarding.py` 58 lines, `auto_onboard.py` 98 lines)
+- Time tracking (`time_tracking.py` 67 lines)
 
-3. **Self-Healing Organizations**: Agents detect burnout risk, team conflicts, skill gaps, and compliance issues before humans notice — and autonomously propose or execute remediation.
+**Gap:** No EOR (Employer of Record) capabilities like Deel/Remote. No benefits administration. No document management/e-signature workflow (DocuSign webhook exists but is unauthenticated). No compliance reporting (EEO, ACA). Onboarding is lightweight — no I-9/W-4 digital forms. No global payroll tax calculation.
 
-4. **Continuous Organizational Learning**: Every interaction, decision, and outcome feeds into the organizational knowledge graph, making every employee smarter through institutional memory.
+### 3.3 IT Service Management
 
-5. **Zero-Latency HR**: From "I need to hire" to "candidate accepts offer" in under 72 hours. From "I have a payroll question" to "resolved" in under 5 seconds.
+**Competitors:** ServiceNow, Jira Service Management, Zendesk, Freshservice
 
-### 5.4 AI Research Moonshots
+**SuccessCore Current State:**
+- IT module (`it.py` 682 lines, 28 endpoints)
+- IT knowledge base browser (`ITKBBrowser.tsx` 334 lines)
+- SLA dashboard (`ITSLADashboard.tsx`)
+- Auto-routing (`it_auto_routing.py` 140 lines)
+- KB enhanced search (`it_kb_enhanced.py` 161 lines)
 
-| Project | Description | Investment | Timeline | Risk |
-|---------|-------------|:----------:|:--------:|:----:|
-| **Project Oracle** | Predictive workforce modeling: predict turnover, performance, and hiring needs 12 months ahead | $5M | 2027-2029 | High |
-| **Project Swarm** | Agent swarms: 100+ agents collaborating on complex workforce problems with emergent behavior | $8M | 2028-2030 | High |
-| **Project Cortex** | Organizational knowledge graph: structured representation of all company knowledge, skills, processes, and decisions | $10M | 2027-2030 | Medium |
-| **Project Mirror** | Organizational digital twin: real-time simulation of org dynamics, what-if scenarios, optimization | $12M | 2028-2031 | High |
-| **Project Prometheus** | Federated learning across tenants: improve AI models without sharing raw data, respecting GDPR | $7M | 2028-2030 | Medium |
-| **Project Empathy** | Emotion AI: detect burnout, engagement, and cultural health from communication patterns | $6M | 2027-2029 | High (ethical) |
-| **Project Genesis** | Self-improving agents: agents that learn from their own execution traces and improve autonomously | $10M | 2029-2031 | Extreme |
-| **Project Nexus** | Cross-org AI: enable agent collaboration across different companies for shared services (legal, compliance, training) | $5M | 2029-2031 | High (privacy) |
+**Gap:** No incident management workflow (no severity/P1-P4 classification). No change management. No asset management/CMDB. No service catalog. No end-user self-service portal. SLA dashboard is present but tracking/alerting logic is not implemented.
 
----
+### 3.4 Finance & Payroll
 
-## 6. Revenue Engine & Monetization
+**Competitors:** Xero, QuickBooks, Brex, Ramp, Mercury (Finance); Gusto, ADP, Deel, Remote (Payroll)
 
-### 6.1 Pricing Model
+**SuccessCore Current State:**
+- Finance module (`finance.py` 1,383 lines — the largest module, 46 endpoints)
+- Payroll module (`pay.py` 917 lines, 28 endpoints)
+- Invoice aging component (`InvoiceAging.tsx`)
+- Receipt scanner component (`ReceiptScanner.tsx`)
+- `InvoiceAging.tsx` component
+- Tax seeder (`core/tax_seeder.py`)
+- Tax engine tests (`test_tax_engines.py`)
 
-```
-FREEMIUM (Forever Free)         GROWTH (SMB)              BUSINESS (Mid-Market)       ENTERPRISE
-  <10 employees                  10-200 employees           201-1000 employees          1000+ employees
-  ┌──────────────────┐          ┌──────────────────┐      ┌──────────────────┐       ┌──────────────────┐
-  │ FREE             │          │ €8/employee/mo   │      │ €16/employee/mo  │       │ Custom           │
-  │                  │          │                  │      │                  │       │                  │
-  │ Core HR          │          │ Everything Free  │      │ Everything Growth│       │ Everything       │
-  │ Basic Payroll    │          │ +                │      │ +                │       │ Business +       │
-  │ 1 AI agent       │          │ 5 AI agents      │      │ 15 AI agents     │       │ Unlimited agents │
-  │ Basic reports    │          │ Full payroll     │      │ Global payroll   │       │ Dedicated infra  │
-  │ Community support│          │ Advanced reports │      │ Time tracking    │       │ SSO + SAML       │
-  │                  │          │ Email support    │      │ Advanced analytics│      │ Custom AI models │
-  └──────────────────┘          └──────────────────┘      └──────────────────┘       │ SLA guarantee    │
-                                                                                      │ 24/7 support     │
-  Agent Credits (Pay-as-you-go AI usage)                                              │ Private cloud    │
-  ┌──────────────────────────────────────────────┐                                    └──────────────────┘
-  │ €0.01 per agent task execution               │
-  │ €0.05 per RAG query with LLM generation      │      EOR Add-On
-  │ €0.10 per document generation (PDF, report)  │      ┌──────────────────┐
-  │ Monthly cap with overage alerts              │      │ €49/employee/mo  │
-  │ Enterprise: Unlimited agents included        │      │ Employer of      │
-  └──────────────────────────────────────────────┘      │ Record in 120+    │
-                                                         │ countries         │
-  Marketplace Revenue                                    └──────────────────┘
-  ┌──────────────────────────────────────────────┐
-  │ Platform takes 30% of agent/app sales        │
-  │ Target: 5,000 apps, €50M GMV by Y5           │
-  │ Premium listing fees for featured agents     │
-  └──────────────────────────────────────────────┘
-```
+**Gap:** Payroll is not connected to real tax filing systems. No direct deposit integration — payment execution is simulated. No general ledger/chart of accounts. No multi-currency support. No expense management workflow (submission → approval → reimbursement). Finance module is the largest by lines but the Stripe billing gateway is fully mocked — revenue collection does not work in production.
 
-### 6.2 Revenue Projections (€M ARR)
+### 3.5 Performance & OKRs
 
-| Revenue Stream | Year 1 | Year 2 | Year 3 | Year 4 | Year 5 |
-|---------------|:------:|:------:|:------:|:------:|:------:|
-| **Core Platform Subscriptions** | €1.5M | €12M | €48M | €140M | €380M |
-| **Global Payroll (EOR)** | — | €3M | €18M | €65M | €200M |
-| **Agent Credit Consumption** | €0.5M | €4M | €20M | €70M | €200M |
-| **Marketplace Revenue** | — | €0.5M | €5M | €18M | €50M |
-| **Professional Services** | €0.5M | €3M | €8M | €15M | €25M |
-| **White-Label Licensing** | — | — | €5M | €12M | €30M |
-| **Data & Analytics Products** | — | €1M | €4M | €12M | €35M |
-| **TOTAL ARR** | **€2.5M** | **€23.5M** | **€108M** | **€332M** | **€920M** |
-| **YoY Growth** | — | 840% | 360% | 207% | 177% |
-| **Customers** | 500 | 5,000 | 18,000 | 45,000 | 80,000 |
-| **Employees** | 25 | 80 | 200 | 450 | 800 |
+**Competitors:** Lattice, 15Five, Betterworks
 
-### 6.3 Unit Economics at Scale
+**SuccessCore Current State:**
+- Performance components: `OKRCascadingTree.tsx`, `FeedbackModule.tsx`
+- 360 reviews (`reviews_360.py` 115 lines)
+- Talent grid (`TalentGrid.tsx` 281 lines)
+- Skills matrix (`SkillsMatrix.tsx` 271 lines)
+- Career framework (`CareerFramework.tsx`)
+- Pulse surveys (`PulseSurvey.tsx` 269 lines)
 
-| Metric | Year 1 | Year 3 | Year 5 |
-|--------|:------:|:------:|:------:|
-| **Avg Revenue Per Customer (ARPC)** | €5,000 | €6,000 | €11,500 |
-| **Customer Acquisition Cost (CAC)** | €3,000 | €2,200 | €1,500 |
-| **CAC Payback Period** | 11 months | 7 months | 4 months |
-| **Gross Margin** | 72% | 78% | 82% |
-| **Net Revenue Retention (NRR)** | 105% | 125% | 140% |
-| **LTV:CAC Ratio** | 4:1 | 8:1 | 15:1 |
-| **Monthly Churn** | 3.5% | 1.8% | 0.8% |
-| **Annual Churn** | 35% | 20% | 9% |
+**Gap:** No OKR progress tracking with check-in reminders. No performance review cycle management (self-review → manager review → calibration). No goal alignment visualization across org hierarchy. Feedback module exists but no continuous feedback loops (weekly check-ins, 1:1 agenda). No competency frameworks.
 
----
+### 3.6 Hiring & ATS
 
-## 7. Go-to-Market Strategy
+**Competitors:** Greenhouse, Lever, Workable
 
-### 7.1 GTM Phases
+**SuccessCore Current State:**
+- Hire module (`hire.py` 1,184 lines, 38 endpoints — second largest)
+- Job board (`JobBoard.tsx`, `job_board.py` 94 lines)
+- Candidate pool manager (`CandidatePoolManager.tsx`)
+- Talent CRM (`TalentCRM.tsx`)
+- Interview scheduler (`InterviewScheduler.tsx`, `interview_scheduler.py` 125 lines)
+- Scorecard builder (`ScorecardBuilder.tsx`)
 
-#### Phase 1: Product-Led Growth (2026-2027)
-- **Free tier for <10 employees**: Virality through SMB adoption
-- **AI-powered onboarding**: 5-minute setup, AI migration wizard
-- **Content marketing**: "AI for HR" thought leadership, benchmarks, industry reports
-- **Community building**: HR AI community, open-source agent templates
-- **Product Hunt, Hacker News, Reddit launches**: Developer and early adopter channels
+**Gap:** No career page/public job portal. No application form builder. No offer letter generation/approval workflow. No background check integration. No referral management. Interview scheduler exists but no calendar integration (Google Calendar/Outlook). No email template personalization for candidate communications.
 
-#### Phase 2: Sales-Assisted Growth (2027-2028)
-- **Inside sales team** (15-20 AEs): Target 201-1000 employee companies
-- **Channel partnerships**: HR consultants, PEOs, system integrators
-- **Industry verticalization**: Tech, healthcare, manufacturing, retail specialization
-- **Events & conferences**: HR Tech, Unleash, SaaStr, Web Summit
+### 3.7 Communications & Collaboration
 
-#### Phase 3: Enterprise Motion (2028-2029)
-- **Field sales team** (10-15 enterprise AEs): 1000+ employee companies
-- **RFP response team**: Dedicated enterprise RFP/Security questionnaire team
-- **GSI partnerships**: Accenture, Deloitte, PwC implementation partners
-- **Workday/SAP migration program**: Financial incentives for switching
+**Competitors:** Slack, Teams, Discord
 
-#### Phase 4: Global Scale (2029-2031)
-- **Regional GTM teams**: North America, LATAM, APAC, MENA
-- **Localized marketing**: Per-country content, events, partnerships
-- **Indirect channels**: Reseller networks in each region
-- **Government/Public sector**: FedRAMP, government-specific compliance
+**SuccessCore Current State:**
+- Chat module (`chat.py` 889 lines, 22 endpoints)
+- AI chat widget (`AiChatWidget.tsx` 954 lines)
+- Slack integration (`slack.py` 247 lines)
+- Inline copilot (`InlineCopilot.tsx`)
+- Universal search (`UniversalSearch.tsx`)
+- Notification center (`NotificationCenter.tsx`)
 
-### 7.2 Marketing Engine
+**Gap:** No persistent team channels — chat is AI-assistant focused, not team collaboration. No file sharing in chat. No video/voice calling. No thread support. Slack integration is one-directional (bot posts only). No Microsoft Teams integration. No Discord integration.
 
-| Channel | Year 1 Budget | Year 3 Budget | Year 5 Budget |
-|---------|:------------:|:------------:|:------------:|
-| **Content Marketing** | €500K | €2M | €8M |
-| **SEO & SEM** | €200K | €1.5M | €6M |
-| **Paid Social (LinkedIn, Meta)** | €300K | €2M | €10M |
-| **Events & Conferences** | €200K | €1.5M | €5M |
-| **PR & Analyst Relations** | €100K | €500K | €2M |
-| **Partner Marketing** | €100K | €1M | €4M |
-| **Community Programs** | €100K | €500K | €2M |
-| **Total Marketing Spend** | **€1.5M** | **€9M** | **€37M** |
-| **Marketing as % of Revenue** | 60% | 8.3% | 4% |
+### 3.8 Low-Code & Workflow Automation
 
-### 7.3 Viral Growth Loops
+**Competitors:** Zapier, Make, n8n
 
-1. **AI Agent Sharing**: When an employee interacts with a SuccessCore agent, they get a shareable "agent card" showing how the agent helped. This drives curiosity and signups from other organizations.
+**SuccessCore Current State:**
+- Workflow module (`workflows.py` 325 lines, `workflow_exec.py` 37 lines)
+- Workflow canvas builder (`PipelineCanvas.tsx` 318 lines, `NodeInspector.tsx` 980 lines)
+- Node types: Start, End, Logic, Action, Message, AI, Commerce
+- Visual pipeline editor with @xyflow/react drag-and-drop
+- Pipeline simulator panel
 
-2. **Collaborative Features**: Multi-company features (shared training, joint recruiting, inter-company projects) create natural expansion within business networks.
+**Gap:** No third-party app connector marketplace. No webhook trigger nodes (incoming webhooks to start workflows). No conditional branching beyond basic logic nodes. No workflow version history or rollback. No workflow templates/recipes library. Node palette is limited to 7 built-in node types — Zapier has 6,000+ integrations.
 
-3. **Agent Marketplace Flywheel**: More users → more demand for agents → more developers build agents → better agents → more users.
+### 3.9 Multi-Agent Orchestration
 
-4. **Data Network Effects**: As the platform aggregates HR data across companies, aggregated anonymous benchmarks become more valuable, attracting more companies.
+**Competitors:** Microsoft AutoGen, CrewAI, LangGraph
 
-5. **Integration Network**: Each new integration partner brings their user base as potential SuccessCore customers.
+**SuccessCore Current State:**
+- Individual agent CRUD and lifecycle management
+- No agent-to-agent communication protocol
+- No supervisor/worker agent patterns
+- No shared agent memory or state
+- No agent evaluation or benchmarking framework (despite `benchmarks.py` existing as a webhook endpoint)
+- No human-in-the-loop approval workflows for agent actions
+
+**Gap:** This is the highest-potential differentiation for SuccessCore. The platform already has agents, workflows, and a visual canvas. Combining these into a multi-agent orchestration layer (comparable to AutoGen's group chat or LangGraph's state graphs) would create a defensible moat.
+
+### 3.10 Competitive Positioning Summary
+
+| Dimension | SuccessCore | Best-in-Class | Gap Severity |
+|-----------|-------------|---------------|--------------|
+| AI Agents | Single-agent only | CrewAI/LangGraph multi-agent | High |
+| HR Core | Basic profiles + onboarding | Rippling/Deel EOR + compliance | High |
+| IT Service Desk | Ticketing + KB, no ITSM | ServiceNow full ITIL | Medium |
+| Finance | Large module but mocked payments | QuickBooks/Xero accounting | Critical (billing) |
+| Payroll | Tax engines but no filing | Gusto/ADP full-service | High |
+| Performance/OKRs | Trees + 360 reviews exist | Lattice check-ins + calibration | Medium |
+| ATS/Hiring | Full pipeline, no career page | Greenhouse candidate experience | Medium |
+| Communications | AI chat only, Slack one-way | Slack/Teams full collaboration | Low (non-core) |
+| Low-Code Workflows | Canvas builder, 7 node types | Zapier 6,000+ integrations | Medium |
+| Multi-Tenant | Schema-per-tenant, no RLS | Enterprise-grade isolation | High |
+
+**Core Strategic Insight:** SuccessCore's depth-per-domain is shallow compared to specialized competitors, but its horizontal breadth is unique. The winning strategy is NOT to match each specialist — it is to use AI agents as the integration fabric that connects all modules, creating an intelligent operating system for mid-market companies that can't afford 8 separate SaaS subscriptions.
 
 ---
 
-## 8. Geographic Expansion
+## 4. Gap Analysis & Priority Matrix
 
-### 8.1 Regional Launch Sequence
+### 4.1 Critical (Immediate Fixes — Weeks 1-2)
 
-```
-YEAR 1-2: EUROPEAN BASE
-┌─────────────────────────────────────────────┐
-│  Tier 1 (Launch): Spain, UK, Germany,       │
-│    France, Portugal, Italy                   │
-│  Tier 2 (Y1): Netherlands, Belgium,         │
-│    Ireland, Austria, Switzerland, Sweden     │
-│  Tier 3 (Y2): Denmark, Norway, Finland,     │
-│    Poland, Czech Republic, Romania           │
-└─────────────────────────────────────────────┘
+These issues represent active security vulnerabilities, broken functionality, or deployment blockers. Each has a concrete fix path.
 
-YEAR 3: AMERICAS EXPANSION
-┌─────────────────────────────────────────────┐
-│  Tier 1 (Y3): United States, Canada         │
-│  Tier 2 (Y3): Mexico, Brazil                │
-│  Tier 3 (Y4): Argentina, Chile, Colombia,   │
-│    Peru, Costa Rica                          │
-└─────────────────────────────────────────────┘
+| ID | Gap | Fix | Effort | Owner |
+|----|-----|-----|--------|-------|
+| C-01 | CORS wildcard regex | Replace with explicit allowlist in `core/config.py` | 2h | Backend |
+| C-02 | Unauthenticated webhooks (4 endpoints) | Add JWT/auth0 verification to benchmarks.py, grow.py, docusign.py, bot_steps.py | 4h | Backend |
+| C-03 | Stripe billing mocked | Implement Stripe Checkout Session + webhook handler in billing.py | 16h | Backend |
+| C-04 | BYOK keys plaintext | Add `encryption_key` field encryption in `core/encryption.py`, apply to byok_api_keys table | 8h | Backend |
+| C-05 | Duplicate redis depends_on | Fix YAML duplicate key in docker-compose.yml lines 84-87 | 10min | DevOps |
+| C-06 | No Alembic migration at deploy | Add `alembic upgrade head` to render.yaml startCommand and docker-compose entrypoint | 2h | DevOps |
+| C-07 | CSRF not applied to 98% endpoints | Add CSRF middleware dependency to all state-changing routes | 8h | Backend |
+| C-08 | Rate limiting absent on 93% endpoints | Apply slowapi rate limit decorators systematically to all route modules | 12h | Backend |
 
-YEAR 4-5: APAC + MENA + AFRICA
-┌─────────────────────────────────────────────┐
-│  Tier 1 (Y4): UAE, Saudi Arabia, India,     │
-│    Singapore, Japan, Australia                │
-│  Tier 2 (Y4): South Korea, Malaysia,        │
-│    Indonesia, South Africa, Nigeria           │
-│  Tier 3 (Y5): Kenya, Ghana, Vietnam,        │
-│    Philippines, Thailand, Egypt               │
-└─────────────────────────────────────────────┘
-```
+**Total Critical Effort:** ~52 engineering hours
 
-### 8.2 Per-Country Requirements
+### 4.2 High Priority (This Quarter — Weeks 1-6)
 
-| Requirement | Phase 1 | Phase 3 | Phase 5 |
-|------------|:------:|:------:|:------:|
-| **Languages Supported** | 6 | 18 | 40+ |
-| **Tax Engines** | 7 countries | 30 countries | 100+ countries |
-| **Local Payroll Entities** | 4 EU countries | USA + 15 countries | 50+ countries |
-| **Compliance Modules** | EU GDPR + Spain FUNDAE | + US FLSA, Canada ESA, Brazil CLT | + India PF, UAE WPS, Japan LSL, etc. |
-| **Regional DB Instances** | EU-West | + US-East, US-West | + APAC, MENA, LATAM |
-| **Local Payment Methods** | SEPA, BACS, SWIFT | + ACH, wire, check | + UPI, PIX, local methods |
-| **Data Residency Compliance** | EU-only | EU + US | Global |
+| ID | Gap | Fix | Effort |
+|----|-----|-----|--------|
+| H-01 | i18n only Spanish | Generate en.json message catalog (machine translate + review), wire next-intl for locale switching | 40h |
+| H-02 | MarkdownRenderer incomplete | Add table, image, blockquote, task-list, footnote support | 8h |
+| H-03 | ConnectorsPage no error UI | Add loading skeletons, error boundaries, retry logic | 6h |
+| H-04 | Duplicated SSE streaming | Extract `useSSEStream` hook, share between AiChatWidget and InlineCopilot | 6h |
+| H-05 | docker-compose runs dev mode | Switch backend to gunicorn + uvicorn workers, frontend to `next start` (production build) | 8h |
+| H-06 | SharedContextEntry duplicate | Remove duplicate class definition, add import guard | 2h |
+| H-07 | 37 models unregistered | Audit and register all models in their respective `__init__.py` files | 8h |
+| H-08 | No dead letter queue | Add DLQ pattern to `core/task_queue.py` with Redis backup list | 12h |
+| H-09 | python-multipart unpinned | Pin to `>=0.0.9` in requirements.txt | 10min |
+| H-10 | python-jose → PyJWT | Replace imports, update JWT encode/decode calls, verify JWKS compatibility | 12h |
+| H-11 | PyPDF2 → pypdf | Replace package, verify API compatibility | 4h |
+| H-12 | Logger context vars never set | Update `middleware/correlation.py` to call `request_id_var.set()` and `tenant_id_var.set()` | 3h |
+| H-13 | Real Stripe Connect for multi-tenant | Implement Stripe Connect with platform account for per-tenant billing | 24h |
+| H-14 | OAuth integration hardening | Complete prototype OAuth flows for Google, Microsoft, Slack — add state param, PKCE | 32h |
+| H-15 | AiChatWidget refactor | Split into ChatContainer, MessageList, StreamingMessage, ChatInput, useChat hook | 16h |
 
-### 8.3 Infrastructure Deployment Map (Year 5)
+**Total High Priority Effort:** ~181 engineering hours
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    GLOBAL INFRASTRUCTURE                  │
-│                                                          │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐ │
-│  │ US-West      │   │ US-East      │   │ EU-West      │ │
-│  │ (Oregon)     │   │ (Virginia)   │   │ (Frankfurt)  │ │
-│  │              │   │              │   │              │ │
-│  │ PostgreSQL   │   │ PostgreSQL   │   │ PostgreSQL   │ │
-│  │ Redis        │   │ Redis        │   │ Redis        │ │
-│  │ K8s Cluster  │   │ K8s Cluster  │   │ K8s Cluster  │ │
-│  │ S3 + CDN     │   │ S3 + CDN     │   │ S3 + CDN     │ │
-│  └──────────────┘   └──────────────┘   └──────────────┘ │
-│                                                          │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐ │
-│  │ EU-South     │   │ APAC         │   │ MENA         │ │
-│  │ (Madrid)     │   │ (Singapore)  │   │ (Dubai)      │ │
-│  │              │   │              │   │              │ │
-│  │ PostgreSQL   │   │ PostgreSQL   │   │ PostgreSQL   │ │
-│  │ Redis        │   │ Redis        │   │ Redis        │ │
-│  │ K8s Cluster  │   │ K8s Cluster  │   │ K8s Cluster  │ │
-│  │ S3 + CDN     │   │ S3 + CDN     │   │ S3 + CDN     │ │
-│  └──────────────┘   └──────────────┘   └──────────────┘ │
-│                                                          │
-│  ┌──────────────┐   ┌──────────────┐                    │
-│  │ LATAM        │   │ Africa       │                    │
-│  │ (São Paulo)  │   │ (Johannesburg│                    │
-│  │              │   │              │                    │
-│  │ PostgreSQL   │   │ PostgreSQL   │                    │
-│  │ Redis        │   │ Redis        │                    │
-│  │ K8s Cluster  │   │ K8s Cluster  │                    │
-│  │ S3 + CDN     │   │ S3 + CDN     │                    │
-│  └──────────────┘   └──────────────┘                    │
-└─────────────────────────────────────────────────────────┘
-```
+### 4.3 Medium Priority (Next Quarter — Weeks 7-12)
+
+| ID | Gap | Fix | Effort |
+|----|-----|-----|--------|
+| M-01 | Agent Studio dark-mode hardcoding | Replace `text-white`/`bg-zinc-900` with CSS variables / Tailwind semantic tokens | 16h |
+| M-02 | Admin pages need error boundaries | Wrap all 9 admin sub-page wrappers in `<ErrorBoundary>` + add fallback UI | 8h |
+| M-03 | Multi-agent orchestration POC | Implement supervisor agent pattern, agent-to-agent message bus via Redis | 80h |
+| M-04 | Workflow webhook triggers | Add incoming webhook trigger node to workflow canvas | 24h |
+| M-05 | Workflow template library | Create 20+ pre-built workflow templates (onboarding, offboarding, expense approval, etc.) | 40h |
+| M-06 | Career page / public job portal | Build public-facing job listings with application form, integrate with hire pipeline | 40h |
+| M-07 | Google Calendar / Outlook integration | OAuth calendar sync for interview scheduling, PTO tracking | 32h |
+| M-08 | Performance review cycles | Build review cycle management (self → manager → calibration with deadlines) | 48h |
+| M-09 | localStorage abstraction | Create `useStorage` hook with JSON serialization, TTL, SSR safety | 8h |
+| M-10 | Form management with react-hook-form | Refactor 3-5 major forms (login, employee create, job posting) to use react-hook-form + zod | 24h |
+| M-11 | In-memory state → Redis | Migrate WebSocket manager and 5+ in-memory modules to Redis-backed state | 32h |
+| M-12 | Incident management workflow | Add P1-P4 severity, SLA breach alerts, escalation policies to IT module | 40h |
+
+**Total Medium Priority Effort:** ~392 engineering hours
+
+### 4.4 Strategic (This Year — Months 4-6)
+
+| ID | Gap | Fix | Effort |
+|----|-----|-----|--------|
+| S-01 | Database-level tenant isolation (RLS) | Implement PostgreSQL Row-Level Security per tenant, migrate from schema-per-tenant | 120h |
+| S-02 | Horizontal scaling | Migrate WebSocket to Redis pub/sub, add gunicorn multi-worker, stateless app servers | 80h |
+| S-03 | SOC 2 Type II preparation | Implement audit logging, session management, encryption at rest, access reviews | 160h |
+| S-04 | EOR capabilities | International employment entities, local compliance, benefits in 50+ countries | 400h |
+| S-05 | Full payroll tax filing | Integrate with tax authority APIs (IRS, HMRC, etc.), automated filings | 320h |
+| S-06 | Agent evaluation framework | Build automated agent benchmarking, A/B testing, quality scoring, eval datasets | 120h |
+| S-07 | Third-party app marketplace | Connector SDK, partner developer portal, app review process | 200h |
+| S-08 | Global search with pgvector | Implement cross-entity semantic search using pgvector embeddings | 80h |
+| S-09 | Analytics & BI suite | Build custom report builder, dashboard designer, scheduled report delivery | 160h |
+| S-10 | SSO / SAML / SCIM | Enterprise identity provider integration beyond Auth0 (Okta, Azure AD, OneLogin) | 80h |
+
+**Total Strategic Effort:** ~1,720 engineering hours
 
 ---
 
-## 9. Ecosystem & Platform Play
+## 5. Feature Enhancement Roadmap
 
-### 9.1 The Platform Strategy
+### 5.1 Phase 1 — Stabilize & Secure (Weeks 1-2)
 
-SuccessCore evolves from a SaaS product into a **platform** with three reinforcing layers:
+**Objective:** Eliminate all Critical-severity issues. Platform must be safe to expose to real users and process real payments.
 
-```
-LAYER 3: MARKETPLACE
-  ┌─────────────────────────────────────────┐
-  │ • 5,000+ third-party HR apps & agents    │
-  │ • Revenue share model (70/30)            │
-  │ • Developer SDK, docs, sandbox           │
-  │ • Review system, certification program   │
-  └─────────────────────────────────────────┘
-                    ▲
-LAYER 2: EXTENSIBILITY
-  ┌─────────────────────────────────────────┐
-  │ • Open REST + GraphQL API                │
-  │ • Webhook & Event streaming              │
-  │ • Low-code Workflow Builder              │
-  │ • Custom Agent Studio (no-code)          │
-  │ • Embeddable Widgets & SDK               │
-  │ • White-label Portal                     │
-  └─────────────────────────────────────────┘
-                    ▲
-LAYER 1: CORE PLATFORM
-  ┌─────────────────────────────────────────┐
-  │ • Unified HRIS + Payroll + Talent + IT   │
-  │ • 28 modules, 15+ to come                │
-  │ • AI agent fleet + orchestrator          │
-  │ • Knowledge graph + semantic memory      │
-  │ • Multi-tenant, multi-region             │
-  └─────────────────────────────────────────┘
-```
+**Week 1 — Security Hardening:**
+1. **Day 1-2:** Fix CORS — Replace `allow_origin_regex="https?://.*"` with explicit origin allowlist in `core/config.py`. Add `ALLOWED_ORIGINS` environment variable with comma-separated domains. Default to `localhost:3000` only.
+2. **Day 2-3:** Authenticate webhooks — Add JWT verification to `benchmarks.py`, `grow.py`, `docusign.py`, `bot_steps.py`. Each webhook endpoint must validate `Authorization: Bearer <token>` with the same JWT verification logic used in `core/auth.py`.
+3. **Day 3-4:** Enable CSRF middleware on all POST/PUT/PATCH/DELETE endpoints. Add a `csrf_protect` dependency to the route decorators. Exempt webhook endpoints that use server-to-server authentication.
+4. **Day 4-5:** Apply rate limiting — Add `@limiter.limit("X/minute")` decorators to all route modules. Use reasonable defaults: 60/min for general endpoints, 10/min for AI endpoints (cost control), 5/min for auth endpoints.
 
-### 9.2 Developer Platform
+**Week 2 — Fix Broken Functionality:**
+5. **Day 6-8:** Implement real Stripe billing — Replace mocked `billing.py` with Stripe Checkout Session creation, webhook handler for `checkout.session.completed`, and subscription management. Store `stripe_customer_id` and `stripe_subscription_id` on tenant record.
+6. **Day 8-9:** Encrypt BYOK keys — Update `core/encryption.py` to add `encrypt_field()` / `decrypt_field()` helpers. Add migration to encrypt existing plaintext keys. Update the BYOK key read path to decrypt on read.
+7. **Day 9-10:** Fix docker-compose — Remove duplicate `redis` depends_on block (lines 86-87). Add `alembic upgrade head` to backend entrypoint. Switch backend from `--reload` to production uvicorn. Switch frontend from `npm run dev` to `node server.js` (Next.js production).
+8. **Day 10:** Fix render.yaml — Add `alembic upgrade head` before uvicorn in `startCommand`. Verify migration chain with fresh database.
 
-| API Product | Description | Launch |
-|------------|-------------|--------|
-| **Public REST API** | Full OpenAPI 3.1 spec, SDKs in 6 languages, rate limiting tiers | 2027 Q1 |
-| **GraphQL API** | Flexible data access for complex queries | 2027 Q3 |
-| **Webhooks** | Event-driven integration with 100+ event types | 2027 Q1 |
-| **Event Stream** | Kafka-compatible event streaming for real-time integrations | 2028 |
-| **Agent SDK** | Build and deploy custom AI agents with tool definitions | 2027 Q2 |
-| **Embeddable Widgets** | Embed HR functionality in any web app | 2027 Q1 |
-| **Low-Code Builder** | Visual workflow and UI builder for custom modules | 2027 Q4 |
-| **White-Label Kit** | Rebrand the entire platform for partners and resellers | 2028 Q1 |
-| **Developer Sandbox** | Isolated environment for testing integrations | 2027 Q1 |
-| **CLI Tool** | `successcore` CLI for CI/CD, migrations, agent management | 2027 Q2 |
+**Deliverables:** All 8 Critical items resolved. Platform secure for production traffic. Real billing processes payments. API keys encrypted at rest.
 
-### 9.3 Integration Ecosystem (Target by Year 5)
+### 5.2 Phase 2 — Complete & Polish (Weeks 3-6)
 
-| Integration Category | Count | Key Partners |
-|---------------------|:-----:|-------------|
-| **Identity & SSO** | 15 | Okta, Azure AD, OneLogin, Google Workspace, JumpCloud |
-| **Productivity** | 12 | Slack, Microsoft Teams, Google Calendar, Outlook, Notion |
-| **Finance & ERP** | 20 | SAP, Oracle NetSuite, QuickBooks, Xero, Sage, Holded |
-| **Payments & Banking** | 8 | Stripe, Adyen, Wise, Revolut, local banks |
-| **Benefits** | 25 | Health insurers, 401(k) providers, commuter benefits, wellbeing |
-| **Learning** | 10 | Udemy, Coursera, LinkedIn Learning, edX, SCORM providers |
-| **Recruiting** | 15 | LinkedIn, Indeed, Glassdoor, GitHub, Stack Overflow |
-| **IT & Security** | 12 | Jira, ServiceNow, Jamf, Intune, CrowdStrike, Okta |
-| **Legal & Compliance** | 8 | DocuSign, HelloSign, Ironclad, local compliance databases |
-| **Communication** | 6 | Zoom, Google Meet, Microsoft Teams, Webex, Discord |
-| **Analytics** | 8 | Power BI, Tableau, Looker, Metabase, Google Data Studio |
-| **Infrastructure** | 5 | AWS, GCP, Azure, Cloudflare, Fastly |
-| **TOTAL** | **144** | |
+**Objective:** Resolve all High-priority issues. Platform must be functionally complete (no mocked features), production-deployable, and usable in English.
 
-### 9.4 M&A Strategy
+**Week 3-4 — Internationalization & UI Completeness:**
+1. Generate English message catalog for next-intl — extract all hardcoded Spanish strings from components, create `en.json` with translations, wire locale switcher in navigation.
+2. Complete MarkdownRenderer — add `remark-gfm` plugin for tables, add image rendering with lightbox, add blockquote styling, add task list checkboxes.
+3. Add error boundaries to all 9 admin sub-pages — wrap each thin wrapper in `<ErrorBoundary fallback={<AdminErrorPanel />}>`.
+4. Fix ConnectorsPage — add loading skeleton while OAuth providers load, add error toast on failure, add retry button.
 
-| Year | Target Type | Budget | Rationale |
-|:----:|------------|:------:|-----------|
-| **2027** | EU payroll engines (2-3 countries) | €8-12M | Accelerate European payroll coverage |
-| **2028** | Small LMS or L&D platform | €15-25M | Jump-start SuccessCore Learn |
-| **2028** | Benefits administration startup | €10-15M | Add benefits module quickly |
-| **2028** | US payroll engine provider | €20-30M | Enter US market with payroll |
-| **2029** | EOR provider (30+ countries) | €40-60M | Accelerate global EOR coverage |
-| **2029** | People analytics platform | €15-20M | Enhance analytics capabilities |
-| **2030** | APAC HR tech company | €30-50M | Establish APAC presence |
-| **2030** | Talent marketplace / sourcing platform | €20-30M | Boost AI recruiting |
-| **2031** | Communication/collaboration tool | €50-100M | Enter team collaboration space |
-| **Total M&A Budget** | | **€208-342M** | |
+**Week 5 — Code Quality & Refactoring:**
+5. Extract `useSSEStream` hook — extract duplicated SSE read loop from AiChatWidget and InlineCopilot into `frontend/src/hooks/use-sse-stream.ts`.
+6. Split AiChatWidget — decompose 954-line monolith into: `ChatContainer.tsx`, `MessageList.tsx`, `StreamingMessage.tsx`, `ChatInput.tsx`, `useChat.ts` hook.
+7. Fix SharedContextEntry duplicate — remove the second class definition in agents.py (or models file), keep single definition in models package.
+8. Register 37 unregistered models — audit all model files against their `__init__.py`, add missing imports. Run `alembic revision --autogenerate` to verify no missing tables.
 
----
+**Week 6 — Production Deployment Readiness:**
+9. Replace python-jose with PyJWT — update all imports from `jose` to `jwt`, verify JWKS cache still works, test token verification.
+10. Replace PyPDF2 with pypdf — update imports, verify PDF parsing still works.
+11. Pin python-multipart to `>=0.0.9`.
+12. Add DLQ to Redis task queue — failed tasks go to `task_queue:dlq` list with retry count and last error. Add `process_dlq` management command.
+13. Fix logger context vars — update `middleware/correlation.py` to generate UUID request_id and set context var. Extract tenant_id from JWT claims and set context var.
 
-## 10. Organizational Scaling Plan
+**Deliverables:** All 15 High-priority items resolved. Platform in English. CSRF + rate limiting on all endpoints. Real billing. Encrypted API keys. Production docker-compose. Proper logging with request correlation.
 
-### 10.1 Headcount Growth
+### 5.3 Phase 3 — Differentiate & Scale (Weeks 7-12)
 
-| Department | Year 1 | Year 2 | Year 3 | Year 4 | Year 5 |
-|-----------|:------:|:------:|:------:|:------:|:------:|
-| **Engineering & Product** | 15 | 40 | 85 | 180 | 300 |
-| **AI/ML Research** | 3 | 10 | 25 | 50 | 80 |
-| **Sales** | 3 | 15 | 40 | 85 | 150 |
-| **Marketing** | 2 | 8 | 18 | 35 | 55 |
-| **Customer Success** | 2 | 5 | 15 | 35 | 60 |
-| **Operations / HR / Legal** | 2 | 5 | 12 | 25 | 45 |
-| **Finance** | 1 | 3 | 6 | 12 | 20 |
-| **Partnerships / BD** | 1 | 3 | 8 | 15 | 25 |
-| **Compliance & Security** | 1 | 3 | 6 | 12 | 20 |
-| **TOTAL** | **30** | **92** | **215** | **449** | **755** |
+**Objective:** Build competitive moat via multi-agent orchestration, workflow marketplace, and AI-powered features. Fix medium-priority technical debt.
 
-### 10.2 Engineering Team Structure
+**Week 7-9 — Multi-Agent Orchestration:**
+1. Implement supervisor agent pattern — create `AgentOrchestrator` class that manages a team of agents. Supervisor decomposes tasks, delegates to specialized agents, aggregates results.
+2. Build agent-to-agent communication bus using Redis pub/sub — agents can send messages, share context, hand off tasks.
+3. Add human-in-the-loop approval node — agents pause execution and request human approval before executing sensitive actions (sending emails, modifying payroll, creating legal documents).
+4. Integrate orchestration with Workflow Canvas — users can visually compose multi-agent workflows by connecting agent nodes on the canvas.
 
-```
-CTO / VP Engineering
-│
-├── Infrastructure & Platform Team (30% of eng)
-│   ├── Cloud Infrastructure (K8s, multi-region, DB)
-│   ├── Developer Platform (API, SDK, CLI, docs)
-│   ├── Security & Compliance
-│   └── SRE & Observability
-│
-├── AI & ML Team (30% of eng)
-│   ├── Agent Runtime & Orchestration
-│   ├── LLM Research & Model Optimization
-│   ├── RAG, Knowledge Graph & Semantic Memory
-│   ├── Predictive Analytics & ML Models
-│   └── AI Safety, Guardrails & Evaluation
-│
-├── Product Engineering Teams (35% of eng)
-│   ├── Core HR & Employee Experience
-│   ├── Payroll, Benefits & Finance
-│   ├── Talent (Recruiting, Onboarding, L&D, Performance)
-│   ├── IT Helpdesk & Operations
-│   ├── Collaboration & Communication
-│   └── Analytics & Reporting
-│
-└── Platform & Ecosystem Team (5% of eng)
-    ├── Agent Marketplace & App Store
-    ├── Integration Hub & Connectors
-    └── Low-Code / No-Code Builder
-```
+**Week 10-11 — AI Features & Platform Expansion:**
+5. Build workflow template library — create 20+ pre-built templates covering: employee onboarding, offboarding, expense approval, PTO request, performance review cycle, incident escalation, invoice approval, candidate screening, training assignment, compliance audit.
+6. Add webhook trigger nodes to workflow canvas — incoming webhooks can start workflows. Add webhook URL generation with secret signing.
+7. Implement agent memory persistence — agents retain context across sessions using pgvector for semantic memory retrieval. Add memory management UI.
+8. Build career page / public job portal — public-facing Next.js route at `/[locale]/careers` with job listings, application form, and candidate self-service portal.
 
-### 10.3 Key Hires Timeline
+**Week 12 — Cross-Cutting Improvements:**
+9. Fix Agent Studio theming — replace hardcoded `text-white`, `bg-zinc-900`, `bg-zinc-800` with Tailwind CSS variables that respect light/dark mode. Use `dark:` prefix where needed.
+10. Refactor forms to react-hook-form + zod — target: login form, employee create/edit, job posting form, finance transaction form.
+11. Create `useStorage` hook — wraps localStorage with JSON serialization, optional TTL, SSR safety (no-op on server), namespace prefixing.
+12. Migrate WebSocket manager to Redis — replace in-memory singleton with Redis pub/sub channel per tenant. Each server instance subscribes to its tenants' channels.
 
-| Quarter | Critical Hire | Rationale |
-|:-------:|--------------|-----------|
-| **Q3 2026** | VP Engineering | Scale eng from 8 to 80 |
-| **Q3 2026** | Head of AI/ML | Own agent fleet evolution |
-| **Q4 2026** | Head of Security/Compliance | SOC 2 prep, security program |
-| **Q1 2027** | VP Sales | Build sales org for growth phase |
-| **Q1 2027** | Head of People | Scale from 25 to 200 people |
-| **Q2 2027** | VP Marketing | Brand building, demand gen |
-| **Q3 2027** | Head of International | European expansion lead |
-| **Q1 2028** | VP Finance / CFO | Series B prep, financial ops |
-| **Q1 2028** | Head of Partnerships | Channel and GSI partnerships |
-| **Q3 2028** | US Country Manager | Lead US market entry |
-| **Q1 2029** | Chief Revenue Officer | Scale to €100M+ ARR |
+**Deliverables:** Multi-agent orchestration POC. 20 workflow templates. Public career portal. Agent memory. Themed Agent Studio. Redis-backed WebSocket for horizontal scaling.
+
+### 5.4 Phase 4 — Enterprise-Ready (Months 4-6)
+
+**Objective:** Achieve SOC 2 readiness, true multi-tenancy at scale, enterprise SSO, and horizontal scalability.
+
+**Month 4 — Enterprise Security & Compliance:**
+1. Implement PostgreSQL Row-Level Security — each table gets `tenant_id` column. RLS policies enforce `tenant_id = current_setting('app.current_tenant_id')`. Migrate all queries to set tenant context on connection.
+2. Build audit logging infrastructure — every sensitive operation (user CRUD, RBAC changes, billing, API key management, agent configuration) logs to `audit_log` table with actor, action, target, timestamp, and IP.
+3. Add session management — track active sessions, enforce max concurrent sessions per user, add session timeout (configurable per tenant), add force-logout capability.
+4. Implement SSO/SAML/SCIM — integrate with Okta, Azure AD, OneLogin. Add Just-in-Time provisioning. Add SCIM 2.0 for automated user lifecycle.
+
+**Month 5 — Horizontal Scaling & Performance:**
+5. Add gunicorn + uvicorn multi-worker — replace single uvicorn with gunicorn managing 4+ uvicorn workers. Add `--max-requests` and `--max-requests-jitter` for memory leak protection.
+6. Implement Redis Cluster or sentinel for HA — replace single Redis instance with sentinel-managed HA pair. Add connection pooling with retry.
+7. Add database read replicas — configure SQLAlchemy to route read queries to replica, writes to primary. Use `pgbouncer` for connection pooling.
+8. Implement CDN for frontend static assets — configure Next.js `assetPrefix` with Cloudflare/CDN URL. Enable ISR for dashboard pages.
+
+**Month 6 — Advanced Features:**
+9. Build agent evaluation framework — automated benchmarking suite. Agents are scored on accuracy, latency, cost, and safety. A/B testing between agent configurations. Eval dataset management.
+10. Build custom report builder — drag-and-drop report designer. Charts, tables, KPIs from any data source. Scheduled delivery (email, Slack, webhook). Export to PDF/CSV/Excel.
+11. Implement global semantic search — pgvector embeddings for all entities (employees, tickets, candidates, documents, knowledge base articles). Cross-entity natural language search.
+12. Begin SOC 2 Type II audit process — engage auditor, complete readiness assessment, implement remaining controls, begin monitoring period.
+
+**Deliverables:** SOC 2 Type II readiness. Multi-tenant RLS. SSO/SAML/SCIM. Horizontal scaling (multi-worker, read replicas, Redis HA). Agent evaluation framework. Custom report builder. Global search.
 
 ---
 
-## 11. Funding & Financial Projections
+## 6. Service-Level Enhancement Plans
 
-### 11.1 Funding Roadmap
+### 6.1 AI Agent Platform
 
-| Round | Timing | Amount | Valuation | Use of Funds | Key Milestone |
-|-------|:------:|:------:|:---------:|-------------|---------------|
-| **Seed** | Q3 2026 | €3-5M | €20-30M | MVP hardening, initial team, EU market entry | 500 customers, €2.5M ARR |
-| **Series A** | Q3 2027 | €20-30M | €100-150M | Sales team, US entry prep, product expansion | 5,000 customers, €23M ARR |
-| **Series B** | Q2 2028 | €60-80M | €300-500M | US launch, M&A for payroll/benefits, enterprise sales | 18,000 customers, €108M ARR |
-| **Series C** | Q4 2029 | €150-200M | €1.2-2B | Global expansion, M&A, marketplace scaling | 45,000 customers, €332M ARR |
-| **Pre-IPO / IPO** | Q2 2031 | €300-500M | €5-10B | Major M&A, new product lines, debt repayment | 80,000 customers, €920M ARR |
+**Current:** 1,139-line `agents.py` with single-agent CRUD, scheduling, triggers, budget management. Agent Studio UI. 6 BYOK providers.  
+**Target:** Multi-agent orchestration platform comparable to CrewAI + AutoGen, with visual workflow composition, persistent memory, evaluation framework, and human-in-the-loop.
 
-### 11.2 Financial Model — 5-Year P&L (€M)
+**Enhancements:**
+- **Orchestration Engine** (`backend/app/core/orchestrator.py` — new): Supervisor-worker agent patterns. Task decomposition and delegation. Agent-to-agent messaging via Redis pub/sub. Shared context and state management.
+- **Persistent Memory** (`backend/app/core/agent_memory.py` — new): Semantic memory using pgvector. Episodic memory for past interactions. Working memory for current task context. Memory retrieval with relevance scoring.
+- **Human-in-the-Loop** (`backend/app/api/v1/agent_approvals.py` — new): Approval request workflow. Configurable approval policies per agent/tool. Timeout and escalation rules. Audit trail for all approvals.
+- **Evaluation Framework** (`backend/app/core/agent_eval.py` — new): Benchmark dataset management. Automated evaluation runs. Metrics: accuracy, latency, cost, safety. A/B comparison between agent configs.
 
-| | Year 1 | Year 2 | Year 3 | Year 4 | Year 5 |
-|---|:------:|:------:|:------:|:------:|:------:|
-| **Revenue** | €2.5 | €23.5 | €108 | €332 | €920 |
-| **Cost of Revenue** | €0.7 | €5.9 | €23.8 | €66.4 | €165.6 |
-| **Gross Profit** | €1.8 | €17.6 | €84.2 | €265.6 | €754.4 |
-| **Gross Margin** | 72% | 75% | 78% | 80% | 82% |
-| | | | | | |
-| **R&D** | €2.0 | €8.0 | €28.0 | €70.0 | €150.0 |
-| **Sales & Marketing** | €2.0 | €14.0 | €48.0 | €100.0 | €200.0 |
-| **G&A** | €1.0 | €4.0 | €12.0 | €30.0 | €60.0 |
-| **Total OpEx** | €5.0 | €26.0 | €88.0 | €200.0 | €410.0 |
-| | | | | | |
-| **Operating Income** | -€3.2 | -€8.4 | -€3.8 | €65.6 | €344.4 |
-| **Operating Margin** | -128% | -36% | -3.5% | 19.8% | 37.4% |
-| | | | | | |
-| **Net Income** | -€3.5 | -€9.0 | -€5.0 | €55.0 | €280.0 |
-| **Cash Flow from Ops** | -€3.0 | -€7.0 | -€2.0 | €60.0 | €300.0 |
-| | | | | | |
-| **Ending Cash (post-funding)**| €4.0 | €28.0 | €85.0 | €210.0 | €520.0 |
+### 6.2 HR Management Suite
 
-### 11.3 Valuation Drivers
+**Current:** Employee profiles, org chart, onboarding, checklists, time tracking.  
+**Target:** Comprehensive HRIS with EOR capabilities, compliance reporting, document management, benefits administration.
 
-| Driver | Year 3 | Year 5 |
-|--------|:------:|:------:|
-| **Revenue Multiple** | 15x (hyper-growth) | 10x (scale) |
-| **Implied Valuation** | €1.62B | €9.2B |
-| **ARR Growth Rate** | 360% | 177% |
-| **Rule of 40** | 356% | 214% |
-| **Net Revenue Retention** | 125% | 140% |
-| **Gross Margin** | 78% | 82% |
-| **TAM Penetration** | 0.3% | 1.5% |
+**Enhancements:**
+- **Document Management** — Digital forms with e-signature (connect authenticated DocuSign webhook). Template library (offer letters, NDAs, PIPs). Document version history.
+- **Compliance Reporting** — EEO-1, ACA, OSHA 300 reports. Automated compliance calendar with filing deadlines. Audit-ready data exports.
+- **Benefits Administration** — Benefits enrollment workflow. Carrier integrations. Life event processing. COBRA administration.
+- **PTO/Leave Management** — Leave request → approval workflow. Accrual policies (per state/country). Holiday calendar per location. FMLA tracking.
 
----
+### 6.3 IT Service Desk
 
-## 12. 5-Year Technology Roadmap
+**Current:** Ticketing with auto-routing, KB browser, SLA dashboard.  
+**Target:** Full ITSM with incident management, change management, asset management, service catalog, self-service portal.
 
-### 12.1 Architecture Evolution
+**Enhancements:**
+- **Incident Management** — P1-P4 severity classification. SLA breach detection and alerting. Escalation policies (L1 → L2 → L3). Post-incident review workflow.
+- **Change Management** — Change request → CAB approval workflow. Risk assessment matrix. Change calendar with conflict detection. Rollback plans.
+- **Asset Management (CMDB)** — Hardware/software asset tracking. License management. Asset lifecycle (procurement → assignment → retirement). Relationship mapping.
+- **Self-Service Portal** — End-user knowledge base with AI-powered search. Service catalog with request forms. "Fix it yourself" automation runbooks. Ticket status tracking.
 
-```
-2026: MONOLITH PHASE
-┌──────────────────────────────┐
-│   Single FastAPI Backend      │
-│   Single Next.js Frontend     │
-│   Single PostgreSQL + Redis   │
-│   Docker Compose Dev          │
-└──────────────────────────────┘
-              │
-              ▼
-2027-2028: SERVICE-ORIENTED PHASE
-┌──────────────────────────────────────────┐
-│  API Gateway (Kong)                      │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐   │
-│  │Core API │ │Agent    │ │Analytics│   │
-│  │Service  │ │Runtime  │ │Service  │   │
-│  └─────────┘ └─────────┘ └─────────┘   │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐   │
-│  │Payroll  │ │File     │ │Notif    │   │
-│  │Engine   │ │Service  │ │Service  │   │
-│  └─────────┘ └─────────┘ └─────────┘   │
-│  Shared: PostgreSQL Cluster, Redis, S3  │
-└──────────────────────────────────────────┘
-              │
-              ▼
-2029-2030: MICROSERVICES PHASE
-┌──────────────────────────────────────────┐
-│  Service Mesh (Istio + Envoy)            │
-│  30+ microservices, independent deploy   │
-│  Event-driven via Kafka / Redis Streams  │
-│  Per-tenant sharded databases            │
-│  Multi-region active-active              │
-│  GitOps deployment via ArgoCD            │
-└──────────────────────────────────────────┘
-              │
-              ▼
-2031: PLATFORM PHASE
-┌──────────────────────────────────────────┐
-│  Global control plane + regional data     │
-│  Federated graph across regions           │
-│  Edge AI agents at 200+ PoPs             │
-│  Customer-managed private instances      │
-│  Marketplace with sandbox execution      │
-│  Autonomous operations via AI agents     │
-└──────────────────────────────────────────┘
-```
+### 6.4 Finance & Payroll
 
-### 12.2 Technology Stack Evolution
+**Current:** Largest module (1,383 lines) but Stripe mocked, payroll not connected to tax systems, expense management missing.  
+**Target:** Real payment processing, tax-compliant payroll, multi-currency accounting, expense automation.
 
-| Layer | 2026 | 2028 | 2030 |
-|-------|------|------|------|
-| **Frontend** | Next.js 16 | Next.js 18 (Turbopack) | Next.js + React Native Web |
-| **Mobile** | PWA only | React Native iOS/Android | Native apps + Flutter for emerging markets |
-| **Backend** | FastAPI monolith | FastAPI services + Temporal workflows | Polyglot (Rust for perf-critical, Python for AI) |
-| **Database** | PostgreSQL + pgvector | + CockroachDB for global | + Neo4j for knowledge graph |
-| **Cache** | Single Redis | Redis Cluster | Redis Enterprise + Dragonfly |
-| **Queue** | Custom Redis queue | Temporal.io + Redis Streams | Fully event-driven with Kafka |
-| **AI** | Custom LLM router | LiteLLM + custom optimizations | On-prem model serving for enterprise |
-| **Search** | PostgreSQL full-text | Elasticsearch | Elasticsearch + vector hybrid search |
-| **Observability** | OTEL + Prometheus | Datadog/Honeycomb + Grafana | AI-powered observability (anomaly detection) |
-| **CI/CD** | GitHub Actions | GitHub Actions + ArgoCD | Full GitOps with progressive delivery |
-| **Infrastructure** | Docker Compose | K8s (EKS/GKE) | Multi-cloud K8s + edge |
-| **Edge** | Cloudflare Workers | CF Workers + KV + Durable Objects | Edge AI inference at 200+ PoPs |
-| **Identity** | Auth0 | Auth0 + WorkOS (enterprise SSO) | Custom identity fabric |
+**Enhancements:**
+- **Real Stripe Integration** — Stripe Checkout for subscription billing. Stripe Connect for multi-tenant marketplace. Invoice generation with Stripe Invoicing. Payment reconciliation webhooks. Refund processing.
+- **Payroll Tax Filing** — Integrate with tax authority APIs (IRS E-File, state agencies). Automated tax calculations per jurisdiction. W-2/1099 generation. Tax payment scheduling and remittance.
+- **Expense Management** — Receipt OCR (enhance existing `ReceiptScanner.tsx`). Expense submission → approval workflow. Corporate card integration. Reimbursement processing. Per-diem rate engine.
+- **Accounting Engine** — Chart of accounts. Double-entry bookkeeping. Journal entries. Financial statements (P&L, Balance Sheet, Cash Flow). Bank reconciliation. Multi-currency with exchange rate feeds.
 
-### 12.3 Technical Milestones
+### 6.5 Performance & OKRs
 
-| Milestone | Quarter | Description |
-|-----------|:-------:|-------------|
-| **M1: Production Launch** | Q3 2026 | Cloud deployment, CI/CD, monitoring, security hardening |
-| **M2: API v2 + SDK GA** | Q1 2027 | Public API with rate limiting, SDKs in 6 languages, developer portal |
-| **M3: Multi-Region EU** | Q2 2027 | Frankfurt + Madrid data centers, GDPR-compliant data residency |
-| **M4: WebSocket at Scale** | Q3 2027 | Redis pub/sub WebSocket, horizontal scaling to 10+ backend instances |
-| **M5: Agent Marketplace Alpha** | Q4 2027 | Agent SDK, sandbox, marketplace submission flow |
-| **M6: US Data Center** | Q1 2028 | US-East (Virginia) region, SOC 2 Type II certification |
-| **M7: Service Extraction** | Q2-Q4 2028 | Extract agent runtime, payroll engine, file service to independent services |
-| **M8: Real-Time Event Bus** | Q1 2029 | Kafka event streaming, webhook v2, event-driven architecture |
-| **M9: Global Infrastructure** | Q3 2029 | APAC + MENA regions, active-active multi-region |
-| **M10: Knowledge Graph** | Q1 2030 | Neo4j-backed organizational knowledge graph, skills ontology |
-| **M11: Federated Learning** | Q2 2030 | Cross-tenant model improvement with differential privacy |
-| **M12: Edge AI Inference** | Q4 2030 | Deploy lightweight models at Cloudflare edge for <50ms agent responses |
-| **M13: Private Cloud Offering** | Q1 2031 | Customer-managed instances, on-prem deployment option |
-| **M14: Autonomous Operations** | Q3 2031 | AI agents manage platform operations (auto-scaling, incident response, optimization) |
+**Current:** OKR cascading tree, 360 reviews, feedback module, pulse surveys, talent grid, skills matrix.  
+**Target:** Complete performance management cycle with goal alignment, continuous feedback, review automation, and competency frameworks.
 
-### 12.4 R&D Investment Allocation
+**Enhancements:**
+- **Goal Management** — OKR creation wizard with AI-suggested key results. Goal alignment visualization (org-wide tree). Progress check-in reminders. Auto-scoring from integrated data sources.
+- **Review Cycles** — Configurable cycle templates (annual, semi-annual, quarterly). Self-review → peer review → manager review → calibration workflow. Calibration dashboard with forced distribution visualization. Review packet generation.
+- **Continuous Feedback** — 1:1 meeting agenda builder. Weekly check-in prompts. Peer recognition/kudos (integrate existing `kudos.py` 126 lines). Feedback request workflow.
+- **Competency Framework** — Competency library per role/level. Skill gap analysis. Development plan generation. Career path visualization.
 
-```
-Year 1-2: Platform Foundation          Year 3-4: AI Supremacy            Year 5: Moonshots
-┌──────────────────────────┐          ┌──────────────────────────┐      ┌──────────────────────────┐
-│ ████████ 40% Infra       │          │ ██████████ 35% AI R&D    │      │ ██████████ 40% Moonshots │
-│ ██████   30% Core Product│          │ ██████    20% Platform   │      │ ██████    25% AI R&D     │
-│ ████     20% AI Features │          │ ██████    20% Product    │      │ ████      15% Product    │
-│ ██       10% Security    │          │ ████      15% Infra      │      │ ████      15% Infra      │
-│                          │          │ ███       10% Security   │      │ ██         5% Security   │
-│ Total:    €2M            │          │ Total:    €28M           │      │ Total:    €150M          │
-└──────────────────────────┘          └──────────────────────────┘      └──────────────────────────┘
-```
+### 6.6 Hiring & ATS
+
+**Current:** Full pipeline (1,184 lines), job board, candidate pool, talent CRM, interview scheduler, scorecard builder.  
+**Target:** Enterprise ATS with public career portal, offer management, background checks, referral program, and analytics.
+
+**Enhancements:**
+- **Career Portal** — Public-facing job listings with company branding. Application form with resume parsing. Candidate self-service status tracking. Email notification preferences.
+- **Offer Management** — Offer letter template library. Approval workflow (hiring manager → finance → HR). E-signature integration for offer acceptance. Compensation band compliance checking.
+- **Interview Intelligence** — AI-generated interview questions based on job requirements. Interview scorecard analytics (inter-rater reliability). Structured interview guides. Video interview integration.
+- **Referral Program** — Employee referral submission portal. Referral status tracking. Bonus calculation and payout integration with payroll. Referral leaderboard.
+
+### 6.7 Communications Hub
+
+**Current:** AI chat (889 lines), Slack integration (247 lines), inline copilot, universal search.  
+**Target:** Unified communications with persistent channels, multi-platform integration, AI-powered summarization, and real-time collaboration.
+
+**Enhancements:**
+- **Persistent Channels** — Team/department channels with message history. Thread support. File sharing with preview. @mentions and notifications.
+- **Multi-Platform** — Microsoft Teams integration (bot + messaging extension). Discord integration. WhatsApp Business API. Email-to-channel bridge.
+- **AI Summarization** — Channel digest generation. Meeting note summarization. Action item extraction. Sentiment analysis.
+- **Real-Time Collaboration** — Document co-editing (integrate with existing doc templates). Whiteboard. Screen sharing.
+
+### 6.8 Low-Code Workflow Builder
+
+**Current:** Visual canvas (980 lines NodeInspector, 727 lines PipelineView), 7 node types, pipeline simulator.  
+**Target:** Enterprise workflow automation platform with 50+ connectors, template marketplace, version control, and AI-generated workflows.
+
+**Enhancements:**
+- **Connector Marketplace** — Third-party app connectors (50+): Google Workspace, Microsoft 365, Salesforce, HubSpot, Jira, GitHub, Notion, Airtable, etc. OAuth-based authentication per connector. Connector SDK for partners.
+- **Node Library Expansion** — 30+ new node types: Webhook trigger, Schedule trigger, Email action, SMS action, Slack message, Data transform, Approval, Delay, Loop, Branch (condition), Parallel, Sub-workflow, AI prompt, Vector search.
+- **Workflow Templates** — 50+ pre-built templates by use case. Template rating and popularity. One-click import. Customization wizard.
+- **AI Workflow Generator** — Natural language → workflow. "When a new hire starts, send welcome email, create accounts, assign onboarding tasks, and notify manager." AI generates workflow graph with node configuration.
+
+### 6.9 Multi-Tenant Platform
+
+**Current:** Per-schema multi-tenancy, tenant onboarding automation.  
+**Target:** Enterprise-grade multi-tenancy with RLS, per-tenant encryption keys, resource quotas, usage-based billing, and tenant management dashboard.
+
+**Enhancements:**
+- **Row-Level Security** — Migrate from schema-per-tenant to shared-schema with RLS. Set `app.current_tenant_id` on every connection. RLS policies on all tables. Migration script to consolidate schemas.
+- **Per-Tenant Encryption** — Separate encryption key per tenant (derived from tenant secret). Tenant-specific KMS for BYOK keys. Zero-knowledge architecture option.
+- **Resource Quotas** — Per-tenant limits: API rate, storage, users, agents, workflows, AI tokens. Soft and hard limits with notifications. Auto-scaling triggers.
+- **Usage-Based Billing** — Metered billing: API calls, AI tokens, storage GB, active users. Usage dashboard per tenant. Invoice generation from metered data. Overages and tier upgrades.
+- **Tenant Management Dashboard** — Super-admin view: all tenants, status, usage, billing. Tenant create/suspend/delete. Feature flags per tenant. Configuration overrides.
+
+### 6.10 Analytics & Intelligence
+
+**Current:** Intelligence module (492 lines), reports (353 lines), scheduled reports (80 lines).  
+**Target:** Full BI suite with custom dashboards, predictive analytics, AI-generated insights, and data export.
+
+**Enhancements:**
+- **Custom Report Builder** — Drag-and-drop report designer. Multi-source data blending. Chart library (20+ visualization types). Filtering, grouping, sorting. Saved reports with sharing.
+- **Dashboard Designer** — Custom dashboard per user/role. Widget library (KPIs, charts, tables, AI insights). Layout customization. Scheduled refresh.
+- **AI Insights Engine** — Anomaly detection across all modules. Trend prediction (attrition risk, budget overruns, SLA breaches). Natural language querying ("Show me top performers by department"). Automated weekly digest generation.
+- **Data Export** — Scheduled CSV/Excel/PDF exports. API access for BI tools (Tableau, Power BI, Looker). Webhook push for real-time data sync. Data warehouse connector (Snowflake, BigQuery, Redshift).
 
 ---
 
-## 13. Integration & Migration Playbook
+## 7. Architecture Recommendations
 
-### 13.1 Customer Migration Strategy
+### 7.1 Database & Data Layer
 
-```
-PHASE 1: ASSESS                  PHASE 2: MIGRATE                PHASE 3: OPTIMIZE
-┌──────────────────┐           ┌──────────────────┐           ┌──────────────────┐
-│ • AI audit of    │           │ • Automated data │           │ • AI workflow    │
-│   current systems │           │   extraction     │           │   optimization   │
-│ • Migration      │  ──────► │ • Schema mapping │  ──────► │ • Agent training │
-│   readiness score│           │ • Data validation│           │   on company data│
-│ • Custom plan    │           │ • Parallel run   │           │ • ROI measurement│
-│ • Timeline       │           │ • Cutover        │           │ • Continuous     │
-│   estimation     │           │ • Rollback plan  │           │   improvement    │
-└──────────────────┘           └──────────────────┘           └──────────────────┘
-  AI-POWERED                      ZERO-CODING                     SELF-OPTIMIZING
-  1 week                           2-4 weeks                      Ongoing
-```
+**Current:** PostgreSQL 16 with pgvector. Per-schema multi-tenancy. Async SQLAlchemy 2.0. Alembic migrations. No RLS. No read replicas. No pgbouncer.
 
-### 13.2 Migration Tooling
+**Recommended Architecture:**
 
-| Source System | Target Timeline | Migration Tool | Automated Mapping % |
-|--------------|:--------------:|----------------|:-------------------:|
-| **Workday** | 2027 Q3 | AI-powered schema mapper + report extractor | 85% |
-| **SAP SuccessFactors** | 2027 Q4 | SAP API connector + data transformer | 80% |
-| **BambooHR** | 2027 Q1 | Direct API migration + field mapping | 95% |
-| **HiBob** | 2027 Q2 | API-based migration wizard | 90% |
-| **Rippling** | 2027 Q4 | API connector + payroll data migration | 85% |
-| **ADP** | 2028 Q1 | Report-based extraction + mapping | 75% |
-| **Oracle HCM** | 2028 Q2 | Oracle API connector | 70% |
-| **Excel/CSV** | 2027 Q1 | AI column mapping + validation | 99% |
-| **Generic HRIS** | 2027 Q2 | Custom API adapter framework | 60% |
+1. **Row-Level Security (RLS)** — Migrate from schema-per-tenant to shared-schema with RLS. This is the single most impactful scalability change:
+   ```
+   -- Set tenant context per session
+   SELECT set_config('app.current_tenant_id', $1, false);
+   
+   -- RLS policy on all tables
+   CREATE POLICY tenant_isolation ON employees
+       USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+   ```
+   Create a FastAPI dependency that sets tenant context on every request. Use SQLAlchemy event listeners to inject `SET app.current_tenant_id` on every connection checkout from the pool.
 
-### 13.3 Data Center Migration Strategy
+2. **Encryption Architecture** — Per-tenant encryption keys derived from tenant secret + platform master key using HKDF. BYOK keys encrypted with tenant-specific key. Use PostgreSQL `pgcrypto` extension or application-level envelope encryption:
+   - Master key in environment variable (or KMS in production)
+   - Per-tenant data encryption key (DEK) encrypted with master key
+   - BYOK provider keys encrypted with tenant DEK
+   - Rotation support: re-encrypt DEKs with new master key
 
-For enterprise customers requiring dedicated infrastructure:
+3. **Connection Pooling** — Add pgbouncer between application and PostgreSQL. Transaction pooling mode for async SQLAlchemy. Configure pool size based on worker count: `pool_size = (max_connections - 10) / worker_count`.
 
-| Option | Description | Timeline | Minimum Commitment |
-|--------|-------------|:--------:|:------------------:|
-| **Shared Cloud** | Multi-tenant SaaS (default) | Immediate | Monthly |
-| **Dedicated Tenant** | Isolated DB schema + dedicated compute | 2 weeks | Annual |
-| **Single-Tenant Cloud** | Dedicated K8s namespace in our cloud | 4 weeks | 3-year |
-| **Customer Cloud** | Deployed in customer's AWS/GCP/Azure | 8 weeks | 3-year |
-| **On-Premises** | Deployed in customer's data center | 12 weeks | 5-year |
-| **Air-Gapped** | Isolated network, no internet dependency | 16 weeks | 5-year |
+4. **Read Replicas** — Configure SQLAlchemy to route read queries to replica. Use `Session.get_bind(mapper=None, clause=None)` with custom routing based on query type. Lag-tolerant queries (dashboards, reports) go to replica.
+
+5. **Caching Strategy** — Implement multi-tier caching:
+   - L1: Application memory (function-scoped with TTL, via `@lru_cache` or custom decorator)
+   - L2: Redis (shared across workers, per-tenant namespaced)
+   - Cache invalidation: Event-driven via Redis pub/sub (publish on mutation, subscribe for invalidation)
+
+### 7.2 API & Integration Layer
+
+**Current:** Async FastAPI with 70 route modules. Inconsistent security middleware. In-memory WebSocket manager. No API versioning beyond `/v1/`. No API gateway.
+
+**Recommended Architecture:**
+
+1. **Security Middleware Pipeline** — Enforce a standard middleware stack on ALL routes by applying at the router level rather than per-endpoint:
+   ```python
+   router = APIRouter(
+       dependencies=[
+           Depends(verify_jwt),
+           Depends(verify_tenant_access),
+           Depends(rate_limit("default")),
+           Depends(csrf_protect),  # exempt GET/HEAD/OPTIONS internally
+       ]
+   )
+   ```
+   Exempt only specific endpoints (webhooks with HMAC verification, OAuth callbacks) via decorator override.
+
+2. **API Gateway Pattern** — Implement an internal API gateway layer that:
+   - Enforces rate limiting with token bucket per tenant + per endpoint
+   - Handles request/response transformation (snake_case ↔ camelCase)
+   - Provides unified error responses (`{ "error": { "code": "...", "message": "...", "request_id": "..." } }`)
+   - Logs all requests with correlation IDs
+
+3. **WebSocket Scaling** — Replace in-memory singleton with Redis pub/sub backplane:
+   ```python
+   class DistributedConnectionManager:
+       def __init__(self):
+           self.redis = redis.from_url(REDIS_URL)
+           self.local_connections: dict[str, set[WebSocket]] = {}
+       
+       async def connect(self, tenant_id: str, user_id: str, ws: WebSocket):
+           # Track locally for this server instance
+           # Subscribe tenant channel in Redis
+           # Publish presence event
+       
+       async def broadcast(self, tenant_id: str, message: dict):
+           # Publish to Redis channel → all server instances receive
+           # Each instance delivers to its local connections for that tenant
+   ```
+
+4. **Webhook Security Standard** — All incoming webhooks must implement:
+   - HMAC-SHA256 signature verification (header `X-Signature-256`)
+   - Timestamp validation (within 5 minutes, prevent replay)
+   - Webhook secret per integration (stored encrypted)
+
+5. **API Documentation** — Add OpenAPI operation IDs, summary, and description to all endpoints. Auto-generate SDKs (TypeScript, Python) from OpenAPI spec. Publish developer docs.
+
+### 7.3 Frontend & UI Layer
+
+**Current:** React 19 + Next.js 16. 56 dashboard pages. Monolithic AI chat widget (954 lines). Hardcoded dark-mode colors. Spanish-only i18n. No form library usage despite react-hook-form installed.
+
+**Recommended Architecture:**
+
+1. **Component Decomposition Standard** — Enforce maximum component size of 300 lines. Any component exceeding this must be reviewed and decomposed:
+   - `AiChatWidget.tsx` (954 lines) → ChatContainer (150), MessageList (180), StreamingMessage (120), ChatInput (200), useChat hook (150), useSSEStream hook (80)
+   - `NodeInspector.tsx` (980 lines) → InspectorPanel (150), PropertyEditor (250), NodePreview (180), ValidationPanel (140), useNodeInspector hook (160)
+
+2. **Design System Tokenization** — Define all colors as CSS custom properties in `globals.css`:
+   ```css
+   :root {
+     --color-surface-primary: 255 255 255;     /* white in light */
+     --color-surface-secondary: 250 250 250;
+     --color-surface-tertiary: 245 245 245;
+   }
+   .dark {
+     --color-surface-primary: 24 24 27;        /* zinc-900 in dark */
+     --color-surface-secondary: 39 39 42;       /* zinc-800 */
+     --color-surface-tertiary: 63 63 70;        /* zinc-700 */
+   }
+   ```
+   Extend Tailwind config to use these tokens. Replace all hardcoded `bg-zinc-900`/`text-white` with semantic tokens.
+
+3. **Internationalization Architecture** — Complete the next-intl setup:
+   - Extract all user-facing strings to JSON message catalogs
+   - Create `en.json`, `fr.json`, `de.json`, `pt.json`, `ar.json`
+   - Add locale switcher to navigation
+   - Set up translation pipeline (Lokalise, Crowdin, or Phrase)
+   - Add CI check that validates all locales have all keys
+
+4. **State Management Pattern** — Formalize the existing provider-based approach:
+   - **Server State:** `@tanstack/react-query` for all API data (already installed, already in use)
+   - **Form State:** `react-hook-form` + `zod` validation (migrate existing forms)
+   - **UI State:** React Context (theme, locale, sidebar state) — already done
+   - **Persistence:** `useStorage` hook for user preferences with SSR safety
+
+5. **Error Handling Standard** — Every route and component must handle:
+   - **Loading state:** Skeleton UI (already have `skeleton.tsx` component)
+   - **Empty state:** Meaningful empty-state illustration with action prompt
+   - **Error state:** Error boundary with retry, fallback UI, error reporting
+   - **Edge cases:** Network offline (OfflineIndicator exists), rate limited, unauthorized, 404, 500
+
+### 7.4 DevOps & Deployment
+
+**Current:** Docker Compose with dev-mode services. render.yaml with single process. No CI/CD pipeline defined. No staging environment. No blue-green deployment.
+
+**Recommended Architecture:**
+
+1. **Container Strategy** — Multi-stage Docker builds with production targets:
+   ```dockerfile
+   # Backend Dockerfile
+   FROM python:3.11-slim AS builder
+   # ... install deps, build wheels
+   
+   FROM python:3.11-slim AS production
+   COPY --from=builder /wheels /wheels
+   RUN pip install /wheels/*
+   COPY backend/app /app/app
+   COPY backend/alembic /app/alembic
+   CMD ["sh", "-c", "alembic upgrade head && gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app"]
+   ```
+
+2. **CI/CD Pipeline** (GitHub Actions or similar):
+   - **PR Checks:** Lint (ESLint + Ruff), type-check (tsc + mypy), unit tests, build check
+   - **Staging Deploy:** Auto-deploy on merge to `main` → render.yaml staging service
+   - **Production Deploy:** Manual trigger → render.yaml production service with blue-green
+   - **Smoke Tests:** Post-deploy health checks, critical path E2E (login → create agent → chat)
+   - **Rollback:** Automated rollback on smoke test failure
+
+3. **Monitoring & Alerting Stack:**
+   - **Metrics:** OpenTelemetry → Prometheus → Grafana dashboards (request rate, latency, error rate, DB pool, Redis memory, AI token usage)
+   - **Logging:** Structured JSON logs → Loki or Elasticsearch → Grafana (with request_id correlation)
+   - **Alerting:** Grafana Alertmanager → PagerDuty/Opsgenie (P1: 5min, P2: 15min, P3: 1hr)
+   - **Synthetic Monitoring:** Health check cron every 60s on critical endpoints (existing `monitoring.py` foundation)
+   - **Error Tracking:** Sentry integration (frontend + backend)
+
+4. **Disaster Recovery:**
+   - Database: Point-in-time recovery (PITR) with daily snapshots + WAL archiving
+   - Backups: Automated daily pg_dump to S3/GCS with 30-day retention
+   - Redis: AOF persistence (already enabled) + daily RDB snapshot backup
+   - Recovery RTO: 4 hours, RPO: 1 hour (improving to 1 hour / 5 min by Phase 4)
+
+5. **Environment Strategy:**
+   - **Development:** docker-compose local (with production-mode builds after Phase 1 fix)
+   - **Staging:** render.yaml staging service, connected to staging DB, no real email/SMS
+   - **Production:** render.yaml production service, blue-green deployment, real integrations
+   - **Demo/Sales:** Separate render.yaml instance with seeded demo data, auto-reset nightly
 
 ---
 
-## 14. Risk Management & Contingency
+## 8. Risk Register
 
-### 14.1 Risk Matrix
-
-| # | Risk | Probability | Impact | Score | Mitigation | Contingency |
-|---|------|:----------:|:------:|:-----:|------------|-------------|
-| **R1** | AI regulation kills autonomous agent market | 10% | Critical | High | EU AI Act compliance team, human-in-loop for high-risk decisions | Pivot to "AI-assisted" positioning |
-| **R2** | OpenAI/Anthropic cut API access | 15% | Critical | Critical | Multi-LLM architecture (6 providers), BYOK model | Train custom open-source models (Llama) |
-| **R3** | Major security breach / data leak | 20% | Critical | Critical | SOC 2, penetration testing, bug bounty, encryption everywhere | Incident response plan, cyber insurance |
-| **R4** | Competitor launches comparable AI agent platform | 30% | High | High | 36-month AI moat, continuous innovation | Price competition, ecosystem lock-in |
-| **R5** | Failure to achieve SOC 2 / ISO 27001 | 15% | High | High | Hire compliance team early, engage auditor by Q1 2027 | Self-attestation, SOC 2 Type I first |
-| **R6** | Talent war — cannot hire enough AI engineers | 40% | Medium | High | Competitive comp, remote-first, AI residency program | Acquihire AI startups, outsource non-core |
-| **R7** | Currency / geopolitical instability | 25% | Medium | Medium | Multi-region, multi-currency, local entities | Hedging, local bank accounts |
-| **R8** | LLM costs escalate beyond projections | 35% | Medium | Medium | BYOK, model cascading, caching, fine-tuned smaller models | On-prem model serving for enterprise |
-| **R9** | Platform complexity exceeds team capacity | 30% | Medium | Medium | Modular architecture, clear bounded contexts | Slow feature velocity, hire aggressively |
-| **R10** | Recession reduces HR tech spending | 20% | High | Medium | Free tier for down-market, efficiency ROI messaging | Extend runway, reduce burn |
-| **R11** | Agent hallucination causes legal liability | 15% | High | High | Guardrails, human-in-loop, audit logging, disclaimers | Professional liability insurance |
-| **R12** | Key person dependency (founders, tech leads) | 25% | Medium | Medium | Documentation, succession planning, key person insurance | Competitive retention packages |
-
-### 14.2 Contingency Scenarios
-
-| Scenario | Trigger | Response |
-|----------|---------|----------|
-| **Revenue Miss** | ARR <70% of plan for 2 consecutive quarters | Cut marketing spend 30%, freeze non-critical hiring, extend runway to 24 months |
-| **Technical Crisis** | >4h platform-wide outage | Full incident command, customer communication every 30 min, post-mortem within 48h, free month for affected customers |
-| **Competitive Shock** | Major competitor launches comparable AI agent fleet | Accelerate marketplace launch, increase AI R&D spend, consider strategic partnership/acquisition |
-| **Funding Delay** | Series A not closed by Q4 2027 | Reduce burn rate to €200K/month, focus on revenue-generating features, bridge round from existing investors |
-| **Regulatory Block** | AI agent operations banned in key market (EU) | Pivot agents to "AI-assisted" mode with mandatory human approval, focus on non-regulated markets |
+| Risk ID | Description | Likelihood | Impact | Mitigation | Owner |
+|---------|-------------|------------|--------|------------|-------|
+| R-01 | Data breach via CORS + unauthenticated endpoints | High | Critical | Phase 1 Week 1 — CORS fix + webhook auth | Backend Lead |
+| R-02 | False/missing billing — revenue leakage | High | Critical | Phase 1 Week 2 — Real Stripe integration | Backend Lead |
+| R-03 | BYOK key exfiltration via DB compromise | Medium | Critical | Phase 1 Week 2 — Encryption at rest | Backend Lead |
+| R-04 | Schema migration breaks multi-tenant data | Medium | High | Phase 4 — RLS migration with staged rollout, per-tenant validation | Platform Lead |
+| R-05 | i18n gap blocks international sales | Medium | High | Phase 2 Weeks 3-4 — English translation | Frontend Lead |
+| R-06 | AiChatWidget refactor breaks chat UX | Medium | Medium | Phase 2 Week 5 — Component tests + visual regression | Frontend Lead |
+| R-07 | Multi-agent orchestration over-promises, under-delivers | Medium | High | Phase 3 Weeks 7-9 — POC first, iterate, avoid scope creep | AI Lead |
+| R-08 | SOC 2 timeline exceeds 6 months | Low | Medium | Phase 4 Month 6 — Start audit prep in Month 4, engage auditor early | CTO |
+| R-09 | Team context-switching across 16 domains causes quality issues | High | Medium | Assign domain owners (Finance Lead, HR Lead, etc.), enforce code review per domain | Engineering Manager |
+| R-10 | Dependency conflicts during python-jose → PyJWT migration | Medium | Medium | Phase test environment first, run full test suite, verify Auth0 JWKS continues to work | Backend Lead |
+| R-11 | Performance degradation as tenant count grows (no RLS optimization) | Medium | Medium | Phase 4 Month 4 — Index tenant_id on all tables, analyze query plans, add pgbouncer | Platform Lead |
+| R-12 | Workflow engine state loss during deployment restarts | Medium | Medium | Phase 3 Week 11 — Persist workflow state to Redis + DB, add checkpoint/resume | Backend Lead |
 
 ---
 
-## 15. Success Metrics & OKRs
+## 9. Appendix — Full Endpoint Security Matrix
 
-### 15.1 North Star Metric
+The following is the complete inventory of `backend/app/api/v1/` route modules with their security posture assessment.
 
-> **Weekly Active AI Agent Tasks Completed Per Customer**
->
-> This measures both platform adoption (customers) and the core value proposition (AI agents doing meaningful work).
+**Legend:** ✅ = Implemented, ⚠️ = Partial/Inconsistent, ❌ = Missing
 
-### 15.2 Year 1 OKRs (2026-2027)
+| Route File | Lines | Endpoints (est.) | Auth | CSRF | Rate Limit | Notes |
+|------------|-------|-------------------|------|------|------------|-------|
+| finance.py | 1,383 | 46 | ⚠️ | ❌ | ❌ | Largest module, financial data, no CSRF |
+| hire.py | 1,184 | 38 | ⚠️ | ❌ | ❌ | Candidate PII, no CSRF |
+| agents.py | 1,139 | 42 | ⚠️ | ❌ | ❌ | Agent config + BYOK keys, no CSRF |
+| pay.py | 917 | 28 | ⚠️ | ❌ | ❌ | Payroll data, no CSRF |
+| chat.py | 889 | 22 | ⚠️ | ❌ | ❌ | AI chat, no CSRF |
+| admin.py | 792 | 30 | ⚠️ | ❌ | ❌ | Admin operations, no CSRF |
+| it.py | 682 | 28 | ⚠️ | ❌ | ❌ | IT tickets, no CSRF |
+| users.py | 529 | 18 | ⚠️ | ❌ | ❌ | User management, no CSRF |
+| intelligence.py | 492 | 16 | ⚠️ | ❌ | ❌ | Analytics data, no CSRF |
+| omni.py | 444 | 15 | ⚠️ | ❌ | ❌ | Omni-copilot, no CSRF |
+| crm.py | 437 | 16 | ⚠️ | ❌ | ❌ | CRM data, no CSRF |
+| git.py | 423 | 14 | ⚠️ | ❌ | ❌ | CodeLab git ops, no CSRF |
+| checklists.py | 415 | 12 | ⚠️ | ❌ | ❌ | Checklists, no CSRF |
+| ai.py | 403 | 14 | ⚠️ | ❌ | ❌ | AI endpoints, no CSRF |
+| integrations.py | 385 | 14 | ⚠️ | ❌ | ❌ | Integration config, no CSRF |
+| calendar.py | 378 | 12 | ⚠️ | ❌ | ❌ | Calendar data, no CSRF |
+| reports.py | 353 | 12 | ⚠️ | ❌ | ❌ | Reports, no CSRF |
+| training.py | 352 | 14 | ⚠️ | ❌ | ❌ | Training data, no CSRF |
+| grow.py | 347 | 10 | ❌ | ❌ | ❌ | **ZERO AUTH — webhook** |
+| interviews.py | 338 | 12 | ⚠️ | ❌ | ❌ | Interview data, no CSRF |
+| workflows.py | 325 | 14 | ⚠️ | ❌ | ❌ | Workflow config, no CSRF |
+| imports.py | 298 | 8 | ⚠️ | ❌ | ❌ | Data import, no CSRF |
+| ops.py | 284 | 10 | ⚠️ | ❌ | ❌ | Operations, no CSRF |
+| bot_steps.py | 277 | 8 | ❌ | ❌ | ❌ | **ZERO AUTH — webhook** |
+| legal.py | 277 | 8 | ⚠️ | ❌ | ❌ | Legal docs, no CSRF |
+| public_agents.py | 271 | 8 | ⚠️ | ❌ | ❌ | Public agent access |
+| slack.py | 247 | 6 | ⚠️ | ❌ | ❌ | Slack, needs HMAC |
+| demo_recorder.py | 236 | 6 | ⚠️ | ❌ | ❌ | Demo recording |
+| harness.py | 231 | 8 | ⚠️ | ❌ | ❌ | AI test harness |
+| billing.py | 223 | 6 | ⚠️ | ❌ | ❌ | **STRIPE MOCKED** |
+| monitoring.py | 209 | 6 | ⚠️ | ❌ | ❌ | Monitoring data |
+| employees.py | 198 | 8 | ⚠️ | ❌ | ❌ | Employee data, no CSRF |
+| oauth.py | 183 | 4 | ⚠️ | ❌ | ❌ | **PROTOTYPE** |
+| work.py | 174 | 8 | ⚠️ | ❌ | ❌ | Work management |
+| notifications.py | 173 | 6 | ⚠️ | ❌ | ❌ | Notifications |
+| it_kb_enhanced.py | 161 | 6 | ⚠️ | ❌ | ❌ | IT knowledge base |
+| agent_triggers.py | 144 | 6 | ⚠️ | ❌ | ❌ | Agent triggers |
+| agent_schedules.py | 141 | 6 | ⚠️ | ❌ | ❌ | Agent schedules |
+| it_auto_routing.py | 140 | 4 | ⚠️ | ❌ | ❌ | IT auto-routing |
+| sales.py | 139 | 6 | ⚠️ | ❌ | ❌ | Sales data |
+| tenant.py | 130 | 6 | ⚠️ | ❌ | ❌ | Tenant config |
+| talent_grid.py | 130 | 4 | ⚠️ | ❌ | ❌ | Talent grid |
+| rbac.py | 131 | 6 | ⚠️ | ❌ | ❌ | RBAC management |
+| kudos.py | 126 | 4 | ⚠️ | ❌ | ❌ | Kudos/recognition |
+| interview_scheduler.py | 125 | 4 | ⚠️ | ❌ | ❌ | Interview scheduling |
+| plugins.py | 123 | 4 | ⚠️ | ❌ | ❌ | Plugin management |
+| comments.py | 122 | 4 | ⚠️ | ❌ | ❌ | Comments |
+| reviews_360.py | 115 | 4 | ⚠️ | ❌ | ❌ | 360 reviews |
+| approvals.py | 112 | 4 | ⚠️ | ❌ | ❌ | Approvals |
+| agent_budgets.py | 105 | 4 | ⚠️ | ❌ | ❌ | Agent budgets |
+| auto_onboard.py | 98 | 4 | ⚠️ | ❌ | ❌ | Auto-onboarding |
+| job_board.py | 94 | 4 | ⚠️ | ❌ | ❌ | Job board |
+| search.py | 93 | 2 | ⚠️ | ❌ | ❌ | Search |
+| manager.py | 92 | 4 | ⚠️ | ❌ | ❌ | Manager view |
+| bulk.py | 92 | 4 | ⚠️ | ❌ | ❌ | Bulk operations |
+| health.py | 87 | 3 | ✅ | ✅ | ✅ | Public health checks — properly exempt |
+| schedules.py | 80 | 4 | ⚠️ | ❌ | ❌ | Schedules |
+| email_templates.py | 77 | 4 | ⚠️ | ❌ | ❌ | Email templates |
+| metadata.py | 71 | 4 | ⚠️ | ❌ | ❌ | Metadata |
+| announcements.py | 71 | 4 | ⚠️ | ❌ | ❌ | Announcements |
+| docusign.py | 71 | 2 | ❌ | ❌ | ❌ | **ZERO AUTH — webhook** |
+| time_tracking.py | 67 | 4 | ⚠️ | ❌ | ❌ | Time tracking |
+| surveys.py | 63 | 4 | ⚠️ | ❌ | ❌ | Surveys |
+| _pagination.py | 62 | — | — | — | — | Utility, not a route module |
+| onboarding.py | 58 | 3 | ⚠️ | ❌ | ❌ | Onboarding |
+| notification_prefs.py | 57 | 3 | ⚠️ | ❌ | ❌ | Notification prefs |
+| benchmarks.py | 48 | 2 | ❌ | ❌ | ❌ | **ZERO AUTH — webhook** |
+| tool_registry.py | 43 | 3 | ⚠️ | ❌ | ❌ | Tool registry |
+| workflow_exec.py | 37 | 2 | ⚠️ | ❌ | ❌ | Workflow execution |
 
-| Objective | Key Results |
-|-----------|------------|
-| **Achieve production readiness** | 99.9% uptime, <50ms p95 API latency, SOC 2 Type I audit started |
-| **Launch in 5 EU markets** | Spain, UK, Germany, France, Portugal live with local tax engines |
-| **Grow initial customer base** | 500 customers, €2.5M ARR, Net Revenue Retention >100% |
-| **Establish AI leadership** | 10 agent types in production, avg 50 tasks/agent/week, publish 3 AI+HR research papers |
-| **Build foundational team** | Hire VP Eng, Head of AI, Head of Security. Total team: 25-30 |
-
-### 15.3 Year 3 OKRs (2028-2029)
-
-| Objective | Key Results |
-|-----------|------------|
-| **Reach hyper-growth** | 18,000 customers, €108M ARR, >100% YoY growth |
-| **Enter US market successfully** | 2,000 US customers, US data center operational, SOC 2 Type II |
-| **Launch agent marketplace** | 500+ published agents, 100+ active developers, €5M marketplace GMV |
-| **Expand product breadth** | 40+ product modules, 50 AI agent types, 50+ integrations |
-| **Build enterprise capability** | 500+ enterprise customers (1000+ emp), SSO/SAML, dedicated infra offering |
-
-### 15.4 Year 5 Vision (2030-2031)
-
-| Objective | Key Results |
-|-----------|------------|
-| **Dominate AI HR category** | #1 AI-native HR platform by G2/Gartner, 80,000 customers, €920M ARR |
-| **Achieve global presence** | Customers in 120+ countries, 10 global infrastructure regions, 40 languages |
-| **Ecosystem maturity** | 5,000+ marketplace agents/apps, 2,000+ developers, €50M GMV |
-| **Cognitive organization reality** | 500,000+ autonomous agents deployed, 50% of HR tasks fully autonomous |
-| **IPO readiness** | GAAP profitable, €5-10B valuation, >€900M ARR, Rule of 40 >40% |
-
-### 15.5 Dashboard Metrics (Weekly/Monthly Review)
-
-| Category | Metrics |
-|----------|---------|
-| **Growth** | New customers, MRR/ARR, expansion revenue, churn rate, NRR, LTV:CAC |
-| **Product** | DAU/WAU/MAU, feature adoption %, agent tasks completed, RAG queries served |
-| **AI Quality** | Agent success rate, hallucination rate, user satisfaction (CSAT), task completion time |
-| **Reliability** | Uptime %, p50/p95/p99 latency, error rate, incident count, MTTR |
-| **Financial** | Gross margin, burn rate, runway, ARR per employee, customer acquisition cost |
-| **Team** | Headcount, attrition, eNPS, time-to-hire, diversity metrics |
+**Summary Statistics (70 route files):**
+- **Auth:** 65/70 ⚠️ (93% inconsistent), 4/70 ❌ (6% zero auth), 1/70 ✅ (health only)
+- **CSRF:** 1/70 ✅ (health only), 69/70 ❌ (98.6% missing)
+- **Rate Limit:** 1/70 ✅ (health only), 69/70 ❌ (98.6% missing)
 
 ---
 
-## Appendix A: Competitive Intelligence Database
-
-*(Maintained separately as living document. Key competitors tracked quarterly on: funding, headcount, customer count, product features, pricing changes, AI capabilities, geographic expansion.)*
-
-## Appendix B: Technology Decision Framework
-
-When evaluating build vs. buy vs. partner decisions:
-
-| Criterion | Build | Buy/Partner |
-|-----------|:-----:|:-----------:|
-| **Core to AI differentiation** | Always build | Never |
-| **Commodity infrastructure** | Never | Always use managed services |
-| **Payroll tax engines** | Build for key markets | Partner for long-tail countries |
-| **SSO/Identity** | Partner (Auth0, WorkOS) | Never build custom |
-| **File storage / CDN** | Never build | AWS S3 / CloudFront |
-| **Email delivery** | Partner (Courier, SendGrid) | Never build SMTP |
-| **Benefits administration** | Partner (carrier APIs) | Build enrollment UI |
-| **Video conferencing** | Partner (Zoom, Whereby SDK) | Embed, don't build |
-
-## Appendix C: Key Assumptions
-
-1. LLM capabilities continue improving at current trajectory (20-50% per year cost/performance improvement)
-2. AI regulation increases but does not ban autonomous agents in enterprise settings
-3. Remote/hybrid work remains dominant, driving demand for global workforce tools
-4. Talent market for AI engineers remains competitive but accessible at Series A compensation
-5. European market adopts AI HR tools at rate comparable to US market (12-18 month lag)
-6. Platform consolidation trend continues — buyers prefer unified platforms over point solutions
-7. Venture capital for AI SaaS remains available through 2028 at current valuation multiples
-
----
-
-*"The future of HR is not about managing people — it's about empowering them with cognitive tools that amplify human potential. SuccessCore will be the operating system for that future."*
-
-**Document Version:** 2.0 | **Last Updated:** 2026-06-12 | **Author:** Strategic Planning  
-**Classification:** Confidential — For internal and investor use only
+*End of document. Next review: July 14, 2026 (Phase 1 completion checkpoint).*

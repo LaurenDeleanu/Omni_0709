@@ -15,6 +15,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_super_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     role: Mapped[str] = mapped_column(String(50), default="employee")
+    roles: Mapped[list] = mapped_column(JSON, default=lambda: ["employee"], nullable=False)
     role_id: Mapped[str] = mapped_column(String, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)
     manager_id: Mapped[str] = mapped_column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     vacation_allowance: Mapped[int] = mapped_column(default=30)

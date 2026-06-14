@@ -4,10 +4,15 @@ from sqlalchemy import select, update
 from typing import List
 from pydantic import BaseModel
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db, require_roles
 from app.models.finance import ExpenseClaim
 from app.models.pay import PayrollCycle, Payslip
 from app.models.training import CourseEnrollment
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter()
 
@@ -16,6 +21,7 @@ class BulkIdsIn(BaseModel):
     ids: List[str]
 
 
+@limiter.limit("10/minute")
 @router.post("/expenses/approve")
 async def bulk_approve_expenses(
     body: BulkIdsIn,
@@ -32,6 +38,7 @@ async def bulk_approve_expenses(
     return {"approved": result.rowcount, "ids": body.ids}
 
 
+@limiter.limit("10/minute")
 @router.post("/payslips/generate")
 async def bulk_generate_payslips(
     cycle_id: str,
@@ -70,6 +77,7 @@ async def bulk_generate_payslips(
     return {"cycle_id": cycle_id, "payslips_created": created, "total_users": len(users)}
 
 
+@limiter.limit("10/minute")
 @router.post("/courses/assign")
 async def bulk_assign_courses(
     course_id: str,

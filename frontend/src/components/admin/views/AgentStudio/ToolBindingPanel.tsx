@@ -54,14 +54,14 @@ export default function ToolBindingPanel({ activeTools, onToggleTool }: ToolBind
               className={`text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between h-44 relative group ${
                 isSelected
                   ? "border-[var(--color-primary)] bg-[rgba(6,182,212,0.04)]"
-                  : "border-white/5 bg-zinc-950/20 hover:border-white/10 hover:bg-zinc-900/20"
+                  : "border-border/10 bg-muted/30 hover:border-border/20 hover:bg-muted/20"
               }`}
             >
               <div className="flex justify-between items-start w-full">
-                <div className="p-2.5 rounded-xl bg-zinc-900 border border-white/5">
+                <div className="p-2.5 rounded-xl bg-muted border border-border/10">
                   {skill.icon}
                 </div>
-                <div className="relative inline-flex items-center h-5 rounded-full w-9 shrink-0 transition-colors bg-zinc-800 border border-zinc-700 pointer-events-none">
+                <div className="relative inline-flex items-center h-5 rounded-full w-9 shrink-0 transition-colors bg-secondary border border-border pointer-events-none">
                   <span
                     className={`inline-block w-3 h-3 transform rounded-full bg-white transition-transform ${
                       isSelected ? "translate-x-5 bg-[var(--color-primary)]" : "translate-x-1"
@@ -72,14 +72,14 @@ export default function ToolBindingPanel({ activeTools, onToggleTool }: ToolBind
 
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-bold text-white group-hover:text-[var(--color-primary)] transition-colors">
+                  <span className="text-sm font-bold text-foreground group-hover:text-[var(--color-primary)] transition-colors">
                     {skill.title}
                   </span>
-                  <span className="text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400 font-mono">
+                  <span className="text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded bg-white/5 border border-border/20 text-muted-foreground font-mono">
                     {skill.badge}
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-400 leading-normal font-light line-clamp-2">
+                <p className="text-[11px] text-muted-foreground leading-normal font-light line-clamp-2">
                   {skill.desc}
                 </p>
               </div>
@@ -88,12 +88,12 @@ export default function ToolBindingPanel({ activeTools, onToggleTool }: ToolBind
         })}
 
         {/* Custom Connector card */}
-        <div className="border border-dashed border-white/10 rounded-2xl p-5 flex flex-col justify-center items-center text-center h-44 bg-zinc-950/10 hover:border-zinc-700 transition-colors cursor-pointer group">
-          <div className="p-3 rounded-full bg-zinc-900 border border-white/5 mb-3 group-hover:scale-105 transition-transform">
-            <Code className="w-5 h-5 text-zinc-500 group-hover:text-[var(--color-primary)]" />
+        <div className="border border-dashed border-border/20 rounded-2xl p-5 flex flex-col justify-center items-center text-center h-44 bg-muted/10 hover:border-border transition-colors cursor-pointer group">
+          <div className="p-3 rounded-full bg-muted border border-border/10 mb-3 group-hover:scale-105 transition-transform">
+            <Code className="w-5 h-5 text-muted-foreground group-hover:text-[var(--color-primary)]" />
           </div>
-          <span className="text-xs font-bold text-white mb-1">Connect Custom REST Tool</span>
-          <p className="text-[10px] text-zinc-500 max-w-[200px] leading-normal font-light">
+          <span className="text-xs font-bold text-foreground mb-1">Connect Custom REST Tool</span>
+          <p className="text-[10px] text-muted-foreground max-w-[200px] leading-normal font-light">
             Bind custom endpoints, headers, schema models, and webhooks in the Integrations Hub.
           </p>
         </div>

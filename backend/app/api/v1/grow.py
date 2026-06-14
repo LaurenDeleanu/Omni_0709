@@ -18,7 +18,7 @@ from app.schemas.grow import (
 )
 from sqlalchemy.orm import selectinload
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 # --- OKRs ---
 

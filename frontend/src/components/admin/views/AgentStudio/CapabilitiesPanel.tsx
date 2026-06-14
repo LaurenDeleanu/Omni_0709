@@ -15,35 +15,35 @@ export default function CapabilitiesPanel({ settings, onChange }: CapabilitiesPa
       key: "autoTranslate",
       title: "Auto-Translation Agent",
       desc: "Automatically detects customer's query language and replies in that language.",
-      icon: <Globe className="w-5 h-5 text-indigo-400" />,
+      icon: <Globe className="w-5 h-5 text-primary" />,
       badge: "Language",
     },
     {
       key: "sentimentGuard",
       title: "Sentiment Analyzer Guardrail",
       desc: "Triggers immediate handoff to human supervisor upon detecting negative sentiment or frustration.",
-      icon: <Heart className="w-5 h-5 text-rose-400" />,
+      icon: <Heart className="w-5 h-5 text-destructive" />,
       badge: "Emotional Intelligence",
     },
     {
       key: "leadQualifier",
       title: "Autonomous Lead Qualifier",
       desc: "Collects, extracts, and grades contact parameters from the live dialogue and saves it directly to the CRM.",
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-400" />,
+      icon: <CheckCircle2 className="w-5 h-5 text-success" />,
       badge: "CRM Integration",
     },
     {
       key: "injectionGuard",
       title: "Prompt Injection & Safety Shield",
       desc: "Intercepts and blocks hack inputs, adversarial prompts, or offensive text before they reach the core LLM.",
-      icon: <ShieldCheck className="w-5 h-5 text-cyan-400" />,
+      icon: <ShieldCheck className="w-5 h-5 text-primary" />,
       badge: "Security",
     },
     {
       key: "autoSummary",
       title: "Human Handoff Summarizer",
       desc: "Instantly synthesizes a neat executive wrap-up of the conversation logs when a human supervisor intervenes.",
-      icon: <FileText className="w-5 h-5 text-amber-400" />,
+      icon: <FileText className="w-5 h-5 text-warning" />,
       badge: "Observability",
     },
   ];
@@ -65,25 +65,25 @@ export default function CapabilitiesPanel({ settings, onChange }: CapabilitiesPa
             onClick={() => handleToggle(cap.key)}
             className={`flex items-start gap-4 p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${
               isEnabled
-                ? "border-[var(--color-primary)] bg-[rgba(6,182,212,0.04)]"
-                : "border-white/5 bg-zinc-950/20 hover:border-white/10 hover:bg-zinc-900/20"
+                ? "border-[var(--color-primary)] bg-primary/5"
+                : "border-border/30 bg-card/50 hover:border-border/50 hover:bg-muted/30"
             }`}
           >
-            <div className={`p-2.5 rounded-xl bg-zinc-900 border border-white/5`}>
+            <div className={`p-2.5 rounded-xl bg-muted border border-border/20`}>
               {cap.icon}
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-bold text-white">{cap.title}</span>
-                <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 tracking-wide font-mono">
+                <span className="text-sm font-bold text-foreground">{cap.title}</span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full bg-muted/50 border border-border/30 text-muted-foreground tracking-wide font-mono">
                   {cap.badge}
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed font-light">{cap.desc}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed font-light">{cap.desc}</p>
             </div>
 
-            <div className="relative inline-flex items-center h-6 rounded-full w-11 shrink-0 transition-colors bg-zinc-800 border border-zinc-700 pointer-events-none">
+            <div className="relative inline-flex items-center h-6 rounded-full w-11 shrink-0 transition-colors bg-secondary border border-border pointer-events-none">
               <span
                 className={`inline-block w-4 h-4 transform rounded-full bg-white transition-transform ${
                   isEnabled ? "translate-x-6 bg-[var(--color-primary)]" : "translate-x-1"

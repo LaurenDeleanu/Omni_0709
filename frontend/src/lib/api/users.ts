@@ -25,7 +25,19 @@ export const UserAPI = {
   deleteEmployee: (id: string) => fetchClient(`/users/${id}`, { method: "DELETE" }),
   updateProfile: (data: any) => fetchClient("/users/profile", { method: "PATCH", body: JSON.stringify(data) }),
   getProfileRequests: () => fetchClient("/users/profile-requests"),
-  reviewProfileRequest: (id: string, approved: boolean) => fetchClient(`/users/profile-requests/${id}/review`, { method: "POST", body: JSON.stringify({ approved }) })
+  reviewProfileRequest: (id: string, approved: boolean) => fetchClient(`/users/profile-requests/${id}/review`, { method: "POST", body: JSON.stringify({ approved }) }),
+
+  getEmployeeProfile: (id: string) => fetchClient(`/employees/${id}/profile`),
+  getEmployeeRoles: (id: string) => fetchClient(`/employees/${id}/roles`),
+  assignRole: (id: string, role: string) => fetchClient(`/employees/${id}/roles`, { method: "POST", body: JSON.stringify({ role }) }),
+  removeRole: (id: string, role: string) => fetchClient(`/employees/${id}/roles/${role}`, { method: "DELETE" }),
+
+  getEmployeeTimeOff: (id: string) => fetchClient(`/calendar/vacations?user_id=${id}`),
+  getEmployeeItTickets: (id: string) => fetchClient(`/it/tickets?requester_id=${id}`),
+  getEmployeePerformance: (id: string) => fetchClient(`/grow/reviews?user_id=${id}`),
+  getEmployeeDocuments: (id: string) => fetchClient(`/documents?user_id=${id}`),
+  getEmployeeTraining: (id: string) => fetchClient(`/training/enrollments?user_id=${id}`),
+  getEmployeeKudos: (id: string) => fetchClient(`/kudos/received?user_id=${id}`),
 };
 
 export interface HistoryEntry {

@@ -9,7 +9,9 @@ export default function MonitoringDashboard() {
   const [loading, setLoading] = useState(true);
 
   const fetchSection = async (key: string, url: string) => {
-    try { const d = await fetchClient(url); setData((prev: any) => ({ ...prev, [key]: d })); } catch {}
+    try { const d = await fetchClient(url); setData((prev: any) => ({ ...prev, [key]: d }));       } catch (err: any) {
+        console.error(`Monitoring fetch failed for ${key}:`, err);
+      }
   };
 
   useEffect(() => {

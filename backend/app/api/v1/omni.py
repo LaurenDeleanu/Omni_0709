@@ -7,6 +7,9 @@ import subprocess
 import os
 import uuid
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db, require_roles
 from app.models.agent import Agent, AgentConfig, AgentExecutionRun
 from app.services.omni_runtime import list_files, read_file, write_file, execute_omni_master, execute_orchestration, sanitize_path, WORKSPACE_ROOT
@@ -14,6 +17,7 @@ from app.services.llm_router import get_dynamic_models
 from app.services.branch_edit_manager import BranchEditManager
 from app.models.branch_edit import BranchSession, FileProposal
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -131,6 +135,7 @@ async def get_codebase_files(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/files")
+@limiter.limit("30/minute")
 async def save_codebase_file(
     payload: FileWritePayload,
     db: AsyncSession = Depends(get_tenant_db),
@@ -148,6 +153,7 @@ async def save_codebase_file(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/files")
+@limiter.limit("30/minute")
 async def delete_codebase_file(
     path: str = Query(..., description="Relative path of file to delete"),
     db: AsyncSession = Depends(get_tenant_db),
@@ -194,6 +200,7 @@ async def get_omni_master(
 
 
 @router.post("/master")
+@limiter.limit("30/minute")
 async def execute_omni_master_endpoint(
     payload: MasterExecutePayload,
     db: AsyncSession = Depends(get_tenant_db),
@@ -212,6 +219,7 @@ async def execute_omni_master_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/orchestrate")
+@limiter.limit("30/minute")
 async def execute_orchestration_endpoint(
     payload: OrchestratePayload,
     db: AsyncSession = Depends(get_tenant_db),
@@ -234,6 +242,7 @@ async def execute_orchestration_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.patch("/master")
+@limiter.limit("30/minute")
 async def configure_omni_agent(
     payload: MasterConfigPayload,
     db: AsyncSession = Depends(get_tenant_db),
@@ -352,6 +361,7 @@ async def get_edit_mode(
 
 
 @router.patch("/edit-mode")
+@limiter.limit("30/minute")
 async def set_edit_mode(
     payload: EditModePayload,
     db: AsyncSession = Depends(get_tenant_db),
@@ -367,6 +377,7 @@ async def set_edit_mode(
 
 
 @router.post("/branches")
+@limiter.limit("30/minute")
 async def create_branch_session(
     payload: BranchCreatePayload,
     db: AsyncSession = Depends(get_tenant_db),
@@ -413,6 +424,7 @@ async def list_branch_proposals(
 
 
 @router.post("/proposals/{proposal_id}/apply")
+@limiter.limit("30/minute")
 async def apply_proposal(
     proposal_id: str,
     db: AsyncSession = Depends(get_tenant_db),
@@ -430,6 +442,7 @@ async def apply_proposal(
 
 
 @router.post("/proposals/{proposal_id}/reject")
+@limiter.limit("30/minute")
 async def reject_proposal(
     proposal_id: str,
     payload: ProposalReviewPayload,
@@ -448,6 +461,7 @@ async def reject_proposal(
 
 
 @router.post("/branches/{branch_id}/apply-all")
+@limiter.limit("30/minute")
 async def apply_all_proposals(
     branch_id: str,
     db: AsyncSession = Depends(get_tenant_db),
@@ -477,6 +491,7 @@ async def get_proposal_diff(
 
 
 @router.post("/branches/{branch_id}/pr")
+@limiter.limit("30/minute")
 async def create_pr_from_branch(
     branch_id: str,
     payload: PRCreatePayload,

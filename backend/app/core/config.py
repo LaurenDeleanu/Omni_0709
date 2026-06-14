@@ -55,6 +55,14 @@ class Settings(BaseSettings):
     SLACK_CLIENT_ID: str = ""
     SLACK_CLIENT_SECRET: str = ""
 
+    # ── Stripe Billing ────────────────────────────────────────────────────────
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_IDS: dict = {"PRO": "price_pro_monthly", "ENTERPRISE": "price_enterprise_monthly"}
+
+    # ── Public Signup ──────────────────────────────────────────────────────────
+    ALLOW_PUBLIC_SIGNUP: bool = True
+
     # ── Courier API (Notificaciones) ──────────────────────────────────────────
     COURIER_AUTH_TOKEN: str = "pk_test_replace_me_with_courier_key"
 

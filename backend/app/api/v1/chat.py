@@ -7,7 +7,12 @@ import uuid
 import os
 import shutil
 import logging
+import json
+import asyncio
 from pydantic import BaseModel
+
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.api.dependencies import get_tenant_db, get_current_user, require_roles, _get_or_create_sessionmaker
 from app.models.user import User
@@ -19,6 +24,8 @@ from app.schemas.pagination import CursorPaginatedResponse
 from app.services.agent_runtime import execute_agent_run
 
 logger = logging.getLogger("successcore.chat")
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter()
 
@@ -459,6 +466,7 @@ async def get_thread_messages(
     ]
 
 
+@limiter.limit("60/minute")
 @router.post("/rooms/{room_id}/messages/{message_id}/reply", response_model=MessageResponse)
 async def reply_to_message(
     room_id: str,
@@ -714,14 +722,45 @@ async def upload_chat_file(
 
 class ChatConnectionManager:
     def __init__(self):
-        # Maps user_id -> list of active WebSocket connections
         self.active_connections: dict[str, list[WebSocket]] = {}
+        self._redis_listener: Optional[asyncio.Task] = None
+        self._pubsub = None
+
+    async def _ensure_redis_listener(self):
+        if self._redis_listener and not self._redis_listener.done():
+            return
+        self._redis_listener = asyncio.create_task(self._listen_redis())
+
+    async def _listen_redis(self):
+        try:
+            from app.core.redis import get_redis
+            r = await get_redis()
+            self._pubsub = r.pubsub()
+            await self._pubsub.subscribe("chat:ws:broadcast")
+            async for message in self._pubsub.listen():
+                if message["type"] == "message":
+                    try:
+                        data = json.loads(message["data"])
+                        user_ids = data.get("user_ids", [])
+                        payload = data.get("payload", {})
+                        for uid in user_ids:
+                            if uid in self.active_connections:
+                                for conn in self.active_connections[uid]:
+                                    try:
+                                        await conn.send_json(payload)
+                                    except Exception:
+                                        pass
+                    except Exception:
+                        pass
+        except Exception:
+            pass
 
     async def connect(self, user_id: str, websocket: WebSocket):
         await websocket.accept()
         if user_id not in self.active_connections:
             self.active_connections[user_id] = []
         self.active_connections[user_id].append(websocket)
+        await self._ensure_redis_listener()
 
     def disconnect(self, user_id: str, websocket: WebSocket):
         if user_id in self.active_connections:
@@ -730,14 +769,11 @@ class ChatConnectionManager:
                 del self.active_connections[user_id]
 
     async def broadcast_to_room(self, db: AsyncSession, room_id: str, message: dict):
-        """
-        Envía el payload a todas las conexiones WebSocket activas de los miembros de la sala.
-        """
         members_res = await db.execute(
             select(ChatRoomMember.user_id).where(ChatRoomMember.room_id == room_id)
         )
-        member_ids = members_res.scalars().all()
-        
+        member_ids = list(members_res.scalars().all())
+
         for user_id in member_ids:
             if user_id in self.active_connections:
                 for connection in self.active_connections[user_id]:
@@ -745,6 +781,16 @@ class ChatConnectionManager:
                         await connection.send_json(message)
                     except Exception:
                         pass
+
+        try:
+            from app.core.redis import get_redis
+            r = await get_redis()
+            await r.publish("chat:ws:broadcast", json.dumps({
+                "user_ids": member_ids,
+                "payload": message,
+            }))
+        except Exception:
+            pass
 
 ws_manager = ChatConnectionManager()
 
@@ -922,6 +968,7 @@ async def join_collab_room(
         raise HTTPException(status_code=404, detail=str(e))
 
 
+@limiter.limit("60/minute")
 @collab_router.post("/rooms/{room_id}/message")
 async def send_collab_message(
     room_id: str,

@@ -8,6 +8,9 @@ import uuid
 import json
 from datetime import datetime, timezone
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db, get_global_db, require_roles, require_super_admin, get_current_user
 from app.api.v1._pagination import paginate_query
 from app.schemas.pagination import PaginatedResponse
@@ -41,6 +44,7 @@ from app.services.doc_templates import TEMPLATES, generate_pdf
 from app.services.storage_usage import get_tenant_storage_usage
 from app.core.logger import logger
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -464,6 +468,7 @@ class TenantDeprovisionRequest(BaseModel):
 
 
 @router.post("/tenants", status_code=status.HTTP_201_CREATED)
+@limiter.limit("20/minute")
 async def create_tenant(
     body: TenantProvisionRequest,
     request: Request,
@@ -515,6 +520,7 @@ async def delete_tenant(
 
 
 @router.get("/tenants/{tenant_id}/status")
+@limiter.limit("20/minute")
 async def get_tenant_status(
     tenant_id: str,
     global_db: AsyncSession = Depends(get_global_db),

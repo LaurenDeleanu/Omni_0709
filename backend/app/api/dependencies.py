@@ -124,6 +124,12 @@ async def get_tenant_db(
         AsyncSessionTenant = _get_or_create_sessionmaker(tenant_schema)
 
     async with AsyncSessionTenant() as db:
+        # Set tenant context for RLS policies (defense-in-depth)
+        try:
+            from app.core.tenant_context import set_tenant_context
+            await set_tenant_context(db, tenant_id)
+        except Exception:
+            pass
         yield db
 
 

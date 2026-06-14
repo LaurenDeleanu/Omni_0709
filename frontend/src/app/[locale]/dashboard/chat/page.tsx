@@ -333,12 +333,12 @@ export default function ChatDashboardPage() {
   const dmRooms = rooms.filter(r => r.room_type === "DIRECT");
 
   return (
-    <div className="flex h-[80vh] border border-border/40 rounded-2xl overflow-hidden bg-slate-950/40 backdrop-blur-xl">
+    <div className="flex h-[80vh] border border-border/40 rounded-2xl overflow-hidden bg-card/40 backdrop-blur-xl">
       {/* Sidebar */}
-      <div className="w-80 border-r border-border/30 flex flex-col bg-slate-900/30">
+      <div className="w-80 border-r border-border/30 flex flex-col bg-muted/30">
         <div className="p-4 border-b border-border/20 flex justify-between items-center">
           <div>
-            <h2 className="font-extrabold text-sm tracking-tight text-white flex items-center gap-1.5">
+            <h2 className="font-extrabold text-sm tracking-tight text-foreground flex items-center gap-1.5">
               💬 SAS Chat Interno
             </h2>
             <p className="text-[10px] text-muted-foreground">Estructurado por Organización</p>
@@ -347,7 +347,7 @@ export default function ChatDashboardPage() {
             onClick={() => setShowDmModal(true)} 
             size="icon" 
             variant="ghost" 
-            className="h-8 w-8 text-indigo-400 hover:text-white hover:bg-white/5"
+            className="h-8 w-8 text-indigo-400 hover:text-foreground hover:bg-white/5"
             title="Nuevo Chat Directo"
           >
             <Plus size={18} />
@@ -365,12 +365,12 @@ export default function ChatDashboardPage() {
               onChange={(e) => handleSearch(e.target.value)}
               onFocus={() => { if (searchResults.length > 0) setShowSearchDropdown(true); }}
               onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
-              className="w-full bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-lg pl-8 pr-7 py-1.5 text-[11px] text-white placeholder-zinc-600 focus:outline-none transition-colors"
+              className="w-full bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-lg pl-8 pr-7 py-1.5 text-[11px] text-foreground placeholder-zinc-600 focus:outline-none transition-colors"
             />
             {isSearching && <Loader2 size={12} className="absolute right-2.5 top-2 animate-spin text-zinc-500" />}
             {!isSearching && searchQuery && (
               <button onClick={() => { setSearchQuery(""); setSearchResults([]); setShowSearchDropdown(false); }} className="absolute right-2.5 top-2">
-                <X size={12} className="text-zinc-500 hover:text-white" />
+                <X size={12} className="text-zinc-500 hover:text-foreground" />
               </button>
             )}
           </div>
@@ -411,7 +411,7 @@ export default function ChatDashboardPage() {
                 onClick={() => setActiveRoom(room)}
                 className={`w-full text-left px-2.5 py-2 rounded-xl flex items-center justify-between transition-colors ${
                   activeRoom?.id === room.id 
-                    ? "bg-indigo-600 text-white font-bold" 
+                    ? "bg-indigo-600 text-foreground font-bold" 
                     : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
                 }`}
               >
@@ -420,7 +420,7 @@ export default function ChatDashboardPage() {
                   <span className="truncate">{room.name}</span>
                 </div>
                 {room.unread_count > 0 && (
-                  <span className="bg-rose-500 text-white text-[9px] rounded-full px-1.5 py-0.5 font-bold">
+                  <span className="bg-rose-500 text-foreground text-[9px] rounded-full px-1.5 py-0.5 font-bold">
                     {room.unread_count}
                   </span>
                 )}
@@ -438,7 +438,7 @@ export default function ChatDashboardPage() {
                 onClick={() => setActiveRoom(room)}
                 className={`w-full text-left px-2.5 py-2 rounded-xl flex items-center justify-between transition-colors ${
                   activeRoom?.id === room.id 
-                    ? "bg-indigo-600 text-white font-bold" 
+                    ? "bg-indigo-600 text-foreground font-bold" 
                     : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
                 }`}
               >
@@ -447,7 +447,7 @@ export default function ChatDashboardPage() {
                   <span className="truncate">{room.name}</span>
                 </div>
                 {room.unread_count > 0 && (
-                  <span className="bg-rose-500 text-white text-[9px] rounded-full px-1.5 py-0.5 font-bold">
+                  <span className="bg-rose-500 text-foreground text-[9px] rounded-full px-1.5 py-0.5 font-bold">
                     {room.unread_count}
                   </span>
                 )}
@@ -465,7 +465,7 @@ export default function ChatDashboardPage() {
                 onClick={() => setActiveRoom(room)}
                 className={`w-full text-left px-2.5 py-2 rounded-xl flex items-center justify-between transition-colors ${
                   activeRoom?.id === room.id 
-                    ? "bg-indigo-600 text-white font-bold" 
+                    ? "bg-indigo-600 text-foreground font-bold" 
                     : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
                 }`}
               >
@@ -474,7 +474,7 @@ export default function ChatDashboardPage() {
                   <span className="truncate">{room.name}</span>
                 </div>
                 {room.unread_count > 0 && (
-                  <span className="bg-rose-500 text-white text-[9px] rounded-full px-1.5 py-0.5 font-bold">
+                  <span className="bg-rose-500 text-foreground text-[9px] rounded-full px-1.5 py-0.5 font-bold">
                     {room.unread_count}
                   </span>
                 )}
@@ -492,7 +492,7 @@ export default function ChatDashboardPage() {
                 onClick={() => setActiveRoom(room)}
                 className={`w-full text-left px-2.5 py-2 rounded-xl flex items-center justify-between transition-colors ${
                   activeRoom?.id === room.id 
-                    ? "bg-indigo-600 text-white font-bold" 
+                    ? "bg-indigo-600 text-foreground font-bold" 
                     : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
                 }`}
               >
@@ -503,7 +503,7 @@ export default function ChatDashboardPage() {
                   <span className="truncate">{room.name}</span>
                 </div>
                 {room.unread_count > 0 && (
-                  <span className="bg-rose-500 text-white text-[9px] rounded-full px-1.5 py-0.5 font-bold">
+                  <span className="bg-rose-500 text-foreground text-[9px] rounded-full px-1.5 py-0.5 font-bold">
                     {room.unread_count}
                   </span>
                 )}
@@ -517,7 +517,7 @@ export default function ChatDashboardPage() {
             {user?.full_name ? user.full_name.split(" ").map((n: any) => n[0]).slice(0,2).join("").toUpperCase() : "U"}
           </div>
           <div className="flex-1 truncate">
-            <p className="font-bold text-xs text-white truncate leading-tight">{user?.full_name}</p>
+            <p className="font-bold text-xs text-foreground truncate leading-tight">{user?.full_name}</p>
             <p className="text-[9px] text-zinc-500 truncate leading-tight">{user?.department || "SAS Employee"}</p>
           </div>
         </div>
@@ -535,7 +535,7 @@ export default function ChatDashboardPage() {
                    activeRoom.room_type === "HIERARCHY" ? "👑" : "💬"}
                 </span>
                 <div>
-                  <h3 className="font-bold text-sm text-white">{activeRoom.name}</h3>
+                  <h3 className="font-bold text-sm text-foreground">{activeRoom.name}</h3>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
                     Canal {activeRoom.room_type} • Retención 90 días
                   </p>
@@ -577,8 +577,8 @@ export default function ChatDashboardPage() {
                         )}
                         <div className={`p-3 rounded-2xl text-xs leading-relaxed border ${
                           isMine 
-                            ? "bg-indigo-600 border-indigo-500 text-white rounded-tr-none" 
-                            : "bg-slate-900 border-zinc-800 text-zinc-200 rounded-tl-none"
+                            ? "bg-indigo-600 border-indigo-500 text-foreground rounded-tr-none" 
+                            : "bg-muted border border-border text-zinc-200 rounded-tl-none"
                         }`}>
                           {msg.content && <p className="whitespace-pre-wrap">{msg.content}</p>}
                           
@@ -597,7 +597,7 @@ export default function ChatDashboardPage() {
                                 href={msg.attachment_url} 
                                 target="_blank" 
                                 rel="noreferrer" 
-                                className="underline truncate font-semibold text-zinc-300 hover:text-white"
+                                className="underline truncate font-semibold text-zinc-300 hover:text-foreground"
                               >
                                 {msg.attachment_name}
                               </a>
@@ -657,7 +657,7 @@ export default function ChatDashboardPage() {
                           <div className="w-px h-4 bg-border/40 mx-0.5" />
                           <button
                             onClick={() => openThread(msg)}
-                            className="p-0.5 hover:bg-white/10 rounded text-zinc-400 hover:text-white"
+                            className="p-0.5 hover:bg-white/10 rounded text-zinc-400 hover:text-foreground"
                             title="Responder en hilo"
                           >
                             <Reply size={13} />
@@ -684,7 +684,7 @@ export default function ChatDashboardPage() {
             </div>
 
             {attachment && (
-              <div className="px-5 py-2.5 border-t border-border/20 bg-slate-900/30 flex items-center justify-between gap-3 text-xs shrink-0">
+              <div className="px-5 py-2.5 border-t border-border/20 bg-muted/30 flex items-center justify-between gap-3 text-xs shrink-0">
                 <div className="flex items-center gap-2 text-indigo-400 truncate">
                   <FileText size={14} />
                   <span className="truncate font-semibold">{attachment.name}</span>
@@ -693,7 +693,7 @@ export default function ChatDashboardPage() {
                   onClick={() => setAttachment(null)} 
                   variant="ghost" 
                   size="icon" 
-                  className="h-6 w-6 text-zinc-500 hover:text-white hover:bg-white/5"
+                  className="h-6 w-6 text-zinc-500 hover:text-foreground hover:bg-white/5"
                 >
                   <X size={14} />
                 </Button>
@@ -701,7 +701,7 @@ export default function ChatDashboardPage() {
             )}
 
             <form onSubmit={handleSendMessage} className="p-4 border-t border-border/20 bg-slate-950/20 shrink-0 flex gap-2 items-center">
-              <label className="cursor-pointer p-2.5 bg-slate-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white rounded-xl transition-colors shrink-0">
+              <label className="cursor-pointer p-2.5 bg-slate-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-foreground rounded-xl transition-colors shrink-0">
                 <Paperclip size={14} />
                 <input type="file" onChange={handleFileUpload} disabled={isUploading} className="hidden" />
               </label>
@@ -711,12 +711,12 @@ export default function ChatDashboardPage() {
                 onChange={handleInputChange}
                 placeholder={isUploading ? "Subiendo archivo..." : "Escribe un mensaje aquí..."}
                 disabled={isUploading}
-                className="flex-1 bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none transition-colors disabled:opacity-50"
+                className="flex-1 bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-xl px-4 py-2.5 text-xs text-foreground placeholder-zinc-600 focus:outline-none transition-colors disabled:opacity-50"
               />
               <Button
                 type="submit"
                 disabled={isUploading || (!messageText.trim() && !attachment)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 h-auto rounded-xl shadow-md cursor-pointer shrink-0"
+                className="bg-indigo-600 hover:bg-indigo-700 text-foreground p-2.5 h-auto rounded-xl shadow-md cursor-pointer shrink-0"
               >
                 <Send size={14} />
               </Button>
@@ -738,10 +738,10 @@ export default function ChatDashboardPage() {
         <div className="w-80 border-l border-border/30 flex flex-col bg-slate-900/50 shrink-0">
           <div className="p-3 border-b border-border/20 flex justify-between items-center shrink-0">
             <div>
-              <h3 className="font-bold text-[11px] text-white">Hilo</h3>
+              <h3 className="font-bold text-[11px] text-foreground">Hilo</h3>
               <p className="text-[9px] text-zinc-500 truncate max-w-[180px]">{threadMessage.content}</p>
             </div>
-            <Button onClick={closeThread} variant="ghost" size="icon" className="h-6 w-6 text-zinc-400 hover:text-white">
+            <Button onClick={closeThread} variant="ghost" size="icon" className="h-6 w-6 text-zinc-400 hover:text-foreground">
               <X size={14} />
             </Button>
           </div>
@@ -779,9 +779,9 @@ export default function ChatDashboardPage() {
               value={threadReply}
               onChange={(e) => setThreadReply(e.target.value)}
               placeholder="Responder en hilo..."
-              className="flex-1 bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-lg px-3 py-1.5 text-[10px] text-white placeholder-zinc-600 focus:outline-none"
+              className="flex-1 bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-lg px-3 py-1.5 text-[10px] text-foreground placeholder-zinc-600 focus:outline-none"
             />
-            <Button type="submit" disabled={!threadReply.trim()} className="bg-indigo-600 hover:bg-indigo-700 text-white p-1.5 h-auto rounded-lg shrink-0">
+            <Button type="submit" disabled={!threadReply.trim()} className="bg-indigo-600 hover:bg-indigo-700 text-foreground p-1.5 h-auto rounded-lg shrink-0">
               <Send size={11} />
             </Button>
           </form>
@@ -805,7 +805,7 @@ export default function ChatDashboardPage() {
                 onClick={() => { setShowDmModal(false); setDmSearch(""); }} 
                 variant="ghost" 
                 size="icon" 
-                className="h-7 w-7 text-zinc-400 hover:text-white"
+                className="h-7 w-7 text-zinc-400 hover:text-foreground"
               >
                 <X size={16} />
               </Button>
@@ -819,7 +819,7 @@ export default function ChatDashboardPage() {
                   placeholder="Buscar colega por nombre o email..."
                   value={dmSearch}
                   onChange={(e) => setDmSearch(e.target.value)}
-                  className="w-full bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none transition-colors"
+                  className="w-full bg-slate-900 border border-zinc-800 focus:border-indigo-500/50 rounded-lg pl-9 pr-3 py-2 text-xs text-foreground focus:outline-none transition-colors"
                 />
               </div>
 
@@ -840,11 +840,11 @@ export default function ChatDashboardPage() {
                           {emp.full_name ? emp.full_name.split(" ").map((n) => n[0]).slice(0,2).join("").toUpperCase() : "U"}
                         </div>
                         <div className="truncate leading-tight">
-                          <p className="font-bold text-xs text-white truncate">{emp.full_name}</p>
+                          <p className="font-bold text-xs text-foreground truncate">{emp.full_name}</p>
                           <p className="text-[9px] text-zinc-500 truncate">{emp.department || "SAS Employee"}</p>
                         </div>
                       </div>
-                      <ChevronRight size={14} className="text-zinc-500 group-hover:text-white transition-colors" />
+                      <ChevronRight size={14} className="text-zinc-500 group-hover:text-foreground transition-colors" />
                     </button>
                   ))
                 )}

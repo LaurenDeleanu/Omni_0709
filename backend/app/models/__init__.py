@@ -32,4 +32,6 @@ from app.models.rag import KnowledgeDocument, KnowledgeChunk
 from app.models.git import GitRepository, CodeModule
 from app.models.branch_edit import BranchSession, FileProposal
 from app.models.chat import Team, TeamMember, ChatRoom, ChatRoomMember, ChatMessage
+from app.models.invoice import CustomerInvoice
+from app.models.tax_bracket import TaxBracket
 

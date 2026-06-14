@@ -4,12 +4,13 @@ from typing import Dict, Any, List
 import csv
 import io
 
+from app.api.dependencies import get_current_user
 from app.services.predictive_analytics import MARKET_BENCHMARKS
 
 router = APIRouter(prefix="/benchmarks", tags=["benchmarks"])
 
 @router.post("/upload")
-async def upload_benchmarks(file: UploadFile = File(...)):
+async def upload_benchmarks(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     """
     Upload market compensation data as CSV.
     Expected columns: department, market_average, market_median
@@ -45,7 +46,7 @@ async def upload_benchmarks(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Failed to process CSV: {str(e)}")
 
 @router.get("/")
-async def get_benchmarks():
+async def get_benchmarks(current_user: dict = Depends(get_current_user)):
     """
     Get current market benchmarks.
     """

@@ -127,10 +127,15 @@ class VerifyToken:
         try:
             import asyncio as _asyncio
             from app.services.token_revocation import is_token_revoked
-            loop = _asyncio.get_event_loop()
-            if not loop.is_running():
-                loop = _asyncio.new_event_loop()
-            revoked = loop.run_until_complete(is_token_revoked(jti))
+            try:
+                loop = _asyncio.get_running_loop()
+                if loop.is_running():
+                    futures = _asyncio.run_coroutine_threadsafe(is_token_revoked(jti), loop)
+                    revoked = futures.result(timeout=5)
+                else:
+                    revoked = _asyncio.run(is_token_revoked(jti))
+            except RuntimeError:
+                revoked = _asyncio.run(is_token_revoked(jti))
             if revoked:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,

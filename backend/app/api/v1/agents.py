@@ -7,6 +7,9 @@ from pydantic import BaseModel
 import json
 import uuid
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db, require_roles, get_current_user
 from app.api.v1._pagination import paginate_query
 from app.schemas.pagination import PaginatedResponse
@@ -26,6 +29,8 @@ from app.services.prompt_templates import get_templates, get_template_by_id
 from app.api.v1.agent_schedules import router as schedules_router
 from app.api.v1.agent_triggers import router as triggers_router
 from app.api.v1.agent_budgets import router as budgets_router
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter()
 router.include_router(schedules_router, prefix="/schedules", tags=["Agent Schedules"])
@@ -81,6 +86,18 @@ class ChatRequest(BaseModel):
 class RAGDocumentCreate(BaseModel):
     filename: str
     content: str
+
+class CrewTaskRequest(BaseModel):
+    task: str
+    agent_ids: Optional[list[str]] = None
+    max_parallel: int = 3
+    worker_timeout_seconds: int = 120
+
+class SwarmRunRequest(BaseModel):
+    task: str
+    starting_agent_id: Optional[str] = None
+    agent_ids: Optional[list[str]] = None
+    max_handoffs: int = 5
 
 # --- Routes ---
 
@@ -447,6 +464,7 @@ async def delete_agent(
     await db.commit()
     return {"status": "success", "message": "Agente eliminado exitosamente"}
 
+@limiter.limit("30/minute")
 @router.post("/{agent_id}/run")
 async def run_agent(
     agent_id: str,
@@ -471,6 +489,7 @@ async def run_agent(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@limiter.limit("30/minute")
 @router.post("/{agent_id}/stream")
 async def stream_agent(
     agent_id: str,
@@ -1297,4 +1316,208 @@ async def classify_agent_risk(agent_type: str):
     classification = await classify_agent_risk(agent_type)
     classification["mitigations"] = await get_risk_mitigations(classification["risk_category"])
     return classification
+
+
+# ── Crew Orchestration Endpoints ─────────────────────────────────────────────
+
+
+@limiter.limit("10/minute")
+@router.post("/crew/execute")
+async def execute_crew_task(
+    request: CrewTaskRequest,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.agent_crew import execute_crew_task
+
+    try:
+        result = await execute_crew_task(
+            task=request.task,
+            agent_ids=request.agent_ids,
+            max_parallel=request.max_parallel,
+            worker_timeout=request.worker_timeout_seconds,
+            db=db,
+            user_id=current_user.get("sub", "").split("|")[-1],
+            tenant_id=current_user.get("tenant_id", "default"),
+        )
+        return result.model_dump()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@limiter.limit("10/minute")
+@router.post("/crew/stream")
+async def crew_stream(
+    request: CrewTaskRequest,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.agent_crew import execute_crew_task
+
+    user_id = current_user.get("sub", "").split("|")[-1]
+    tenant_id = current_user.get("tenant_id", "default")
+
+    progress_events: list[dict] = []
+
+    async def progress_callback(event_type: str, data: dict):
+        progress_events.append({"event": event_type, "data": data})
+
+    async def event_generator():
+        import asyncio as _asyncio
+
+        async def run_task():
+            return await execute_crew_task(
+                task=request.task,
+                agent_ids=request.agent_ids,
+                max_parallel=request.max_parallel,
+                worker_timeout=request.worker_timeout_seconds,
+                db=db,
+                user_id=user_id,
+                tenant_id=tenant_id,
+                progress_callback=progress_callback,
+            )
+
+        loop = _asyncio.get_event_loop()
+        future = _asyncio.ensure_future(run_task())
+
+        sent_events = 0
+        while not future.done():
+            while sent_events < len(progress_events):
+                ev = progress_events[sent_events]
+                yield f"event: {ev['event']}\ndata: {json.dumps(ev['data'], ensure_ascii=False)}\n\n"
+                sent_events += 1
+            await _asyncio.sleep(0.1)
+
+        while sent_events < len(progress_events):
+            ev = progress_events[sent_events]
+            yield f"event: {ev['event']}\ndata: {json.dumps(ev['data'], ensure_ascii=False)}\n\n"
+            sent_events += 1
+
+        try:
+            result = future.result()
+            yield f"event: crew_complete\ndata: {json.dumps(result.model_dump(), ensure_ascii=False)}\n\n"
+        except Exception as e:
+            yield f"event: error\ndata: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# ── Swarm Orchestration Endpoints ────────────────────────────────────────────
+
+
+@limiter.limit("10/minute")
+@router.post("/swarm/run")
+async def run_swarm(
+    request: SwarmRunRequest,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.agent_swarm import execute_swarm_run
+
+    user_id = current_user.get("sub", "").split("|")[-1]
+
+    starting_agent_id = request.starting_agent_id
+    if not starting_agent_id:
+        agents_res = await db.execute(select(Agent).where(Agent.is_active == True).limit(1))
+        first = agents_res.scalar_one_or_none()
+        if first:
+            starting_agent_id = first.id
+        else:
+            raise HTTPException(status_code=400, detail="No active agents available")
+
+    try:
+        result = await execute_swarm_run(
+            task=request.task,
+            starting_agent_id=starting_agent_id,
+            max_handoffs=request.max_handoffs,
+            agent_ids=request.agent_ids,
+            db=db,
+            user_id=user_id,
+            tenant_id=current_user.get("tenant_id", "default"),
+        )
+        return result.model_dump()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@limiter.limit("10/minute")
+@router.post("/swarm/stream")
+async def stream_swarm(
+    request: SwarmRunRequest,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.agent_swarm import execute_swarm_run
+
+    user_id = current_user.get("sub", "").split("|")[-1]
+    tenant_id = current_user.get("tenant_id", "default")
+
+    agents_res = await db.execute(select(Agent).where(Agent.is_active == True).limit(1))
+    first = agents_res.scalar_one_or_none()
+    if not request.starting_agent_id and not first:
+        raise HTTPException(status_code=400, detail="No active agents available")
+
+    starting_agent_id = request.starting_agent_id or first.id
+
+    progress_events: list[dict] = []
+
+    async def progress_callback(event_type: str, data: dict):
+        progress_events.append({"event": event_type, "data": data})
+
+    async def event_generator():
+        import asyncio as _asyncio
+
+        async def run_task():
+            return await execute_swarm_run(
+                task=request.task,
+                starting_agent_id=starting_agent_id,
+                max_handoffs=request.max_handoffs,
+                agent_ids=request.agent_ids,
+                db=db,
+                user_id=user_id,
+                tenant_id=tenant_id,
+                progress_callback=progress_callback,
+            )
+
+        loop = _asyncio.get_event_loop()
+        future = _asyncio.ensure_future(run_task())
+
+        sent_events = 0
+        while not future.done():
+            while sent_events < len(progress_events):
+                ev = progress_events[sent_events]
+                yield f"event: {ev['event']}\ndata: {json.dumps(ev['data'], ensure_ascii=False)}\n\n"
+                sent_events += 1
+            await _asyncio.sleep(0.1)
+
+        while sent_events < len(progress_events):
+            ev = progress_events[sent_events]
+            yield f"event: {ev['event']}\ndata: {json.dumps(ev['data'], ensure_ascii=False)}\n\n"
+            sent_events += 1
+
+        try:
+            result = future.result()
+            yield f"event: swarm_complete\ndata: {json.dumps(result.model_dump(), ensure_ascii=False)}\n\n"
+        except Exception as e:
+            yield f"event: error\ndata: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 

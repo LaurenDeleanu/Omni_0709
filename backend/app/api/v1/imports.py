@@ -12,6 +12,9 @@ import csv
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import require_roles, get_current_user, get_tenant_db
 from app.core.task_queue import enqueue, get_task_status, register_task
 from app.tasks.employee_sync import process_employees_file
@@ -20,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import asyncio
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 UPLOAD_DIR        = "downloads/imports"
@@ -96,6 +100,7 @@ register_task("import_courses", _import_courses)
 register_task("import_expenses", _import_expenses)
 
 
+@limiter.limit("5/minute")
 @router.post("/upload")
 async def upload_employees_file(
     file: UploadFile = File(...),
@@ -228,6 +233,7 @@ async def get_import_entities():
     return {"entities": ENTITY_DEFINITIONS}
 
 
+@limiter.limit("5/minute")
 @router.post("/upload/{entity_type}")
 async def upload_entity_file(
     entity_type: str,
@@ -343,6 +349,7 @@ async def preview_csv_import(body: dict, current_user: dict = Depends(get_curren
     return await preview_csv(body.get("csv_content", ""), body.get("entity_type", "employees"))
 
 
+@limiter.limit("5/minute")
 @router.post("/csv/import")
 async def csv_import_bulk(
     body: dict,

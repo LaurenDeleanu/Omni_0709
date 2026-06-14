@@ -41,22 +41,22 @@ export default function GuardrailsPanel({
 
       {/* Guardrail Rules editor */}
       <div className="space-y-2">
-        <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">
+        <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">
           Guardrail Directives (Override Instructions)
         </label>
         <textarea
-          className="input border-red-500/20 focus:border-red-500/50 bg-zinc-950/60 font-mono text-xs leading-relaxed"
+          className="input border-red-500/20 focus:border-red-500/50 bg-card/60 font-mono text-xs leading-relaxed"
           rows={6}
           placeholder="E.g. NUNCA menciones a competidores (Competidor X, Competidor Y). NUNCA ofrezcas reembolsos de forma directa sin supervisor. NUNCA respondas preguntas de política o religión."
           value={aiGuardrails}
           onChange={(e) => onGuardrailsChange(e.target.value)}
         />
-        <span className="text-[10px] text-zinc-500">List instructions clearly using bullet points or CAPITAL keywords for best accuracy.</span>
+        <span className="text-[10px] text-muted-foreground">List instructions clearly using bullet points or CAPITAL keywords for best accuracy.</span>
       </div>
 
       {/* Strict Compliance controls */}
-      <div className="border-t border-white/5 pt-5 space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Automated Policy Interceptors</h3>
+      <div className="border-t border-border/10 pt-5 space-y-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Automated Policy Interceptors</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
@@ -64,13 +64,13 @@ export default function GuardrailsPanel({
             className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex gap-3 items-start ${
               settings.piiRedaction
                 ? "border-red-500/30 bg-red-500/5"
-                : "border-white/5 bg-zinc-950/20 hover:border-white/10"
+                : "border-border/10 bg-muted/30 hover:border-border/20"
             }`}
           >
-            <UserX className={`w-5 h-5 mt-0.5 ${settings.piiRedaction ? "text-red-400" : "text-zinc-500"}`} />
+            <UserX className={`w-5 h-5 mt-0.5 ${settings.piiRedaction ? "text-red-400" : "text-muted-foreground"}`} />
             <div>
-              <span className="text-xs font-bold text-white block">PII Redaction</span>
-              <span className="text-[10px] text-zinc-400 font-light leading-normal block mt-1">
+              <span className="text-xs font-bold text-foreground block">PII Redaction</span>
+              <span className="text-[10px] text-muted-foreground font-light leading-normal block mt-1">
                 Mask client credit cards, emails, and phone numbers in vectors and logs.
               </span>
             </div>
@@ -81,13 +81,13 @@ export default function GuardrailsPanel({
             className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex gap-3 items-start ${
               settings.strictModeration
                 ? "border-red-500/30 bg-red-500/5"
-                : "border-white/5 bg-zinc-950/20 hover:border-white/10"
+                : "border-border/10 bg-muted/30 hover:border-border/20"
             }`}
           >
-            <AlertOctagon className={`w-5 h-5 mt-0.5 ${settings.strictModeration ? "text-red-400" : "text-zinc-500"}`} />
+            <AlertOctagon className={`w-5 h-5 mt-0.5 ${settings.strictModeration ? "text-red-400" : "text-muted-foreground"}`} />
             <div>
-              <span className="text-xs font-bold text-white block">Strict Content Filtering</span>
-              <span className="text-[10px] text-zinc-400 font-light leading-normal block mt-1">
+              <span className="text-xs font-bold text-foreground block">Strict Content Filtering</span>
+              <span className="text-[10px] text-muted-foreground font-light leading-normal block mt-1">
                 Instantly drop prompts containing profanity, racism, or threat flags.
               </span>
             </div>
@@ -98,13 +98,13 @@ export default function GuardrailsPanel({
             className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex gap-3 items-start ${
               settings.hallucinationGuard
                 ? "border-red-500/30 bg-red-500/5"
-                : "border-white/5 bg-zinc-950/20 hover:border-white/10"
+                : "border-border/10 bg-muted/30 hover:border-border/20"
             }`}
           >
-            <EyeOff className={`w-5 h-5 mt-0.5 ${settings.hallucinationGuard ? "text-red-400" : "text-zinc-500"}`} />
+            <EyeOff className={`w-5 h-5 mt-0.5 ${settings.hallucinationGuard ? "text-red-400" : "text-muted-foreground"}`} />
             <div>
-              <span className="text-xs font-bold text-white block">Anti-Hallucination Anchor</span>
-              <span className="text-[10px] text-zinc-400 font-light leading-normal block mt-1">
+              <span className="text-xs font-bold text-foreground block">Anti-Hallucination Anchor</span>
+              <span className="text-[10px] text-muted-foreground font-light leading-normal block mt-1">
                 Require the model to cite specific vector chunks or static core contextual keys before replying.
               </span>
             </div>
@@ -115,13 +115,13 @@ export default function GuardrailsPanel({
             className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex gap-3 items-start ${
               settings.competitorShield
                 ? "border-red-500/30 bg-red-500/5"
-                : "border-white/5 bg-zinc-950/20 hover:border-white/10"
+                : "border-border/10 bg-muted/30 hover:border-border/20"
             }`}
           >
-            <Lock className={`w-5 h-5 mt-0.5 ${settings.competitorShield ? "text-red-400" : "text-zinc-500"}`} />
+            <Lock className={`w-5 h-5 mt-0.5 ${settings.competitorShield ? "text-red-400" : "text-muted-foreground"}`} />
             <div>
-              <span className="text-xs font-bold text-white block">Competitor Blocker</span>
-              <span className="text-[10px] text-zinc-400 font-light leading-normal block mt-1">
+              <span className="text-xs font-bold text-foreground block">Competitor Blocker</span>
+              <span className="text-[10px] text-muted-foreground font-light leading-normal block mt-1">
                 Refuse to compare pricing, capabilities, or details with competitors.
               </span>
             </div>

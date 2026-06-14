@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import {
   BookOpen,
   Code2,
@@ -267,14 +267,14 @@ export default function DocsPage() {
   const activeContent = sections.find((s) => s.id === activeSection);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* NAV */}
-      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80">
               <Building2 className="h-5 w-5 text-indigo-400" />
-              <span className="text-white font-bold">SuccessCore</span>
+              <span className="text-foreground font-bold">SuccessCore</span>
               <span className="text-slate-500 text-sm">/ docs</span>
             </Link>
             <div className="flex items-center gap-4">
@@ -287,7 +287,7 @@ export default function DocsPage() {
               </Link>
               <Link
                 href="/login"
-                className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors"
+                className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold rounded-lg transition-colors"
               >
                 Dashboard
               </Link>
@@ -308,7 +308,7 @@ export default function DocsPage() {
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
                     activeSection === section.id
                       ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                      : "text-slate-400 hover:text-foreground hover:bg-white/5"
                   }`}
                 >
                   <section.icon className="h-4 w-4 flex-shrink-0" />
@@ -323,7 +323,7 @@ export default function DocsPage() {
             <select
               value={activeSection}
               onChange={(e) => setActiveSection(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-foreground text-sm"
             >
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>

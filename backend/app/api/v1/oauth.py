@@ -4,6 +4,9 @@ from sqlalchemy import select
 from pydantic import BaseModel
 from typing import List, Optional
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db, require_roles, get_current_user
 from app.services.oauth_service import (
     register_oauth_client, validate_client, exchange_code_for_tokens,
@@ -13,6 +16,7 @@ from app.services.oauth_rate_limiter import check_oauth_rate_limit, get_oauth_ra
 from app.services.integrations.google import GoogleWorkspaceIntegration
 from app.services.integrations.microsoft import Microsoft365Integration
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -88,6 +92,7 @@ async def authorize(
 
 
 @router.post("/token")
+@limiter.limit("20/minute")
 async def token(body: TokenRequest, db: AsyncSession = Depends(get_tenant_db)):
     if body.grant_type == "authorization_code":
         if not body.code:
@@ -98,12 +103,18 @@ async def token(body: TokenRequest, db: AsyncSession = Depends(get_tenant_db)):
         return result
 
     elif body.grant_type == "refresh_token":
-        raise HTTPException(status_code=501, detail="Refresh token flow not yet implemented")
+        if not body.refresh_token:
+            raise HTTPException(status_code=400, detail="refresh_token is required")
+        result = await exchange_refresh_token(db, body.refresh_token, body.client_id, body.client_secret)
+        if not result:
+            raise HTTPException(status_code=400, detail="Invalid refresh_token or client credentials")
+        return result
 
     raise HTTPException(status_code=400, detail=f"Unsupported grant_type: {body.grant_type}")
 
 
 @router.post("/introspect")
+@limiter.limit("20/minute")
 async def introspect(body: IntrospectRequest, db: AsyncSession = Depends(get_tenant_db)):
     result = await introspect_token(db, body.token)
     if not result:

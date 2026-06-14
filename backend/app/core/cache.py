@@ -1,3 +1,16 @@
+# ══════════════════════════════════════════════════════════════════
+# DEPRECATED — USE app.core.cache_advanced.TieredCache instead.
+#
+# This module remains for backward compatibility. New code should
+# use TieredCache which provides:
+#   - L1 in-memory cache (TTL dict)
+#   - L2 Redis cache
+#   - Cache stampede protection (XFetch)
+#   - Cache warming
+#   - Optional zlib compression
+#   - Namespace-based invalidation
+#   - Built-in hit/miss statistics
+# ══════════════════════════════════════════════════════════════════
 # app/core/cache.py — Unified Redis caching layer
 # Provides cache-aside pattern with TTL, namespacing, and invalidation hooks.
 import json

@@ -268,16 +268,16 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[650px]">
       {/* Messages Panel */}
-      <div className="lg:col-span-2 flex flex-col border border-white/5 bg-zinc-950/40 rounded-2xl overflow-hidden h-full">
+      <div className="lg:col-span-2 flex flex-col border border-border/10 bg-card/50 rounded-2xl overflow-hidden h-full">
         {/* Header */}
-        <div className="flex justify-between items-center px-5 py-3.5 border-b border-white/5 bg-zinc-950/20">
+        <div className="flex justify-between items-center px-5 py-3.5 border-b border-border/10 bg-muted/30">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${isSending ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
-            <span className="text-xs font-bold text-white uppercase tracking-wider">Agent Chat Simulator</span>
+            <span className="text-xs font-bold text-foreground uppercase tracking-wider">Agent Chat Simulator</span>
           </div>
           <button
             onClick={clearChat}
-            className="text-[10px] bg-zinc-900 border border-white/10 hover:bg-zinc-800 text-zinc-400 hover:text-white py-1 px-2.5 rounded-lg flex items-center gap-1 transition-colors"
+            className="text-[10px] bg-muted border border-border/20 hover:bg-secondary text-muted-foreground hover:text-foreground py-1 px-2.5 rounded-lg flex items-center gap-1 transition-colors"
           >
             <RefreshCw className="w-3 h-3" />
             Reset
@@ -296,7 +296,7 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
                 <div
                   className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border ${
                     isUser
-                      ? "bg-zinc-900 border-zinc-700 text-white"
+                      ? "bg-muted border-border text-foreground"
                       : "bg-[var(--color-primary)]/10 border-[var(--color-primary)]/20 text-[var(--color-primary)]"
                   }`}
                 >
@@ -307,18 +307,18 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
                   <div
                     className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
                       isUser
-                        ? "bg-zinc-900 text-zinc-100 border border-zinc-800 rounded-tr-none"
-                        : "bg-[var(--color-muted)] text-white border border-white/5 rounded-tl-none"
+                        ? "bg-muted text-foreground border border-border rounded-tr-none"
+                        : "bg-[var(--color-muted)] text-foreground border border-border/10 rounded-tl-none"
                     }`}
                   >
                     {msg.content || (isSending && index === messages.length - 1 ? (
-                      <span className="flex gap-1 items-center italic text-zinc-500">
+                      <span className="flex gap-1 items-center italic text-muted-foreground">
                         Streaming reply...
                       </span>
                     ) : "")}
                   </div>
                   {!isUser && (msg.tokens || msg.latency) && (
-                    <div className="flex items-center gap-2 text-[9px] text-zinc-500 font-mono mt-0.5 px-1">
+                    <div className="flex items-center gap-2 text-[9px] text-muted-foreground font-mono mt-0.5 px-1">
                       {msg.latency && <span>{msg.latency}ms</span>}
                       {msg.tokens && <span>• {msg.tokens} tokens</span>}
                       {msg.tools && msg.tools.length > 0 && (
@@ -334,9 +334,9 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
         </div>
 
         {/* Input bar */}
-        <form onSubmit={handleSend} className="p-4 border-t border-white/5 bg-zinc-950/20 flex gap-2">
+        <form onSubmit={handleSend} className="p-4 border-t border-border/10 bg-muted/30 flex gap-2">
           <input
-            className="input text-xs py-2.5 flex-1 bg-zinc-950/60 border-zinc-800 text-white placeholder-zinc-500"
+            className="input text-xs py-2.5 flex-1 bg-card/60 border-border text-foreground placeholder-zinc-500"
             placeholder="Type your mock message here..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -357,44 +357,44 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
       </div>
 
       {/* Traces and Metrics Panel */}
-      <div className="border border-white/5 bg-zinc-950/20 rounded-2xl p-5 flex flex-col gap-5 h-full overflow-hidden">
-        <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+      <div className="border border-border/10 bg-muted/30 rounded-2xl p-5 flex flex-col gap-5 h-full overflow-hidden">
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5 shrink-0">
           <Cpu className="w-4 h-4 text-[var(--color-primary)]" />
           Trace Inspector
         </h3>
 
         {/* Parameter values / stats */}
         <div className="grid grid-cols-2 gap-3 shrink-0">
-          <div className="bg-zinc-950/60 border border-white/5 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-[9px] text-zinc-500 font-mono uppercase">Target LLM Model</span>
-            <span className="text-xs font-bold text-white font-mono truncate">{agentModel}</span>
+          <div className="bg-card/60 border border-border/20 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-[9px] text-muted-foreground font-mono uppercase">Target LLM Model</span>
+            <span className="text-xs font-bold text-foreground font-mono truncate">{agentModel}</span>
           </div>
 
-          <div className="bg-zinc-950/60 border border-white/5 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-[9px] text-zinc-500 font-mono uppercase">Execution Latency</span>
+          <div className="bg-card/60 border border-border/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-[9px] text-muted-foreground font-mono uppercase">Execution Latency</span>
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-xs font-bold text-white font-mono">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-bold text-foreground font-mono">
                 {latestLatency !== null ? `${latestLatency} ms` : "—"}
               </span>
             </div>
           </div>
 
-          <div className="bg-zinc-950/60 border border-white/5 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-[9px] text-zinc-500 font-mono uppercase">Token Count</span>
+          <div className="bg-card/60 border border-border/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-[9px] text-muted-foreground font-mono uppercase">Token Count</span>
             <div className="flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-xs font-bold text-white font-mono">
+              <Activity className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-bold text-foreground font-mono">
                 {latestTokens !== null ? `${latestTokens} tokens` : "—"}
               </span>
             </div>
           </div>
 
-          <div className="bg-zinc-950/60 border border-white/5 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-[9px] text-zinc-500 font-mono uppercase">Invoked Tools</span>
+          <div className="bg-card/60 border border-border/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-[9px] text-muted-foreground font-mono uppercase">Invoked Tools</span>
             <div className="flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-xs font-bold text-white font-mono truncate">
+              <Zap className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-bold text-foreground font-mono truncate">
                 {triggeredTools.length > 0 ? triggeredTools.join(", ") : "None"}
               </span>
             </div>
@@ -402,14 +402,14 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
         </div>
 
         {/* Live Trace Steps List */}
-        <div className="flex-1 flex flex-col min-h-0 border-t border-white/5 pt-4 overflow-hidden">
-          <span className="text-[10px] text-zinc-500 font-mono uppercase mb-2 shrink-0">Live Trace Log</span>
+        <div className="flex-1 flex flex-col min-h-0 border-t border-border/10 pt-4 overflow-hidden">
+          <span className="text-[10px] text-muted-foreground font-mono uppercase mb-2 shrink-0">Live Trace Log</span>
           <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-1 min-h-0">
             {traceSteps.length > 0 ? (
               traceSteps.map((step, idx) => {
                 let icon = <Cpu className="w-3.5 h-3.5" />;
                 let title = "Step";
-                let badgeClass = "bg-zinc-800 text-zinc-400 border-zinc-700";
+                let badgeClass = "bg-secondary text-muted-foreground border-border";
 
                 if (step.type === "thought") {
                   icon = <Brain className="w-3.5 h-3.5" />;
@@ -438,27 +438,27 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
                 } else if (step.type === "status") {
                   icon = <Activity className="w-3.5 h-3.5" />;
                   title = "Status Update";
-                  badgeClass = "bg-zinc-800 text-zinc-300 border-zinc-700";
+                  badgeClass = "bg-secondary text-muted-foreground/80 border-border";
                 }
 
                 return (
-                  <div key={idx} className="bg-zinc-950/60 border border-white/5 rounded-xl p-3 space-y-2 text-xs transition-all hover:bg-zinc-900/50">
+                  <div key={idx} className="bg-card/60 border border-border/10 rounded-xl p-3 space-y-2 text-xs transition-all hover:bg-muted/50">
                     <div className="flex justify-between items-center">
                       <span className={`text-[10px] font-mono border px-2 py-0.5 rounded-lg flex items-center gap-1.5 ${badgeClass}`}>
                         {icon}
                         {title}
                       </span>
-                      <span className="text-[9px] text-zinc-500 font-mono">
+                      <span className="text-[9px] text-muted-foreground font-mono">
                         {step.timestamp.toLocaleTimeString()}
                       </span>
                     </div>
 
-                    <p className="text-zinc-300 text-xs font-sans leading-relaxed whitespace-pre-wrap">
+                    <p className="text-muted-foreground/80 text-xs font-sans leading-relaxed whitespace-pre-wrap">
                       {step.content}
                     </p>
 
                     {step.details && (
-                      <div className="mt-1.5 p-2 bg-zinc-950 border border-white/5 rounded-lg text-[10px] font-mono text-zinc-400 overflow-x-auto">
+                      <div className="mt-1.5 p-2 bg-card border border-border/10 rounded-lg text-[10px] font-mono text-muted-foreground overflow-x-auto">
                         {typeof step.details === "object"
                           ? JSON.stringify(step.details, null, 2)
                           : String(step.details)}
@@ -468,8 +468,8 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
                 );
               })
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-500 border border-dashed border-white/5 rounded-xl">
-                <Activity className="w-8 h-8 text-zinc-600 mb-2 animate-pulse" />
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground border border-dashed border-border/10 rounded-xl">
+                <Activity className="w-8 h-8 text-muted-foreground mb-2 animate-pulse" />
                 <span className="text-[11px] font-mono">Awaiting stream execution...</span>
               </div>
             )}

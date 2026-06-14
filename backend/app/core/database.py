@@ -3,6 +3,7 @@ from sqlalchemy import text
 from app.core.config import settings
 import asyncio
 import logging
+import os
 
 logger = logging.getLogger("successcore.database")
 
@@ -88,4 +89,55 @@ def get_engine_for_region(region: str):
     _regional_engines[region] = region_engine
     logger.info(f"Initialized new DB engine for region: {region}")
     return region_engine
+
+
+# ── Read Replica Support ──────────────────────────────────────────────────────
+# Separate read (ro) from write (rw) paths for analytics and heavy queries.
+# Falls back to primary if READ_REPLICA_URL is not configured.
+
+_read_replica_engine = None
+_read_replica_sessionmaker = None
+
+
+def _get_read_replica_engine():
+    global _read_replica_engine
+    if _read_replica_engine is not None:
+        return _read_replica_engine
+
+    replica_url = os.getenv("READ_REPLICA_URL", "")
+    if not replica_url:
+        logger.info("No READ_REPLICA_URL configured — analytics will use primary DB")
+        _read_replica_engine = engine  # fall back to primary
+        return _read_replica_engine
+
+    rp_kwargs = engine_kwargs.copy()
+    rp_kwargs["pool_size"] = 5
+    rp_kwargs["max_overflow"] = 10
+    _read_replica_engine = create_async_engine(replica_url, **rp_kwargs)
+    logger.info("Read replica engine initialized")
+    return _read_replica_engine
+
+
+def get_read_sessionmaker() -> async_sessionmaker:
+    global _read_replica_sessionmaker
+    if _read_replica_sessionmaker is None:
+        rp_engine = _get_read_replica_engine()
+        _read_replica_sessionmaker = async_sessionmaker(
+            bind=rp_engine,
+            class_=AsyncSession,
+            autocommit=False,
+            autoflush=False,
+            expire_on_commit=False,
+        )
+    return _read_replica_sessionmaker
+
+
+async def get_read_db():
+    """Dependency — yields a read-only session from the replica (or primary fallback)."""
+    maker = get_read_sessionmaker()
+    async with maker() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
 
