@@ -288,7 +288,7 @@ export default function LoginPage() {
 
             {/* Login button */}
             <a
-              href="/api/auth/login"
+              href="/api/auth/login?returnTo=/en/dashboard"
               className="group flex items-center justify-center gap-3 w-full py-2.5 px-4
                          bg-white/5 border border-white/10
                          hover:bg-white/10

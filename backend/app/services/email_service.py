@@ -3,13 +3,14 @@ import smtplib
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from app.core.config import settings
 
 logger = logging.getLogger("successcore.email")
 
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
+SMTP_HOST = settings.SMTP_HOST or "smtp.gmail.com"
+SMTP_PORT = settings.SMTP_PORT or 587
+SMTP_USER = settings.SMTP_USER or ""
+SMTP_PASS = settings.SMTP_PASSWORD or ""
 
 
 async def send_email(to: str, subject: str, body: str, html: bool = False) -> bool:
