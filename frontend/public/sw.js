@@ -40,7 +40,15 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
   if (API_ROUTE.test(url.pathname)) {
-    event.respondWith(networkFirst(event.request));
+    event.respondWith(
+      fetch(event.request, { credentials: "include" }).catch((err) => {
+        console.error("SW API fetch failed:", err);
+        return new Response(JSON.stringify({ error: "network_error" }), {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        });
+      })
+    );
     return;
   }
 
