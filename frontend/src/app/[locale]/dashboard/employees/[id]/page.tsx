@@ -1112,7 +1112,7 @@ export default function EmployeeDetailPage() {
               <div className="flex items-end gap-3 pt-2 border-t border-border/30">
                 <div className="space-y-2 flex-1">
                   <Label htmlFor="new-role-select" className="text-xs font-semibold text-muted-foreground">Asignar Nuevo Rol</Label>
-                  <Select value={newRole} onValueChange={setNewRole}>
+                  <Select value={newRole} onValueChange={(v) => setNewRole(v || "")}>
                     <SelectTrigger id="new-role-select">
                       <SelectValue />
                     </SelectTrigger>
