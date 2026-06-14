@@ -71,7 +71,11 @@ export async function fetchClient(endpoint: string, options: RequestInit = {}) {
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new APIError(errData.detail || "Error en la peticion al servidor", response.status);
+    let detail = errData.detail;
+    if (Array.isArray(detail)) {
+      detail = detail.map((d: any) => d.msg || JSON.stringify(d)).join("; ");
+    }
+    throw new APIError(detail || "Error en la peticion al servidor", response.status);
   }
 
   const contentType = response.headers.get("content-type");
