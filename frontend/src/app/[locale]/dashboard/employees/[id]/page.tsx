@@ -53,14 +53,14 @@ const EMPTY_FORM = {
 const VALID_ROLES = ["employee", "hr_admin", "sys_admin", "super_admin", "manager"];
 
 const TAB_DEFS = [
-  { id: "info", label: "Información Personal", icon: User },
-  { id: "history", label: "Historial Laboral", icon: Clock },
-  { id: "timeoff", label: "Ausencias", icon: Umbrella },
-  { id: "tickets", label: "Tickets IT", icon: Ticket },
-  { id: "reviews", label: "Evaluaciones", icon: Star },
-  { id: "documents", label: "Documentos", icon: FileText },
-  { id: "training", label: "Formación", icon: GraduationCap },
-  { id: "kudos", label: "Kudos", icon: Activity },
+  { id: "info", label: "Información Personal", icon: User, adminOnly: false },
+  { id: "history", label: "Historial Laboral", icon: Clock, adminOnly: false },
+  { id: "timeoff", label: "Ausencias", icon: Umbrella, adminOnly: false },
+  { id: "tickets", label: "Tickets IT", icon: Ticket, adminOnly: false },
+  { id: "reviews", label: "Evaluaciones", icon: Star, adminOnly: false },
+  { id: "documents", label: "Documentos", icon: FileText, adminOnly: false },
+  { id: "training", label: "Formación", icon: GraduationCap, adminOnly: false },
+  { id: "kudos", label: "Kudos", icon: Activity, adminOnly: false },
   { id: "roles", label: "Roles y Permisos", icon: Shield, adminOnly: true },
 ] as const;
 
