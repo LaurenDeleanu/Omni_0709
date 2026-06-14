@@ -2,6 +2,7 @@ import secrets
 import hashlib
 import time
 import hmac
+import re
 from fastapi import Request, HTTPException, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.config import settings
@@ -68,16 +69,30 @@ class CSRFMiddleware(BaseHTTPMiddleware):
 
         origin = request.headers.get("Origin")
         referer = request.headers.get("Referer")
-        if origin and settings.FRONTEND_URL not in origin and "localhost" not in origin:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid Origin header.",
-            )
-        if not origin and referer and settings.FRONTEND_URL not in referer and "localhost" not in referer:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid Referer header.",
-            )
+        if origin:
+            if settings.FRONTEND_URL and settings.FRONTEND_URL in origin:
+                pass
+            elif "localhost" in origin:
+                pass
+            elif _VERCEL_DOMAIN_RE.match(origin):
+                pass
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Invalid Origin header.",
+                )
+        if not origin and referer:
+            if settings.FRONTEND_URL and settings.FRONTEND_URL in referer:
+                pass
+            elif "localhost" in referer:
+                pass
+            elif _VERCEL_DOMAIN_RE.match(referer):
+                pass
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Invalid Referer header.",
+                )
 
         csrf_header = request.headers.get("X-CSRF-Token") or request.headers.get("x-csrf-token")
         if not csrf_header:

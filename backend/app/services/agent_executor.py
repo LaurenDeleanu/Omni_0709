@@ -734,6 +734,11 @@ async def _execute_agent_run_inner(
         run_log.status = "success"
         run_log.output_result = {"reply": safe_text}
 
+        if not safe_text or safe_text.strip().lower() in ("completed successfully", "task completed", "done", ""):
+            run_log.status = "failed"
+            run_log.output_result = {"reply": safe_text, "error": "Agent returned empty or generic completion response"}
+            trace_steps.append({"step": "empty_response_detected", "reply": safe_text[:200]})
+
         if user_id:
             try:
                 await save_conversation_turn(db, agent_id, user_id, user_msg, safe_text)
