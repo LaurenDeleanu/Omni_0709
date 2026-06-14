@@ -273,7 +273,8 @@ async def logout():
     response.delete_cookie(
         key="access_token",
         path="/",
-        samesite="lax"
+        secure=not settings.SQLALCHEMY_DATABASE_URI.startswith("sqlite"),
+        samesite="none"
     )
     return response
 
@@ -530,7 +531,7 @@ async def login_local(req: LoginRequest, request: Request):
             value=token,
             httponly=True,
             secure=is_production,
-            samesite="lax",
+            samesite="none" if is_production else "lax",
             max_age=7 * 24 * 3600,
             path="/",
         )

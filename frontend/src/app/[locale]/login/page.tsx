@@ -82,8 +82,8 @@ export default function LoginPage() {
       // The httpOnly cookie was already set by the backend Set-Cookie header.
       if (typeof window !== "undefined") {
         sessionStorage.setItem("local_user", JSON.stringify(data.user));
-        if (data.access_token) {
-          localStorage.setItem("local_access_token", data.access_token);
+        if (data.accessToken) {
+          localStorage.setItem("local_access_token", data.accessToken);
         }
       }
 
