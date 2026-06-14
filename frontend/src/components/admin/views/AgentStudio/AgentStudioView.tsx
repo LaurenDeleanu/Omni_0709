@@ -88,8 +88,10 @@ export default function AgentStudioView({
       setSaved(true);
       toast.success("Agent settings successfully updated!", { id: toastId });
       setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      toast.error("Failed to update agent settings.", { id: toastId });
+    } catch (err: any) {
+      console.error("Agent settings save error:", err);
+      const detail = err?.message || err?.detail || "Unknown error";
+      toast.error(`Failed to update agent settings: ${detail}`, { id: toastId });
     } finally {
       setIsSaving(false);
     }
