@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List, Optional, Dict, Any
@@ -88,6 +88,7 @@ async def get_crm_leads(
 @router.post("/leads", response_model=LeadResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("30/minute")
 async def create_crm_lead(
+    request: Request,
     data: LeadCreate,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -115,6 +116,7 @@ async def create_crm_lead(
 @router.patch("/leads/{lead_id}/stage")
 @limiter.limit("30/minute")
 async def update_crm_lead_stage(
+    request: Request,
     lead_id: str,
     payload: StageUpdate,
     db: AsyncSession = Depends(get_tenant_db),
@@ -168,6 +170,7 @@ async def get_crm_contacts(
 @router.post("/contacts", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("30/minute")
 async def create_crm_contact(
+    request: Request,
     data: ClientCreate,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -250,6 +253,7 @@ async def get_crm_contact_details(
 @router.post("/contacts/{contact_id}")
 @limiter.limit("30/minute")
 async def create_contact_activity(
+    request: Request,
     contact_id: str,
     payload: dict,
     db: AsyncSession = Depends(get_tenant_db),
@@ -267,6 +271,7 @@ async def create_contact_activity(
 @router.delete("/contacts/{contact_id}")
 @limiter.limit("30/minute")
 async def delete_crm_contact(
+    request: Request,
     contact_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -338,6 +343,7 @@ async def get_crm_lead_details(
 @router.patch("/leads/{lead_id}")
 @limiter.limit("30/minute")
 async def update_crm_lead(
+    request: Request,
     lead_id: str,
     payload: dict,
     db: AsyncSession = Depends(get_tenant_db),
@@ -366,6 +372,7 @@ async def update_crm_lead(
 @router.post("/leads/{lead_id}")
 @limiter.limit("30/minute")
 async def create_lead_activity(
+    request: Request,
     lead_id: str,
     payload: dict,
     db: AsyncSession = Depends(get_tenant_db),
@@ -383,6 +390,7 @@ async def create_lead_activity(
 @router.delete("/leads/{lead_id}")
 @limiter.limit("30/minute")
 async def delete_crm_lead(
+    request: Request,
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -411,6 +419,7 @@ class ConversationAnalysisRequest(BaseModel):
 @router.post("/leads/{lead_id}/score")
 @limiter.limit("30/minute")
 async def ai_score_lead(
+    request: Request,
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
@@ -424,6 +433,7 @@ async def ai_score_lead(
 @router.post("/leads/{lead_id}/next-action")
 @limiter.limit("30/minute")
 async def ai_next_action(
+    request: Request,
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
@@ -453,6 +463,7 @@ async def ai_pipeline_scoreboard(
 @router.post("/leads/{lead_id}/email-template")
 @limiter.limit("30/minute")
 async def ai_email_template(
+    request: Request,
     lead_id: str,
     payload: EmailTemplateRequest,
     db: AsyncSession = Depends(get_tenant_db),
@@ -467,6 +478,7 @@ async def ai_email_template(
 @router.post("/leads/{lead_id}/predict-probability")
 @limiter.limit("30/minute")
 async def ai_predict_probability(
+    request: Request,
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
@@ -480,6 +492,7 @@ async def ai_predict_probability(
 @router.post("/conversation/analyze")
 @limiter.limit("30/minute")
 async def ai_analyze_conversation(
+    request: Request,
     payload: ConversationAnalysisRequest,
     current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
 ):

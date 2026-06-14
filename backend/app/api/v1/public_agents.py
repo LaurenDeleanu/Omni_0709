@@ -73,6 +73,7 @@ async def _get_tenant_db_session(tenant_id: str) -> AsyncSession:
 @router.post("/agents/{agent_id}/run")
 @limiter.limit("10/minute")
 async def public_run_agent(
+    request: Request,
     agent_id: str,
     body: PublicAgentRunRequest,
     x_api_key: str = Header(..., alias="X-API-Key"),

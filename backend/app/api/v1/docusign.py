@@ -42,7 +42,7 @@ class WebhookEvent(BaseModel):
 
 @router.post("/send", status_code=status.HTTP_200_OK)
 @limiter.limit("10/minute")
-async def send_for_signature(req: SendEnvelopeRequest):
+async def send_for_signature(request: Request, req: SendEnvelopeRequest):
     if not docusign_service._configured:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
