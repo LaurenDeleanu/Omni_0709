@@ -18,7 +18,10 @@ async def get_redis() -> redis.Redis:
             settings.REDIS_URI,
             decode_responses=True,
             protocol=2,  # RESP2 for older Redis
-            socket_timeout=5,
-            socket_connect_timeout=5,
+            socket_timeout=30,
+            socket_connect_timeout=10,
+            socket_keepalive=True,
+            retry_on_timeout=True,
+            health_check_interval=30,
         )
     return _client
