@@ -1,13 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
 from pydantic import BaseModel
+import os
 
 from app.api.dependencies import get_tenant_db, require_roles
+from app.core.config import settings
 from app.models.agent import Agent
 from app.models.workflow_step import WorkflowStep
 from app.models.workflow_trigger import WorkflowTrigger
+
+
+def _verify_webhook_signature(request: Request):
+    secret = os.getenv("WEBHOOK_SECRET", settings.SECRET_KEY)
+    if not secret or secret == settings.SECRET_KEY:
+        return True
+    token = request.headers.get("X-Webhook-Secret") or request.headers.get("X-Hub-Signature")
+    if not token or token != secret:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+    return True
 from app.services.workflow_runtime import execute_workflow_run
 from app.services.workflow_export_import import export_workflow, import_workflow
 import uuid
@@ -308,8 +320,10 @@ async def get_workflow_runs(
 async def webhook_trigger(
     trigger_id: str,
     body: dict,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db),
 ):
+    _verify_webhook_signature(request)
     result = await db.execute(select(WorkflowTrigger).where(WorkflowTrigger.id == trigger_id))
     trigger = result.scalar_one_or_none()
     if not trigger:

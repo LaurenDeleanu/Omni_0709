@@ -22,7 +22,7 @@ interface MetricsDashboardProps {
 export default function MetricsDashboard({ runs, isLoading }: MetricsDashboardProps) {
   // Calculate stats from runs list
   const totalRuns = runs.length;
-  const successRuns = runs.filter((r) => r.status === "SUCCESS").length;
+  const successRuns = runs.filter((r) => r.status === "success").length;
   const successRate = totalRuns > 0 ? (successRuns / totalRuns) * 100 : 0;
   
   const avgLatency = totalRuns > 0

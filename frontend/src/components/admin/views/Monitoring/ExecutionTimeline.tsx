@@ -24,7 +24,7 @@ export default function ExecutionTimeline({ runs, isLoading }: ExecutionTimeline
   const [selectedRun, setSelectedRun] = useState<ExecutionRun | null>(null);
 
   const getStatusBadge = (status: string) => {
-    if (status === "SUCCESS") {
+    if (status === "success") {
       return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25";
     }
     return "bg-red-500/10 text-red-400 border border-red-500/25";

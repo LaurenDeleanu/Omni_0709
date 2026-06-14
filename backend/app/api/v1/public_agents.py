@@ -9,6 +9,9 @@ from sqlalchemy import select
 from pydantic import BaseModel
 from datetime import datetime, timezone
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db
 from app.models.agent import Agent, AgentApiKey
 from app.services.agent_runtime import execute_agent_run
@@ -16,6 +19,7 @@ from app.services.agent_directory import standardize_agent_output
 
 logger = logging.getLogger("successcore.public_agents")
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -67,6 +71,7 @@ async def _get_tenant_db_session(tenant_id: str) -> AsyncSession:
 
 
 @router.post("/agents/{agent_id}/run")
+@limiter.limit("10/minute")
 async def public_run_agent(
     agent_id: str,
     body: PublicAgentRunRequest,

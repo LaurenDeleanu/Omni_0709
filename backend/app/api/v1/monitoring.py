@@ -116,7 +116,7 @@ async def get_provider_health_status(
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
 ):
     health = get_provider_health()
-    return {"providers": health.get_all_stats()}
+    return {"providers": await health.get_all_stats()}
 
 
 @router.get("/cache-stats")
@@ -124,6 +124,15 @@ async def get_cache_statistics(
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
 ):
     return cache_stats()
+
+
+@router.get("/cache/stats")
+async def get_cache_stats(
+    current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
+):
+    from app.core.cache_advanced import get_tiered_cache
+    cache = await get_tiered_cache()
+    return cache.stats()
 
 
 @router.get("/api-analytics")

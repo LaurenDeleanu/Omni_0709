@@ -70,7 +70,7 @@ export default function AgentTypeSelector({ selectedType, onChange }: AgentTypeS
             className={`text-left p-5 rounded-2xl border transition-all duration-300 relative overflow-hidden group ${
               isSelected
                 ? `border-[var(--color-primary)] bg-[rgba(6,182,212,0.06)] shadow-lg`
-                : "border-white/5 bg-zinc-950/40 hover:bg-zinc-900/60 hover:border-white/10"
+                : "border-border/10 bg-card/50 hover:bg-muted/60 hover:border-border/20"
             }`}
             style={{
               boxShadow: isSelected ? `0 0 25px ${type.glowColor}` : "none",
@@ -83,14 +83,14 @@ export default function AgentTypeSelector({ selectedType, onChange }: AgentTypeS
               <div className={`p-2.5 rounded-xl border ${type.color} group-hover:scale-105 transition-transform`}>
                 {type.icon}
               </div>
-              <span className="text-[9px] font-bold tracking-wider uppercase bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-zinc-400">
+              <span className="text-[9px] font-bold tracking-wider uppercase bg-white/5 border border-border/20 px-2 py-0.5 rounded-full text-muted-foreground">
                 {type.badge}
               </span>
             </div>
-            <h4 className="text-sm font-bold text-white mb-1 group-hover:text-[var(--color-primary)] transition-colors">
+            <h4 className="text-sm font-bold text-foreground mb-1 group-hover:text-[var(--color-primary)] transition-colors">
               {type.title}
             </h4>
-            <p className="text-xs text-zinc-400 leading-relaxed font-light">
+            <p className="text-xs text-muted-foreground leading-relaxed font-light">
               {type.desc}
             </p>
           </button>

@@ -14,6 +14,7 @@ from app.services.activity_feed import get_activity_feed
 from app.services.custom_fields import set_custom_field, delete_custom_field
 from app.services.department_analytics import get_department_analytics
 import uuid
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -229,3 +230,41 @@ async def delete_history_entry(
     await db.delete(entry)
     await db.commit()
     return None
+
+
+@router.get("/{user_id}/profile")
+async def get_employee_full_profile(
+    user_id: str,
+    db: AsyncSession = Depends(get_tenant_db),
+    _: dict = Depends(require_roles(["hr_admin", "employee"])),
+):
+    """
+    Get a full employee profile in the same format as GET /self-service/profile.
+    This ensures the personnel view matches the own-profile view.
+    """
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+
+    return {
+        "id": user.id,
+        "full_name": user.full_name,
+        "email": user.email,
+        "phone": user.phone_number or "",
+        "address": user.address or "",
+        "emergency_contact": user.emergency_contact or "",
+        "emergency_phone": user.phone_number or "",
+        "bank_iban": user.iban or "",
+        "tax_id": user.social_security_number or "",
+        "role": user.role or "employee",
+        "roles": user.roles or ["employee"],
+        "department": user.department or "",
+        "manager_id": user.manager_id or "",
+        "hire_date": user.hire_date.isoformat() if user.hire_date else None,
+        "contract_type": user.contract_type or "",
+        "base_salary": user.base_salary or 0.0,
+        "country": user.country or "ES",
+        "is_active": user.is_active,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+    }

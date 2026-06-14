@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { fetchClient } from "@/lib/api/client";
 
 interface LogEntry {
   id: string;
@@ -24,12 +25,8 @@ export default function LogsExplorer({ botId }: LogsExplorerProps) {
   const fetchLogs = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/bots/${botId}/activity?limit=150`);
-      if (res.ok) {
-        const data = await res.json();
-        setLogs(data.activity || []);
-        setFilteredLogs(data.activity || []);
-      }
+      const data = await fetchClient(`/bots/${botId}/activity?limit=150`);
+      setLogs(data.activity || []);
     } catch (e) {
       console.error("Error loading explorer logs:", e);
     } finally {

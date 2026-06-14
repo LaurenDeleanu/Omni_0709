@@ -6,10 +6,14 @@ from pydantic import BaseModel
 from datetime import datetime
 import json
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db, require_roles
 from app.models.sales import Client, Lead
 import uuid
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 # --- Schemas ---
@@ -82,6 +86,7 @@ async def get_crm_leads(
     return result.scalars().all()
 
 @router.post("/leads", response_model=LeadResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
 async def create_crm_lead(
     data: LeadCreate,
     db: AsyncSession = Depends(get_tenant_db),
@@ -108,6 +113,7 @@ async def create_crm_lead(
     return db_lead
 
 @router.patch("/leads/{lead_id}/stage")
+@limiter.limit("30/minute")
 async def update_crm_lead_stage(
     lead_id: str,
     payload: StageUpdate,
@@ -160,6 +166,7 @@ async def get_crm_contacts(
     }
 
 @router.post("/contacts", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
 async def create_crm_contact(
     data: ClientCreate,
     db: AsyncSession = Depends(get_tenant_db),
@@ -241,6 +248,7 @@ async def get_crm_contact_details(
     }
 
 @router.post("/contacts/{contact_id}")
+@limiter.limit("30/minute")
 async def create_contact_activity(
     contact_id: str,
     payload: dict,
@@ -257,6 +265,7 @@ async def create_contact_activity(
     return {"status": "success", "message": "Actividad registrada exitosamente"}
 
 @router.delete("/contacts/{contact_id}")
+@limiter.limit("30/minute")
 async def delete_crm_contact(
     contact_id: str,
     db: AsyncSession = Depends(get_tenant_db),
@@ -327,6 +336,7 @@ async def get_crm_lead_details(
     }
 
 @router.patch("/leads/{lead_id}")
+@limiter.limit("30/minute")
 async def update_crm_lead(
     lead_id: str,
     payload: dict,
@@ -354,6 +364,7 @@ async def update_crm_lead(
     return {"status": "success", "message": "Negocio actualizado exitosamente"}
 
 @router.post("/leads/{lead_id}")
+@limiter.limit("30/minute")
 async def create_lead_activity(
     lead_id: str,
     payload: dict,
@@ -370,6 +381,7 @@ async def create_lead_activity(
     return {"status": "success", "message": "Actividad registrada exitosamente"}
 
 @router.delete("/leads/{lead_id}")
+@limiter.limit("30/minute")
 async def delete_crm_lead(
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
@@ -397,6 +409,7 @@ class ConversationAnalysisRequest(BaseModel):
     deal_context: str = ""
 
 @router.post("/leads/{lead_id}/score")
+@limiter.limit("30/minute")
 async def ai_score_lead(
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
@@ -409,6 +422,7 @@ async def ai_score_lead(
     return result
 
 @router.post("/leads/{lead_id}/next-action")
+@limiter.limit("30/minute")
 async def ai_next_action(
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
@@ -437,6 +451,7 @@ async def ai_pipeline_scoreboard(
     return await do_batch(db)
 
 @router.post("/leads/{lead_id}/email-template")
+@limiter.limit("30/minute")
 async def ai_email_template(
     lead_id: str,
     payload: EmailTemplateRequest,
@@ -450,6 +465,7 @@ async def ai_email_template(
     return result
 
 @router.post("/leads/{lead_id}/predict-probability")
+@limiter.limit("30/minute")
 async def ai_predict_probability(
     lead_id: str,
     db: AsyncSession = Depends(get_tenant_db),
@@ -462,6 +478,7 @@ async def ai_predict_probability(
     return result
 
 @router.post("/conversation/analyze")
+@limiter.limit("30/minute")
 async def ai_analyze_conversation(
     payload: ConversationAnalysisRequest,
     current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))

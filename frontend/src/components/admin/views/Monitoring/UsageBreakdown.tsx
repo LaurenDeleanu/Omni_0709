@@ -86,9 +86,9 @@ export default function UsageBreakdown({ runs, isLoading }: UsageBreakdownProps)
   });
 
   const finalModels = modelsList.length > 0 ? modelsList : [
-    { name: "gpt-4o-mini", share: 65, tokens: Math.round(totalTokens * 0.65), cost: totalCost * 0.65, color: "bg-indigo-500 text-indigo-400" },
-    { name: "gpt-4o", share: 20, tokens: Math.round(totalTokens * 0.20), cost: totalCost * 0.20, color: "bg-purple-500 text-purple-400" },
-    { name: "google/gemini-1.5-flash", share: 10, tokens: Math.round(totalTokens * 0.10), cost: totalCost * 0.10, color: "bg-cyan-500 text-cyan-400" },
+    { name: "gpt-4o-mini", share: 65, tokens: Math.round(totalTokens * 0.65), cost: totalCost * 0.65, color: "bg-primary text-primary" },
+    { name: "gpt-4o", share: 20, tokens: Math.round(totalTokens * 0.20), cost: totalCost * 0.20, color: "bg-chart-2 text-chart-2" },
+    { name: "google/gemini-1.5-flash", share: 10, tokens: Math.round(totalTokens * 0.10), cost: totalCost * 0.10, color: "bg-chart-4 text-chart-4" },
     { name: "meta-llama/llama-3.1-8b-instruct", share: 5, tokens: Math.round(totalTokens * 0.05), cost: totalCost * 0.05, color: "bg-emerald-500 text-emerald-400" },
   ];
 

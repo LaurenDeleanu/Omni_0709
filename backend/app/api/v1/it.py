@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func as sa_func
 from typing import List, Optional
 from datetime import datetime, date, timedelta, timezone
-from app.api.dependencies import get_tenant_db, require_roles, check_module_enabled
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles, check_module_enabled
 from app.models.it import ITAsset, ITTicket, SaaSLicense, ITRequisition, ITKnowledgeArticle
 from app.models.user import User
 from app.schemas.it import (
@@ -778,3 +778,24 @@ async def get_asset_summary(
     alerts = await get_warranty_alerts(db)
     summary["warranty_alerts"] = alerts
     return summary
+
+
+# ── SLA Dashboard ──────────────────────────────────────────────────────────────
+
+@router.get("/sla/dashboard")
+async def sla_dashboard(
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.sla_tracking import get_sla_dashboard
+    return await get_sla_dashboard(db, current_user.get("tenant_id", "default"))
+
+
+@router.get("/sla/tickets")
+async def sla_ticket_list(
+    ticket_id: Optional[str] = Query(default=None),
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.sla_tracking import get_ticket_sla_status
+    return await get_ticket_sla_status(db, current_user.get("tenant_id", "default"), ticket_id)

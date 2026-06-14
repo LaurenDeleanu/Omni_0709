@@ -1038,3 +1038,26 @@ async def calculate_ss_costs(
     from app.services.siltra_sepe import calculate_social_security_costs
     return await calculate_social_security_costs(gross_salary, contribution_group, contract_type)
 
+
+class TaxCalculateRequest(BaseModel):
+    gross_salary: float
+    country_code: str
+
+
+@router.get("/tax/countries")
+async def get_tax_countries():
+    from app.services.tax_calculator import get_all_countries
+    return get_all_countries()
+
+
+@router.get("/tax/brackets/{country_code}")
+async def get_tax_brackets_endpoint(country_code: str):
+    from app.services.tax_calculator import get_tax_brackets
+    return get_tax_brackets(country_code)
+
+
+@router.post("/tax/calculate")
+async def calculate_tax_endpoint(data: TaxCalculateRequest):
+    from app.services.tax_calculator import calculate_tax
+    return calculate_tax(data.gross_salary, data.country_code)
+

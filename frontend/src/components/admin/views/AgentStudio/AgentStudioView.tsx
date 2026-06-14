@@ -132,7 +132,7 @@ export default function AgentStudioView({
 
   if (!bot) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh] text-zinc-500">
+      <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)] mb-3" />
         <span className="text-xs font-light">Loading Laboratory...</span>
       </div>
@@ -208,7 +208,7 @@ export default function AgentStudioView({
               {bot.agentType || "CONVERSATIONAL"}
             </span>
           </div>
-          <p className="text-xs text-zinc-400 font-light">
+          <p className="text-xs text-muted-foreground font-light">
             Model, optimize, and simulate your enterprise autonomous AI agent workspace.
           </p>
         </div>
@@ -226,7 +226,7 @@ export default function AgentStudioView({
       </div>
 
       {/* Tabs list */}
-      <div className="flex border-b border-white/5 mb-8 overflow-x-auto custom-scrollbar">
+      <div className="flex border-b border-border/10 mb-8 overflow-x-auto custom-scrollbar">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -236,7 +236,7 @@ export default function AgentStudioView({
               className={`flex items-center gap-2 px-6 py-3 border-b-2 text-xs font-bold transition-all whitespace-nowrap ${
                 isActive
                   ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-[rgba(6,182,212,0.02)]"
-                  : "border-transparent text-zinc-400 hover:text-white"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {tab.icon}
@@ -252,7 +252,7 @@ export default function AgentStudioView({
           <div className="space-y-6 animate-fade-in">
             {/* Identity Form */}
             <div className="glass-card p-6">
-              <h3 className="text-base font-bold text-white mb-5 flex items-center gap-2">
+              <h3 className="text-base font-bold text-foreground mb-5 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[var(--color-primary)]" />
                 🎭 Identity & System Directives
               </h3>
@@ -260,7 +260,7 @@ export default function AgentStudioView({
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">Agent Name</label>
+                    <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">Agent Name</label>
                     <input
                       className="input"
                       value={bot.name || ""}
@@ -268,7 +268,7 @@ export default function AgentStudioView({
                     />
                   </div>
                   <div>
-                    <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">Tone of Voice</label>
+                    <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">Tone of Voice</label>
                     <input
                       className="input"
                       placeholder="e.g. Helpful, professional, concise, empathetic..."
@@ -279,7 +279,7 @@ export default function AgentStudioView({
                 </div>
 
                 <div>
-                  <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">Primary LLM Model</label>
+                  <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">Primary LLM Model</label>
                   <select
                     className="input"
                     value={bot.aiModel || ""}
@@ -310,7 +310,7 @@ export default function AgentStudioView({
                 </div>
 
                 <div>
-                  <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">Core Instruction (System Prompt)</label>
+                  <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">Core Instruction (System Prompt)</label>
                   <textarea
                     className="input font-mono text-xs leading-relaxed"
                     rows={8}
@@ -324,11 +324,11 @@ export default function AgentStudioView({
 
             {/* Agent Type selector */}
             <div className="glass-card p-6">
-              <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
+              <h3 className="text-base font-bold text-foreground mb-2 flex items-center gap-2">
                 <Settings className="w-4 h-4 text-[var(--color-primary)]" />
                 Workload Specialization
               </h3>
-              <p className="text-xs text-zinc-400 font-light mb-6">
+              <p className="text-xs text-muted-foreground font-light mb-6">
                 Assign the architectural paradigm of this agent. This controls default prompt bindings, response structure validations, and available execution modules.
               </p>
               <AgentTypeSelector
@@ -339,20 +339,20 @@ export default function AgentStudioView({
 
             {/* API Credentials */}
             <div className="glass-card p-6">
-              <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
+              <h3 className="text-base font-bold text-foreground mb-2 flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 text-[var(--color-primary)]" />
                 API Credentials (BYOK)
               </h3>
-              <p className="text-xs text-zinc-400 font-light mb-6">
+              <p className="text-xs text-muted-foreground font-light mb-6">
                 Configure your own API keys. These are encrypted and stored securely inside the tenant's settings database.
               </p>
               
               <div className="space-y-4">
                 <div>
-                  <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">OpenRouter API Key</label>
+                  <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">OpenRouter API Key</label>
                   <input
                     type="password"
-                    className="input w-full bg-zinc-900 border border-zinc-800 text-white rounded p-2 text-xs"
+                    className="input w-full bg-muted border border-border text-foreground rounded p-2 text-xs"
                     placeholder={activeCapabilities.openrouter_api_key === "********" ? "********" : "sk-or-v1-..."}
                     value={activeCapabilities.openrouter_api_key === "********" ? "********" : (activeCapabilities.openrouter_api_key || "")}
                     onChange={(e) => {
@@ -363,10 +363,10 @@ export default function AgentStudioView({
                 </div>
                 
                 <div>
-                  <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">OpenAI API Key</label>
+                  <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">OpenAI API Key</label>
                   <input
                     type="password"
-                    className="input w-full bg-zinc-900 border border-zinc-800 text-white rounded p-2 text-xs"
+                    className="input w-full bg-muted border border-border text-foreground rounded p-2 text-xs"
                     placeholder={activeCapabilities.openai_api_key === "********" ? "********" : "sk-..."}
                     value={activeCapabilities.openai_api_key === "********" ? "********" : (activeCapabilities.openai_api_key || "")}
                     onChange={(e) => {
@@ -377,10 +377,10 @@ export default function AgentStudioView({
                 </div>
 
                 <div>
-                  <label className="label text-xs uppercase tracking-wider text-zinc-400 font-bold block mb-1">Gemini API Key</label>
+                  <label className="label text-xs uppercase tracking-wider text-muted-foreground font-bold block mb-1">Gemini API Key</label>
                   <input
                     type="password"
-                    className="input w-full bg-zinc-900 border border-zinc-800 text-white rounded p-2 text-xs"
+                    className="input w-full bg-muted border border-border text-foreground rounded p-2 text-xs"
                     placeholder={activeCapabilities.gemini_api_key === "********" ? "********" : "AIzaSy..."}
                     value={activeCapabilities.gemini_api_key === "********" ? "********" : (activeCapabilities.gemini_api_key || "")}
                     onChange={(e) => {
@@ -396,11 +396,11 @@ export default function AgentStudioView({
 
         {activeTab === "capabilities" && (
           <div className="glass-card p-6 animate-fade-in">
-            <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
+            <h3 className="text-base font-bold text-foreground mb-1 flex items-center gap-2">
               <Cpu className="w-4 h-4 text-[var(--color-primary)]" />
               Autonomous Capabilities
             </h3>
-            <p className="text-xs text-zinc-400 font-light mb-6">
+            <p className="text-xs text-muted-foreground font-light mb-6">
               Toggle background checkers and safety agents that run concurrently with the core LLM execution stack.
             </p>
             <CapabilitiesPanel
@@ -412,11 +412,11 @@ export default function AgentStudioView({
 
         {activeTab === "tools" && (
           <div className="glass-card p-6 animate-fade-in">
-            <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
+            <h3 className="text-base font-bold text-foreground mb-1 flex items-center gap-2">
               <Settings className="w-4 h-4 text-[var(--color-primary)]" />
               Connector Hub & Skills
             </h3>
-            <p className="text-xs text-zinc-400 font-light mb-6">
+            <p className="text-xs text-muted-foreground font-light mb-6">
               Grant the agent specialized functional tools to interact with web APIs, calendar systems, and numeric calculators.
             </p>
             <ToolBindingPanel
@@ -428,7 +428,7 @@ export default function AgentStudioView({
 
         {activeTab === "memory" && (
           <div className="glass-card p-6 animate-fade-in">
-            <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+            <h3 className="text-base font-bold text-foreground mb-6 flex items-center gap-2">
               <Database className="w-4 h-4 text-[var(--color-primary)]" />
               Memory & Knowledge (RAG)
             </h3>
@@ -445,7 +445,7 @@ export default function AgentStudioView({
 
         {activeTab === "guardrails" && (
           <div className="glass-card p-6 animate-fade-in">
-            <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+            <h3 className="text-base font-bold text-foreground mb-6 flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-[var(--color-primary)]" />
               Safety Guardrails & Compliance Policies
             </h3>
@@ -460,7 +460,7 @@ export default function AgentStudioView({
 
         {activeTab === "testbench" && (
           <div className="glass-card p-6 animate-fade-in">
-            <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+            <h3 className="text-base font-bold text-foreground mb-6 flex items-center gap-2">
               <Terminal className="w-4 h-4 text-[var(--color-primary)]" />
               Real-time Simulation Bench
             </h3>

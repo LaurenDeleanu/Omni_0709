@@ -183,7 +183,7 @@ export default function TrainingDashboard() {
   const [rankDragging, setRankDragging] = useState<number | null>(null);
   const [textInputAnswer, setTextInputAnswer] = useState("");
 
-  const [scormIframeRef, setScormIframeRef] = useState<HTMLIFrameElement | null>(null);
+  const scormIframeRef = useRef<HTMLIFrameElement | null>(null);
   const scormApiRef = useRef<any>(null);
 
   const [fundaeLog, setFundaeLog] = useState<any>(null);
@@ -431,13 +431,16 @@ export default function TrainingDashboard() {
   };
 
   const handleIframeLoad = useCallback(() => {
-    if (scormIframeRef && scormApiRef.current) {
+    const iframe = scormIframeRef.current;
+    if (iframe && scormApiRef.current) {
       try {
-        const win = scormIframeRef.contentWindow as any;
-        win.API = scormApiRef.current;
+        const win = iframe.contentWindow as any;
+        if (win && !win.API) {
+          win.API = scormApiRef.current;
+        }
       } catch {}
     }
-  }, [scormIframeRef]);
+  }, []);
 
   const handleDragStart = (idx: number) => {
     setRankDragging(idx);
@@ -742,8 +745,9 @@ export default function TrainingDashboard() {
                   <div className="flex-1 rounded-xl overflow-hidden border border-border/50 bg-white">
                     <iframe
                       ref={(el) => {
-                        if (el) setScormIframeRef(el);
+                        scormIframeRef.current = el;
                       }}
+                      key={activeCourse.id}
                       src={activeCourse.package_url}
                       className="w-full h-full"
                       sandbox="allow-scripts allow-same-origin allow-forms allow-popups"

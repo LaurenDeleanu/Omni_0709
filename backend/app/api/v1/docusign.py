@@ -1,12 +1,28 @@
 import logging
-from fastapi import APIRouter, HTTPException, status, BackgroundTasks
+import os
+from fastapi import APIRouter, HTTPException, status, BackgroundTasks, Request
 from pydantic import BaseModel
 from typing import Optional
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.services import docusign_service
+from app.core.config import settings
 
 logger = logging.getLogger("successcore.docusign_api")
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
+
+WEBHOOK_SECRET = os.getenv("DOCUSIGN_WEBHOOK_SECRET", settings.SECRET_KEY)
+
+
+def _verify_webhook(request: Request):
+    if not WEBHOOK_SECRET or WEBHOOK_SECRET == settings.SECRET_KEY:
+        return True
+    token = request.headers.get("X-Docusign-Signature") or request.headers.get("X-Webhook-Secret")
+    if not token or token != WEBHOOK_SECRET:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+    return True
 
 
 class SendEnvelopeRequest(BaseModel):
@@ -25,6 +41,7 @@ class WebhookEvent(BaseModel):
 
 
 @router.post("/send", status_code=status.HTTP_200_OK)
+@limiter.limit("10/minute")
 async def send_for_signature(req: SendEnvelopeRequest):
     if not docusign_service._configured:
         raise HTTPException(
@@ -57,7 +74,8 @@ async def send_for_signature(req: SendEnvelopeRequest):
 
 
 @router.post("/webhook", status_code=status.HTTP_200_OK)
-async def docusign_webhook(event: dict):
+async def docusign_webhook(event: dict, request: Request):
+    _verify_webhook(request)
     envelope_id = event.get("envelopeId") or event.get("envelope_id", "unknown")
     envelope_status = event.get("status") or event.get("event", "unknown")
 

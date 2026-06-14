@@ -6,6 +6,9 @@ from typing import List, Optional
 import uuid
 import os
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 from app.api.dependencies import get_tenant_db, require_roles, check_module_enabled
 from app.models.hire import JobPosting, Candidate, Interview, CandidatePool, CandidatePoolEntry
 from app.models.user import User
@@ -14,6 +17,7 @@ from app.core.auth import hash_password
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(dependencies=[Depends(check_module_enabled("hire"))])
 public_router = APIRouter()
 
@@ -1004,6 +1008,7 @@ async def promote_candidate(
 # AI-Powered Resume Screening Endpoints (F1)
 # ---------------------------------------------------------
 @router.post("/candidates/screen")
+@limiter.limit("20/minute")
 async def screen_candidate_full(
     file: UploadFile = File(...),
     job_id: str = Form(...),
@@ -1131,6 +1136,7 @@ async def generate_interview_questions_endpoint(
 
 
 @router.post("/candidates/batch-screen")
+@limiter.limit("20/minute")
 async def batch_screen_endpoint(
     files: List[UploadFile] = File(...),
     job_id: str = Form(...),

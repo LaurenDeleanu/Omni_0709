@@ -146,6 +146,53 @@ async def exchange_code_for_tokens(db: AsyncSession, code: str, client_id: str, 
     }
 
 
+async def exchange_refresh_token(db: AsyncSession, refresh_token: str, client_id: str, client_secret: str) -> Optional[dict]:
+    client = await validate_client(db, client_id, client_secret)
+    if not client:
+        return None
+
+    rt_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
+    from app.models.oauth import OAuthToken
+    result = await db.execute(
+        select(OAuthToken).where(
+            OAuthToken.refresh_token_hash == rt_hash,
+            OAuthToken.client_id == client_id,
+            OAuthToken.revoked == False,
+        )
+    )
+    token = result.scalar_one_or_none()
+    if not token:
+        return None
+
+    token.revoked = True
+
+    import uuid
+    new_access_token = secrets.token_urlsafe(32)
+    new_refresh_token = secrets.token_urlsafe(32)
+    at_hash = hashlib.sha256(new_access_token.encode()).hexdigest()
+    new_rt_hash = hashlib.sha256(new_refresh_token.encode()).hexdigest()
+
+    new_token = OAuthToken(
+        id=uuid.uuid4().hex,
+        client_id=client_id,
+        user_id=token.user_id,
+        access_token_hash=at_hash,
+        refresh_token_hash=new_rt_hash,
+        scopes=client["scopes"],
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=TOKEN_EXPIRY_MINUTES),
+    )
+    db.add(new_token)
+    await db.commit()
+
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "Bearer",
+        "expires_in": TOKEN_EXPIRY_MINUTES * 60,
+        "scopes": client["scopes"],
+    }
+
+
 async def introspect_token(db: AsyncSession, access_token: str) -> Optional[dict]:
     at_hash = hashlib.sha256(access_token.encode()).hexdigest()
     from app.models.oauth import OAuthToken

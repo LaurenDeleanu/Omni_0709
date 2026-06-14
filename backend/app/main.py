@@ -4,13 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response
 import os
 import sys
+import uuid
 from contextlib import asynccontextmanager
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from app.api.v1 import users, imports, reports, employees, schedules, tenant, calendar, metadata, ai, it, finance, training, admin, hire, sales, work, pay, legal, rbac, grow, ops, intelligence, notifications, announcements, kudos, workflows, integrations, agents, harness, crm, git, monitoring, omni, billing, chat, search, bulk, comments, oauth, workflow_exec, bot_steps, email_templates, notification_prefs, plugins, slack, docusign, onboarding, approvals, public_agents, demo_recorder, benchmarks, surveys, reviews_360, interviews, time_tracking, checklists, manager, talent_grid, job_board, it_kb_enhanced, auto_onboard, interview_scheduler, it_auto_routing, tool_registry
+from app.api.v1 import users, imports, reports, employees, schedules, tenant, calendar, metadata, ai, it, finance, training, admin, hire, sales, work, pay, legal, rbac, grow, ops, intelligence, notifications, announcements, kudos, workflows, integrations, agents, harness, crm, git, monitoring, omni, billing, chat, search, bulk, comments, oauth, workflow_exec, bot_steps, email_templates, notification_prefs, plugins, slack, docusign, onboarding, approvals, public_agents, demo_recorder, benchmarks, surveys, reviews_360, interviews, time_tracking, checklists, manager, talent_grid, job_board, it_kb_enhanced, auto_onboard, interview_scheduler, it_auto_routing, tool_registry, signup, documents, marketplace, self_service, interview_kits, performance, dev_portal_api, webhooks_api, agent_budgets, agent_schedules, agent_triggers, employee_roles, hr_panel, tax_admin
 from app.api.middleware.csrf import CSRFMiddleware
 from app.api.middleware.rate_limiter import PerClientRateLimiter
 from app.api.middleware.correlation import CorrelationMiddleware
@@ -171,12 +172,25 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
+# Correlation middleware — injects request_id / tenant_id into logger context
+from app.core.logger import request_id_var, tenant_id_var
+
+@app.middleware("http")
+async def correlation_middleware(request: Request, call_next):
+    req_id = request.headers.get("X-Request-ID") or uuid.uuid4().hex[:12]
+    t_id = request.headers.get("X-Tenant-ID") or "-"
+    request_id_var.set(req_id)
+    tenant_id_var.set(t_id)
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = req_id
+    return response
+
 # FRONTEND_URL es configurable en .env (default: localhost:3000)
 _allowed_origins = list({settings.FRONTEND_URL, "http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"})
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://.*",
+    allow_origin_regex=r"https://.*\.vercel\.app|https://successcore-api\.onrender\.com|http://localhost:\d+",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Request-ID", "X-CSRF-Token"],
@@ -193,6 +207,7 @@ app.add_middleware(CompressionMiddleware)
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(users.router,     prefix=f"{settings.API_V1_STR}/users",     tags=["Users"])
 app.include_router(employees.router, prefix=f"{settings.API_V1_STR}/employees", tags=["Employee History"])
+app.include_router(employee_roles.router, prefix=f"{settings.API_V1_STR}/employees", tags=["Employee Roles"])
 app.include_router(imports.router,   prefix=f"{settings.API_V1_STR}/imports",   tags=["Mass Upload"])
 app.include_router(reports.router,   prefix=f"{settings.API_V1_STR}/reports",   tags=["Reports PDF/Excel"])
 app.include_router(schedules.router, prefix=f"{settings.API_V1_STR}/schedules", tags=["Scheduled Reports"])
@@ -220,6 +235,7 @@ app.include_router(announcements.router, prefix=f"{settings.API_V1_STR}/announce
 app.include_router(kudos.router,      prefix=f"{settings.API_V1_STR}/kudos",      tags=["Kudos Peer Recognition"])
 app.include_router(workflows.router,  prefix=f"{settings.API_V1_STR}/workflows",  tags=["Onboarding/Offboarding Workflows"])
 app.include_router(agents.router,     prefix=f"{settings.API_V1_STR}/agents",     tags=["AI Agents"])
+app.include_router(harness.router,   prefix=f"{settings.API_V1_STR}/harness",   tags=["Harness Test Suite"])
 app.include_router(crm.router,        prefix=f"{settings.API_V1_STR}/crm",        tags=["CRM & Contacts"])
 app.include_router(git.router,        prefix=f"{settings.API_V1_STR}/git",        tags=["Git & Code Lab"])
 app.include_router(monitoring.router, prefix=f"{settings.API_V1_STR}/monitoring", tags=["AI Observability"])
@@ -232,7 +248,7 @@ app.include_router(bulk.router,       prefix=f"{settings.API_V1_STR}/bulk",     
 app.include_router(comments.router,   prefix=f"{settings.API_V1_STR}/comments",    tags=["Comments"])
 app.include_router(oauth.router,      prefix=f"{settings.API_V1_STR}/oauth",       tags=["OAuth2"])
 app.include_router(workflow_exec.router, prefix=f"{settings.API_V1_STR}/workflow-exec", tags=["Workflow Exec"])
-app.include_router(bot_steps.router,  prefix=f"/api/bots", tags=["Bot Steps"])
+app.include_router(bot_steps.router,  prefix=f"{settings.API_V1_STR}/bots", tags=["Bot Steps"])
 app.include_router(email_templates.router, prefix=f"{settings.API_V1_STR}/email-templates", tags=["Email Templates"])
 app.include_router(notification_prefs.router, prefix=f"{settings.API_V1_STR}/notification-prefs", tags=["Notification Prefs"])
 app.include_router(plugins.router, prefix=f"{settings.API_V1_STR}/plugins", tags=["Plugin Marketplace"])
@@ -251,11 +267,24 @@ app.include_router(checklists.router, prefix=f"{settings.API_V1_STR}/checklists"
 app.include_router(manager.router, prefix=f"{settings.API_V1_STR}/manager", tags=["Manager Command Center"])
 app.include_router(talent_grid.router, prefix=f"{settings.API_V1_STR}", tags=["Talent Grid"])
 app.include_router(job_board.router, prefix=f"{settings.API_V1_STR}", tags=["Job Board"])
-app.include_router(it_kb_enhanced.router, prefix=f"{settings.API_V1_STR}/it", tags=["IT KB Enhanced"])
+app.include_router(it_kb_enhanced.router, prefix=f"{settings.API_V1_STR}/it/kb", tags=["IT KB Enhanced"])
 app.include_router(auto_onboard.router, prefix=f"{settings.API_V1_STR}", tags=["Auto-Onboard"])
 app.include_router(interview_scheduler.router, prefix=f"{settings.API_V1_STR}", tags=["Interview Scheduler"])
 app.include_router(it_auto_routing.router, prefix=f"{settings.API_V1_STR}", tags=["IT Auto-Routing"])
 app.include_router(tool_registry.router, prefix=f"{settings.API_V1_STR}", tags=["Tool Registry"])
+app.include_router(signup.router, prefix=f"{settings.API_V1_STR}", tags=["Public Signup"])
+app.include_router(documents.router, prefix=f"{settings.API_V1_STR}", tags=["Documents"])
+app.include_router(marketplace.router, prefix=f"{settings.API_V1_STR}", tags=["Agent Marketplace"])
+app.include_router(self_service.router, prefix=f"{settings.API_V1_STR}", tags=["Employee Self-Service"])
+app.include_router(interview_kits.router, prefix=f"{settings.API_V1_STR}", tags=["Interview Kits"])
+app.include_router(performance.router, prefix=f"{settings.API_V1_STR}", tags=["Performance Calibration"])
+app.include_router(dev_portal_api.router, prefix=f"{settings.API_V1_STR}", tags=["Developer Portal"])
+app.include_router(webhooks_api.router, prefix=f"{settings.API_V1_STR}", tags=["Webhooks"])
+app.include_router(agent_budgets.router, prefix=f"{settings.API_V1_STR}/agents", tags=["Agent Budgets"])
+app.include_router(agent_schedules.router, prefix=f"{settings.API_V1_STR}/agents", tags=["Agent Schedules"])
+app.include_router(agent_triggers.router, prefix=f"{settings.API_V1_STR}/agents", tags=["Agent Triggers"])
+app.include_router(hr_panel.router, prefix=f"{settings.API_V1_STR}/hr-panel", tags=["HR Panel"])
+app.include_router(tax_admin.router, prefix=f"{settings.API_V1_STR}", tags=["Tax Administration"])
 
 
 

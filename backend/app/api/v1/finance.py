@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from pydantic import BaseModel
 from typing import List, Optional
 import io
 import csv
 import base64
 from datetime import datetime, timezone, date
 import uuid
-from app.api.dependencies import get_tenant_db, require_roles, check_module_enabled
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles, check_module_enabled
 from app.models.finance import ExpenseClaim, TimeLog, BreakLog, WorkSchedule, GeneralShift, JournalEntry, JournalLine, Budget, BudgetLine, Invoice, CurrencyRate
 from app.models.user import User
 from app.schemas.finance import (
@@ -1560,5 +1561,94 @@ async def refresh_currency_rates(
         "updated_currencies": updated,
         "rates": [{"code": r.code, "rate_to_eur": r.rate_to_eur} for r in rates],
     }
+
+
+# ── Forecasting ────────────────────────────────────────────────────────────────
+
+@router.get("/forecast/cash-flow")
+async def forecast_cashflow(
+    months: int = Query(default=12, ge=1, le=36),
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.finance_forecasting import forecast_cash_flow
+    tenant_id = current_user.get("tenant_id", "default")
+    forecast = await forecast_cash_flow(tenant_id, db, months_ahead=months)
+    return {"forecast": [f.model_dump() for f in forecast]}
+
+
+@router.get("/forecast/budget-variance")
+async def budget_variance(
+    period_start: Optional[str] = Query(default=None),
+    period_end: Optional[str] = Query(default=None),
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.finance_forecasting import analyze_budget_variance
+    tenant_id = current_user.get("tenant_id", "default")
+    variances = await analyze_budget_variance(tenant_id, db, period_start, period_end)
+    total_variance = sum(v.variance for v in variances)
+    return {
+        "variances": [v.model_dump() for v in variances],
+        "total_variance": total_variance,
+        "count": len(variances),
+    }
+
+
+@router.get("/forecast/anomalies")
+async def anomaly_detection(
+    lookback_days: int = Query(default=90, ge=7, le=730),
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.finance_forecasting import detect_anomalies
+    tenant_id = current_user.get("tenant_id", "default")
+    anomalies = await detect_anomalies(tenant_id, db, lookback_days)
+    return {"anomalies": [a.model_dump() for a in anomalies], "count": len(anomalies)}
+
+
+@router.get("/forecast/report")
+async def financial_summary(
+    report_type: str = Query(default="summary"),
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.finance_forecasting import generate_financial_report
+    tenant_id = current_user.get("tenant_id", "default")
+    return await generate_financial_report(tenant_id, db, report_type)
+
+
+# ── Expense OCR ────────────────────────────────────────────────────────────────
+
+class ReceiptScanRequest(BaseModel):
+    text: Optional[str] = None
+    image_base64: Optional[str] = None
+
+@router.post("/expenses/scan-receipt")
+async def scan_receipt(
+    body: ReceiptScanRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.expense_ocr import scan_receipt_text, scan_receipt_image
+    if body.image_base64:
+        result = await scan_receipt_image(body.image_base64)
+    elif body.text:
+        result = await scan_receipt_text(body.text)
+    else:
+        raise HTTPException(status_code=400, detail="Provide text or image_base64")
+    if not result:
+        raise HTTPException(status_code=422, detail="Could not extract receipt data")
+    return {"receipt": result.model_dump()}
+
+
+@router.post("/expenses/categorize")
+async def categorize_expense_endpoint(
+    description: str = Query(...),
+    amount: float = Query(...),
+    current_user: dict = Depends(get_current_user),
+):
+    from app.services.expense_ocr import categorize_expense
+    category = await categorize_expense(description, amount)
+    return {"category": category}
 
 

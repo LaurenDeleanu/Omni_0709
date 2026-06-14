@@ -29,3 +29,4 @@ export { type Contract, type WhistleblowerReport, type DSARTicket, LegalAPI } fr
 export { type Permission, type RolePermission, type Role, RBACAPI } from './rbac';
 export { type KeyResult, type Objective, type PerformanceReview, GrowAPI } from './grow';
 export { OmniAPI, type OmniFileItem, type OmniGitStatusFile, type OmniGitStatus, type OmniBranch, type OmniAgentSettings, type OmniRunResult, type OmniTraceStep } from './omni';
+export { HRPanelAPI, type HROverview, type HRTicket, type HREmployeeRequest, type RecruitingOverview, type ComplianceOverview } from './hr_panel';

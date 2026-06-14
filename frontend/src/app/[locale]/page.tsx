@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import {
   Users,
   BarChart3,
@@ -129,10 +129,10 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* ── NAV ──────────────────────────────────────────────────── */}
       <nav
-        className={`sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 transition-all duration-700 ${
+        className={`sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 transition-all duration-700 ${
           animIn ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
         }`}
       >
@@ -140,27 +140,27 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <Building2 className="h-5 w-5 text-white" />
+                <Building2 className="h-5 w-5 text-foreground" />
               </div>
-              <span className="text-white font-bold text-lg">SuccessCore</span>
-              <span className="text-indigo-400 text-xs font-semibold hidden sm:inline">HR Platform</span>
+              <span className="text-foreground font-bold text-lg">SuccessCore</span>
+              <span className="text-primary text-xs font-semibold hidden sm:inline">HR Platform</span>
             </div>
             <div className="flex items-center gap-4">
               <Link
                 href="/pricing"
-                className="text-slate-300 hover:text-white text-sm transition-colors hidden sm:block"
+                className="text-primary/80 hover:text-foreground text-sm transition-colors hidden sm:block"
               >
                 Precios
               </Link>
               <Link
                 href="/login"
-                className="text-slate-300 hover:text-white text-sm transition-colors"
+                className="text-primary/80 hover:text-foreground text-sm transition-colors"
               >
                 Iniciar sesión
               </Link>
               <Link
                 href="/login"
-                className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-lg shadow-indigo-500/25"
+                className="py-2 px-4 bg-primary hover:bg-indigo-500 text-foreground text-sm font-semibold rounded-lg transition-colors shadow-lg shadow-indigo-500/25"
               >
                 Probar gratis
               </Link>
@@ -172,7 +172,7 @@ export default function LandingPage() {
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="relative pt-20 pb-32 sm:pt-32 sm:pb-40 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-3xl" />
+          <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
           <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-violet-600/8 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 left-1/4 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-3xl" />
         </div>
@@ -183,8 +183,8 @@ export default function LandingPage() {
               animIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-1.5 mb-8">
-              <Sparkles className="h-4 w-4 text-indigo-400" />
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-indigo-500/20 rounded-full px-4 py-1.5 mb-8">
+              <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-indigo-300 text-sm font-medium">
                 Potenciado con 10 agentes de IA nativos
               </span>
@@ -204,7 +204,7 @@ export default function LandingPage() {
           </h1>
 
           <p
-            className={`mt-6 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-200 ease-out ${
+            className={`mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-200 ease-out ${
               animIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
@@ -220,14 +220,14 @@ export default function LandingPage() {
           >
             <Link
               href="/login"
-              className="w-full sm:w-auto py-3.5 px-8 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto py-3.5 px-8 bg-gradient-to-r from-primary to-primary/80 hover:from-indigo-500 hover:to-violet-500 text-foreground font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2"
             >
               Comenzar gratis
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/pricing"
-              className="w-full sm:w-auto py-3.5 px-8 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold rounded-xl transition-all duration-200"
+              className="w-full sm:w-auto py-3.5 px-8 bg-muted/20 border border-border/20 hover:bg-white/10 text-foreground font-semibold rounded-xl transition-all duration-200"
             >
               Ver planes y precios
             </Link>
@@ -253,7 +253,7 @@ export default function LandingPage() {
                 una sola plataforma
               </span>
             </h2>
-            <p className="mt-4 text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto">
               Elimina la fragmentación de 5-8 herramientas separadas. SuccessCore unifica
               todos tus procesos de RRHH con agentes de IA que trabajan 24/7.
             </p>
@@ -263,13 +263,13 @@ export default function LandingPage() {
             {features.map(({ icon: Icon, title, desc }, i) => (
               <div
                 key={title}
-                className="bg-white/3 border border-white/5 rounded-2xl p-6 hover:bg-white/5 hover:border-white/10 transition-all duration-300"
+                className="bg-white/3 border border-white/5 rounded-2xl p-6 hover:bg-muted/20 hover:border-border/20 transition-all duration-300"
               >
-                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4">
-                  <Icon className="h-5 w-5 text-indigo-400" />
+                <div className="h-10 w-10 rounded-xl bg-primary/10 border border-indigo-500/20 flex items-center justify-center mb-4">
+                  <Icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+                <h3 className="text-foreground font-semibold text-lg mb-2">{title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -283,7 +283,7 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-bold">
               28 módulos integrados
             </h2>
-            <p className="mt-4 text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto">
               Desde la gestión básica de empleados hasta analítica avanzada con IA.
               Todos los módulos se comunican entre sí a través de los agentes.
             </p>
@@ -293,10 +293,10 @@ export default function LandingPage() {
             {modules.map(({ name, desc }) => (
               <div
                 key={name}
-                className="bg-white/3 border border-white/5 rounded-xl p-4 hover:bg-white/5 transition-colors"
+                className="bg-white/3 border border-white/5 rounded-xl p-4 hover:bg-muted/20 transition-colors"
               >
-                <Check className="h-4 w-4 text-indigo-400 mb-2" />
-                <p className="text-white text-sm font-medium">{name}</p>
+                <Check className="h-4 w-4 text-primary mb-2" />
+                <p className="text-foreground text-sm font-medium">{name}</p>
                 <p className="text-slate-500 text-xs mt-1">{desc}</p>
               </div>
             ))}
@@ -311,7 +311,7 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-bold">
               Planes que escalan contigo
             </h2>
-            <p className="mt-4 text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto">
               Desde startups hasta enterprise. Todos los planes incluyen acceso
               a agentes de IA.
             </p>
@@ -324,24 +324,24 @@ export default function LandingPage() {
                 className={`relative rounded-2xl p-6 border transition-all duration-300 ${
                   plan.highlighted
                     ? "bg-gradient-to-b from-indigo-600/10 to-violet-600/5 border-indigo-500/30 shadow-xl shadow-indigo-500/10 scale-[1.02]"
-                    : "bg-white/3 border-white/5 hover:border-white/10"
+                    : "bg-white/3 border-white/5 hover:border-border/20"
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-500 text-foreground text-xs font-bold px-3 py-1 rounded-full">
                     Más popular
                   </div>
                 )}
-                <h3 className="text-white font-bold text-lg mb-1">{plan.name}</h3>
+                <h3 className="text-foreground font-bold text-lg mb-1">{plan.name}</h3>
                 <div className="mb-2">
-                  <span className="text-3xl font-bold text-white">{plan.price}</span>
-                  <span className="text-slate-400 text-sm">{plan.period}</span>
+                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-muted-foreground text-sm">{plan.period}</span>
                 </div>
-                <p className="text-slate-400 text-sm mb-6">{plan.description}</p>
+                <p className="text-muted-foreground text-sm mb-6">{plan.description}</p>
                 <ul className="space-y-2.5 mb-8">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
-                      <Check className="h-4 w-4 text-indigo-400 flex-shrink-0 mt-0.5" />
+                    <li key={f} className="flex items-start gap-2 text-sm text-primary/80">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                       {f}
                     </li>
                   ))}
@@ -350,8 +350,8 @@ export default function LandingPage() {
                   href="/login"
                   className={`block text-center py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
                     plan.highlighted
-                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white"
-                      : "bg-white/5 border border-white/10 hover:bg-white/10 text-white"
+                      ? "bg-gradient-to-r from-primary to-primary/80 hover:from-indigo-500 hover:to-violet-500 text-foreground"
+                      : "bg-muted/20 border border-border/20 hover:bg-white/10 text-foreground"
                   }`}
                 >
                   {plan.cta}
@@ -363,7 +363,7 @@ export default function LandingPage() {
           <div className="text-center mt-10">
             <Link
               href="/pricing"
-              className="text-indigo-400 hover:text-indigo-300 text-sm font-medium inline-flex items-center gap-1 transition-colors"
+              className="text-primary hover:text-indigo-300 text-sm font-medium inline-flex items-center gap-1 transition-colors"
             >
               Ver comparativa completa de planes
               <ArrowRight className="h-3.5 w-3.5" />
@@ -378,21 +378,21 @@ export default function LandingPage() {
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
             ¿Listo para transformar tu departamento de RRHH?
           </h2>
-          <p className="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg mb-10 max-w-2xl mx-auto">
             Únete a las empresas que ya confían en SuccessCore para automatizar sus
             procesos de RRHH con inteligencia artificial.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/login"
-              className="w-full sm:w-auto py-3.5 px-10 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto py-3.5 px-10 bg-gradient-to-r from-primary to-primary/80 hover:from-indigo-500 hover:to-violet-500 text-foreground font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2"
             >
               Empezar ahora
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/pricing"
-              className="w-full sm:w-auto py-3.5 px-8 text-slate-300 hover:text-white font-medium transition-colors"
+              className="w-full sm:w-auto py-3.5 px-8 text-primary/80 hover:text-foreground font-medium transition-colors"
             >
               Hablar con ventas
             </Link>
@@ -405,17 +405,17 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-indigo-400" />
-              <span className="text-slate-400 text-sm">SuccessCore HR © 2026</span>
+              <Building2 className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground text-sm">SuccessCore HR © 2026</span>
             </div>
             <div className="flex items-center gap-6">
-              <span className="text-slate-600 text-sm cursor-pointer hover:text-slate-400 transition-colors">
+              <span className="text-muted-foreground/60 text-sm cursor-pointer hover:text-muted-foreground transition-colors">
                 Términos de servicio
               </span>
-              <span className="text-slate-600 text-sm cursor-pointer hover:text-slate-400 transition-colors">
+              <span className="text-muted-foreground/60 text-sm cursor-pointer hover:text-muted-foreground transition-colors">
                 Política de privacidad
               </span>
-              <span className="text-slate-600 text-sm cursor-pointer hover:text-slate-400 transition-colors">
+              <span className="text-muted-foreground/60 text-sm cursor-pointer hover:text-muted-foreground transition-colors">
                 Contacto
               </span>
             </div>

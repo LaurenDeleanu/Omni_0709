@@ -56,11 +56,17 @@ export async function fetchClient(endpoint: string, options: RequestInit = {}) {
     }
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-    credentials: "include",
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: "include",
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
 
   if (response.status === 401) {
     if (typeof window !== "undefined" && !window.location.pathname.endsWith("/login")) {
@@ -83,6 +89,13 @@ export async function fetchClient(endpoint: string, options: RequestInit = {}) {
     return response.json();
   }
   return response;
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === "AbortError") {
+      throw new APIError("Request timed out. Please try again.", 408);
+    }
+    throw err;
+  }
 }
 
 export async function downloadBlob(endpoint: string, filename: string, method: string = "GET") {

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { fetchClient } from "@/lib/api/client";
 import MetricsDashboard from "./MetricsDashboard";
 import ExecutionTimeline from "./ExecutionTimeline";
 import LogsExplorer from "./LogsExplorer";
@@ -18,11 +19,8 @@ export default function MonitoringView({ botId }: MonitoringViewProps) {
   const fetchRuns = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/bots/${botId}/execution-runs?limit=50`);
-      if (res.ok) {
-        const data = await res.json();
-        setRuns(data.runs || []);
-      }
+      const data = await fetchClient(`/bots/${botId}/execution-runs?limit=50`);
+      setRuns(data.runs || []);
     } catch (e) {
       console.error("Error loading execution runs:", e);
     } finally {

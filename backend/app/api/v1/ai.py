@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.api.dependencies import get_tenant_db, require_roles, get_current_user
 from app.services.ai_service import generate_dynamic_page
 from app.services.nlq_service import text_to_sql_query
@@ -14,6 +16,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 class AIGenerateRequest(BaseModel):
@@ -167,6 +170,7 @@ async def _get_or_create_copilot_agent(db: AsyncSession):
 
 
 @router.post("/copilot")
+@limiter.limit("30/minute")
 async def run_platform_copilot(
     request: AICopilotRequest,
     request_http: Request,
@@ -296,6 +300,7 @@ async def run_platform_copilot(
 
 
 @router.post("/copilot/stream")
+@limiter.limit("30/minute")
 async def stream_platform_copilot(
     request: AICopilotRequest,
     request_http: Request,

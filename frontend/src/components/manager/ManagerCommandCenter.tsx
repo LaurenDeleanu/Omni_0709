@@ -73,17 +73,16 @@ function formatCurrency(val: number | null) {
 }
 
 function okrStatusBadge(progress: number) {
-  if (progress >= 70) return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-bold"><CheckCircle2 className="w-3 h-3 mr-1" /> On Track</Badge>;
-  if (progress >= 40) return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-[10px] font-bold"><AlertTriangle className="w-3 h-3 mr-1" /> At Risk</Badge>;
-  return <Badge className="bg-rose-500/10 text-rose-500 border-rose-500/20 text-[10px] font-bold"><AlertCircle className="w-3 h-3 mr-1" /> Behind</Badge>;
+  if (progress >= 70) return <Badge className="bg-success/10 text-success border-success/20 text-[10px] font-bold"><CheckCircle2 className="w-3 h-3 mr-1" /> On Track</Badge>;
+  if (progress >= 40) return <Badge className="bg-warning/10 text-warning border-warning/20 text-[10px] font-bold"><AlertTriangle className="w-3 h-3 mr-1" /> At Risk</Badge>;
+  return <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-[10px] font-bold"><AlertCircle className="w-3 h-3 mr-1" /> Behind</Badge>;
 }
 
 export function ManagerCommandCenter() {
   const { data: mgr, isLoading, error } = useQuery<ManagerData>({
     queryKey: ["manager-team-overview"],
     queryFn: async () => {
-      const res = await fetchClient("/manager/team-overview");
-      const json = await res.json();
+      const json = await fetchClient("/manager/team-overview");
       console.log("[Manager] API response:", json);
       return json;
     },

@@ -31,9 +31,22 @@ class Agent(Base):
     agent_settings: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False) # JSON dictionary of custom settings
     
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    # Marketplace fields
+    is_published: Mapped[bool] = mapped_column(Boolean, default=False)
+    marketplace_published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    marketplace_category: Mapped[str] = mapped_column(String(50), nullable=True)
+    marketplace_price: Mapped[float] = mapped_column(Float, default=0)
+    marketplace_rating: Mapped[float] = mapped_column(Float, default=0)
+    marketplace_downloads: Mapped[int] = mapped_column(Integer, default=0)
+    marketplace_tags: Mapped[list] = mapped_column(JSON, default=list)
+    marketplace_tools: Mapped[list] = mapped_column(JSON, default=list)
+    marketplace_preview_image: Mapped[str] = mapped_column(String(500), nullable=True)
+    marketplace_author: Mapped[str] = mapped_column(String(200), nullable=True)
+    marketplace_author_tenant: Mapped[str] = mapped_column(String(100), nullable=True)
 
     # Relationships
     config = relationship("AgentConfig", back_populates="agent", uselist=False, cascade="all, delete-orphan")
@@ -332,8 +345,8 @@ class AgentReputationScore(Base):
     calculated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
 
 
-class SharedContextEntry(GlobalBase):
-    __tablename__ = "shared_context_entries"
+class GlobalSharedContextEntry(GlobalBase):
+    __tablename__ = "global_shared_context_entries"
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: uuid.uuid4().hex)
     orchestration_id: Mapped[str] = mapped_column(String, nullable=False)

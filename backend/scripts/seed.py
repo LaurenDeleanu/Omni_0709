@@ -80,6 +80,7 @@ async def seed_tenant_and_users():
                 full_name='Admin General',
                 department='IT',
                 role='hr_admin',
+                roles=['hr_admin', 'sys_admin'],
                 is_active=True,
                 hashed_password=hash_password('admin')
             )
@@ -96,6 +97,7 @@ async def seed_tenant_and_users():
                 full_name='Lauren Deleanu',
                 department='Dirección',
                 role='hr_admin',
+                roles=['hr_admin', 'employee'],
                 is_active=True,
                 hashed_password=hash_password('admin')
             )

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { ArrowLeft, Check, Building2, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -110,20 +110,20 @@ export default function PricingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* ── NAV ──────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-                <Building2 className="h-5 w-5 text-white" />
+                <Building2 className="h-5 w-5 text-foreground" />
               </div>
-              <span className="text-white font-bold text-lg">SuccessCore</span>
+              <span className="text-foreground font-bold text-lg">SuccessCore</span>
             </Link>
             <Link
               href="/login"
-              className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors"
+              className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold rounded-lg transition-colors"
             >
               Probar gratis
             </Link>
@@ -174,13 +174,13 @@ export default function PricingPage() {
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-500 text-foreground text-xs font-bold px-3 py-1 rounded-full">
                     Más popular
                   </div>
                 )}
-                <h3 className="text-white font-bold text-lg mb-1">{plan.name}</h3>
+                <h3 className="text-foreground font-bold text-lg mb-1">{plan.name}</h3>
                 <div className="mb-2">
-                  <span className="text-3xl font-bold text-white">{plan.price}</span>
+                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
                   <span className="text-slate-400 text-sm"> {plan.period}</span>
                 </div>
                 <p className="text-slate-400 text-sm mb-6 leading-relaxed">{plan.description}</p>
@@ -196,8 +196,8 @@ export default function PricingPage() {
                   href={plan.cta.includes("ventas") ? "/login" : "/login"}
                   className={`block text-center py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
                     plan.highlighted
-                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-500/25"
-                      : "bg-white/5 border border-white/10 hover:bg-white/10 text-white"
+                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-foreground shadow-lg shadow-indigo-500/25"
+                      : "bg-white/5 border border-white/10 hover:bg-white/10 text-foreground"
                   }`}
                 >
                   {plan.cta}
@@ -219,10 +219,10 @@ export default function PricingPage() {
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="text-left py-4 px-4 text-slate-400 font-medium">Funcionalidad</th>
-                  <th className="py-4 px-4 text-white font-semibold text-center">Gratuito</th>
-                  <th className="py-4 px-4 text-white font-semibold text-center">Starter</th>
-                  <th className="py-4 px-4 text-white font-semibold text-center bg-indigo-500/5">Pro</th>
-                  <th className="py-4 px-4 text-white font-semibold text-center">Enterprise</th>
+                  <th className="py-4 px-4 text-foreground font-semibold text-center">Gratuito</th>
+                  <th className="py-4 px-4 text-foreground font-semibold text-center">Starter</th>
+                  <th className="py-4 px-4 text-foreground font-semibold text-center bg-indigo-500/5">Pro</th>
+                  <th className="py-4 px-4 text-foreground font-semibold text-center">Enterprise</th>
                 </tr>
               </thead>
               <tbody>
@@ -275,7 +275,7 @@ export default function PricingPage() {
               },
             ].map(({ q, a }) => (
               <div key={q} className="bg-white/3 border border-white/5 rounded-xl p-5">
-                <h3 className="text-white font-semibold mb-2">{q}</h3>
+                <h3 className="text-foreground font-semibold mb-2">{q}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{a}</p>
               </div>
             ))}
@@ -293,7 +293,7 @@ export default function PricingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/login"
-              className="w-full sm:w-auto py-3.5 px-10 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl transition-all duration-200 shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto py-3.5 px-10 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-foreground font-semibold rounded-xl transition-all duration-200 shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2"
             >
               Comenzar gratis
               <Sparkles className="h-4 w-4" />

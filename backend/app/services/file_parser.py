@@ -93,8 +93,8 @@ def _parse_pdf(content: bytes) -> str:
 
         try:
             reader.seek(0)
-            import PyPDF2
-            pdf = PyPDF2.PdfReader(reader)
+            import pypdf
+            pdf = pypdf.PdfReader(reader)
             for page in pdf.pages:
                 page_text = page.extract_text()
                 if page_text:
@@ -104,7 +104,7 @@ def _parse_pdf(content: bytes) -> str:
         except ImportError:
             pass
 
-        logger.warning("No PDF parser available. Install pdfplumber or PyPDF2.")
+        logger.warning("No PDF parser available. Install pdfplumber or pypdf.")
         return "[PDF content requires pdfplumber or PyPDF2 library]"
     except Exception as e:
         logger.error(f"PDF parse error: {e}")
