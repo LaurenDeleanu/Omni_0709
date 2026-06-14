@@ -90,7 +90,15 @@ export default function AgentStudioView({
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       console.error("Agent settings save error:", err);
-      const detail = err?.message || err?.detail || "Unknown error";
+      let detail = err?.message;
+      if (Array.isArray(detail)) {
+        detail = detail.map((d: any) => d.msg || JSON.stringify(d)).join("; ");
+      } else if (err?.detail && Array.isArray(err.detail)) {
+        detail = err.detail.map((d: any) => d.msg || JSON.stringify(d)).join("; ");
+      } else if (!detail) {
+        detail = err?.detail || "Unknown error";
+      }
+      if (detail === "[object Object]") detail = JSON.stringify(err.message || err);
       toast.error(`Failed to update agent settings: ${detail}`, { id: toastId });
     } finally {
       setIsSaving(false);
