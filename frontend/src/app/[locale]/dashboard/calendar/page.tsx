@@ -521,7 +521,7 @@ export default function CalendarPage() {
                   {/* Vacation review block (Admin only) */}
                   {e.type === "vacation" && e.status === "pending" && currentUserRole === "hr_admin" && (
                     <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-border/20">
-                      <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] h-7 py-1 px-3" onClick={() => handleReviewVacation(e.id, "approved")}>
+                      <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-[10px] h-7 py-1 px-3" onClick={() => handleReviewVacation(e.id, "approved")}>
                         Aprobar
                       </Button>
                       <Button size="sm" variant="destructive" className="text-[10px] h-7 py-1 px-3" onClick={() => handleReviewVacation(e.id, "rejected")}>
@@ -599,7 +599,7 @@ export default function CalendarPage() {
                     <Label htmlFor="vReason">Motivo / Comentarios</Label>
                     <Input id="vReason" type="text" placeholder="Asuntos personales, viaje familiar..." value={vacationReason} onChange={e => setVacationReason(e.target.value)} />
                   </div>
-                  <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
                     Enviar Solicitud
                   </Button>
                 </form>
@@ -689,7 +689,7 @@ export default function CalendarPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
                     Programar Reunión
                   </Button>
                 </form>
@@ -784,7 +784,7 @@ export default function CalendarPage() {
                       <option value="urgent" className="text-foreground bg-background">Urgente</option>
                     </select>
                   </div>
-                  <Button type="submit" className="w-full bg-purple-500 hover:bg-purple-600 text-white">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
                     Asignar Tarea
                   </Button>
                 </form>

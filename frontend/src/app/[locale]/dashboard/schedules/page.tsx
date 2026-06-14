@@ -746,7 +746,7 @@ export default function ShiftsPage() {
                         <Coffee className="w-4 h-4" /> En Descanso ({getBreakLabel(activeBreak.break_type)})
                       </Badge>
                     ) : (
-                      <Badge className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-sm font-semibold gap-1.5 animate-pulse">
+                      <Badge className="px-3 py-1 bg-success/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-sm font-semibold gap-1.5 animate-pulse">
                         <Clock className="w-4 h-4" /> Trabajando Activamente
                       </Badge>
                     )}
@@ -1098,7 +1098,7 @@ export default function ShiftsPage() {
             </Card>
             <Card className="glass bg-gradient-to-b from-emerald-500/10 to-green-500/10 border-emerald-500/20 shadow-md">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-emerald-500 text-white rounded-xl"><UserCheck className="w-6 h-6 animate-pulse" /></div>
+                <div className="p-3 bg-success text-white rounded-xl"><UserCheck className="w-6 h-6 animate-pulse" /></div>
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground">Trabajando Hoy</p>
                   <h3 className="text-2xl font-bold">
@@ -1161,7 +1161,7 @@ export default function ShiftsPage() {
                             <td className="p-4 text-xs text-muted-foreground">{emp.department || "Sin asignación"}</td>
                             <td className="p-4">
                               {emp.status === "working" ? (
-                                <Badge className="bg-emerald-500 text-white border-none text-[10px] animate-pulse">TRABAJANDO</Badge>
+                                <Badge className="bg-success text-white border-none text-[10px] animate-pulse">TRABAJANDO</Badge>
                               ) : emp.status === "break" ? (
                                 <Badge className="bg-amber-500 text-white border-none text-[10px]">EN DESCANSO</Badge>
                               ) : (
@@ -1358,7 +1358,7 @@ export default function ShiftsPage() {
                           onClick={() => loadEmployeeScheduleForEditing(emp.id)}
                           className={`w-full text-left p-2.5 rounded-lg text-xs font-semibold transition-all border ${
                             selectedEmployeeForSchedule === emp.id 
-                              ? "bg-indigo-600 text-white border-indigo-700 shadow-md shadow-indigo-600/15" 
+                              ? "bg-primary text-white border-indigo-700 shadow-md shadow-indigo-600/15" 
                               : "bg-background/50 hover:bg-slate-100 dark:hover:bg-slate-950 border-transparent"
                           }`}
                         >
@@ -1382,7 +1382,7 @@ export default function ShiftsPage() {
                           <Button 
                             onClick={handleSaveSchedule} 
                             disabled={assignScheduleMutation.isPending}
-                            className="bg-indigo-600 hover:bg-indigo-700 font-bold gap-2 text-xs h-9 px-4 shadow-md shadow-indigo-600/15"
+                            className="bg-primary hover:bg-indigo-700 font-bold gap-2 text-xs h-9 px-4 shadow-md shadow-indigo-600/15"
                           >
                             <Save className="w-4 h-4" /> Guardar Horario
                           </Button>
@@ -1547,7 +1547,7 @@ export default function ShiftsPage() {
                           });
                         }}
                         disabled={bulkAssignMutation.isPending}
-                        className="bg-indigo-600 hover:bg-indigo-700 font-bold gap-2 text-xs h-9 px-4 shadow-md shadow-indigo-600/15"
+                        className="bg-primary hover:bg-indigo-700 font-bold gap-2 text-xs h-9 px-4 shadow-md shadow-indigo-600/15"
                       >
                         <Plus className="w-4 h-4" /> Asignar Turno en Bloque
                       </Button>
@@ -1593,7 +1593,7 @@ export default function ShiftsPage() {
                                 }}
                                 className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-xs font-semibold transition-all justify-start ${
                                   isSelected
-                                    ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                                    ? "bg-primary text-white border-indigo-700 shadow-sm"
                                     : "bg-background hover:bg-slate-100 dark:hover:bg-slate-900 border-border"
                                 }`}
                               >
@@ -1704,7 +1704,7 @@ export default function ShiftsPage() {
                           });
                         }}
                         disabled={createGeneralShiftMutation.isPending}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 font-bold gap-2 text-xs h-9 px-4 shadow-md shadow-indigo-600/15"
+                        className="w-full bg-primary hover:bg-indigo-700 font-bold gap-2 text-xs h-9 px-4 shadow-md shadow-indigo-600/15"
                       >
                         <Plus className="w-4 h-4" /> Guardar Nueva Plantilla
                       </Button>

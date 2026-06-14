@@ -463,7 +463,7 @@ export default function TrainingDashboard() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-blue-950/20 to-slate-900/50 p-6 rounded-2xl border border-blue-500/10 backdrop-blur-md">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-3">
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent flex items-center gap-3">
             <GraduationCap className="w-8 h-8 text-blue-400" />
             Academia & Cursos Bonificados (FUNDAE)
           </h1>
@@ -476,7 +476,7 @@ export default function TrainingDashboard() {
           {isAdmin && (
             <button
               onClick={() => setShowCreator(true)}
-              className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl cursor-pointer transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/10"
+              className="px-4 py-2 bg-gradient-to-r bg-primary hover:brightness-110 text-white text-xs font-semibold rounded-xl cursor-pointer transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/10"
             >
               <Plus className="w-3.5 h-3.5" />
               Crear Curso
@@ -543,7 +543,7 @@ export default function TrainingDashboard() {
                   </div>
                   <button
                     onClick={() => startCourse(course)}
-                    className="w-full px-3 py-2 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white text-xs font-semibold rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5"
+                    className="w-full px-3 py-2 bg-gradient-to-r bg-primary hover:brightness-110 text-white text-xs font-semibold rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5"
                   >
                     <Play className="w-3 h-3 fill-white" />
                     {enroll ? "Continuar" : "Iniciar"}
@@ -619,7 +619,7 @@ export default function TrainingDashboard() {
 
                     <button
                       onClick={() => startCourse(course)}
-                      className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-lg cursor-pointer transition-all flex items-center gap-1.5 shrink-0"
+                      className="px-4 py-2 bg-gradient-to-r bg-primary hover:brightness-110 text-white text-xs font-semibold rounded-lg cursor-pointer transition-all flex items-center gap-1.5 shrink-0"
                     >
                       <Play className="w-3 h-3 fill-white" />
                       {enroll ? (enroll.status === "completed" ? "Repetir" : "Continuar") : "Iniciar"}
@@ -926,7 +926,7 @@ export default function TrainingDashboard() {
                             ))}
                             <button
                               type="submit"
-                              className="w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg font-semibold cursor-pointer text-xs"
+                              className="w-full py-2 bg-gradient-to-r bg-primary hover:brightness-110 text-white rounded-lg font-semibold cursor-pointer text-xs"
                             >
                               Enviar Examen a SCORM API
                             </button>
@@ -1105,7 +1105,7 @@ export default function TrainingDashboard() {
                 <button
                   type="submit"
                   disabled={creatorSubmitting || !creatorForm.title.trim()}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:pointer-events-none"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r bg-primary hover:brightness-110 text-white text-xs font-semibold rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {creatorSubmitting ? "Creando..." : "Crear Curso"}
                 </button>

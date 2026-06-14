@@ -131,7 +131,7 @@ export default function MemoryConfigPanel({
               <Globe className="w-3.5 h-3.5 text-zinc-400" />
               Scrape URL
             </button>
-            <label className="text-xs bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/80 text-black font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors">
+            <label className="text-xs bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/80 text-black font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors">
               <Upload className="w-3.5 h-3.5" />
               Upload PDF / TXT
               <input
@@ -154,7 +154,7 @@ export default function MemoryConfigPanel({
                 className="flex justify-between items-center bg-zinc-950/40 hover:bg-zinc-900/60 border border-white/5 py-2 px-3 rounded-xl group transition-all"
               >
                 <div className="flex items-center gap-2">
-                  <FileText className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                  <FileText className="w-3.5 h-3.5 text-[var(--color-primary)]" />
                   <span className="text-xs text-white truncate max-w-[250px] font-mono">{doc.filename}</span>
                 </div>
                 <div className="flex items-center gap-4">

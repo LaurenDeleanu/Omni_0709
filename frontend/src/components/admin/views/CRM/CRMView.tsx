@@ -30,7 +30,7 @@ export default function CRMView({ botId }: { botId: string }) {
   if (!activeOrgId) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-zinc-500">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent-primary)] mb-3" />
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)] mb-3" />
         <span className="text-xs font-light">Loading CRM workspace...</span>
       </div>
     );
@@ -50,10 +50,10 @@ export default function CRMView({ botId }: { botId: string }) {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)]">
+            <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
               💼 {t("crm.title")}
             </h2>
-            <span className="text-[10px] bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary)] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               CRM Engine
             </span>
           </div>
@@ -66,7 +66,7 @@ export default function CRMView({ botId }: { botId: string }) {
           {activeSubTab === "contacts" && (
             <button
               onClick={() => setIsAddContactOpen(true)}
-              className="btn-primary shadow-lg shadow-[var(--accent-primary)]/10 px-6 py-2.5 text-xs font-bold flex items-center gap-2"
+              className="btn-primary shadow-lg shadow-[var(--color-primary)]/10 px-6 py-2.5 text-xs font-bold flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               {t("crm.add_contact")}
@@ -75,7 +75,7 @@ export default function CRMView({ botId }: { botId: string }) {
           {activeSubTab === "deals" && (
             <button
               onClick={() => setIsAddDealOpen(true)}
-              className="btn-primary shadow-lg shadow-[var(--accent-primary)]/10 px-6 py-2.5 text-xs font-bold flex items-center gap-2"
+              className="btn-primary shadow-lg shadow-[var(--color-primary)]/10 px-6 py-2.5 text-xs font-bold flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               {t("crm.add_deal")}
@@ -90,7 +90,7 @@ export default function CRMView({ botId }: { botId: string }) {
           onClick={() => setActiveSubTab("contacts")}
           className={`flex items-center gap-2 px-6 py-3 border-b-2 text-xs font-bold transition-all whitespace-nowrap ${
             activeSubTab === "contacts"
-              ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[rgba(6,182,212,0.02)]"
+              ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-[rgba(6,182,212,0.02)]"
               : "border-transparent text-zinc-400 hover:text-white"
           }`}
         >
@@ -101,7 +101,7 @@ export default function CRMView({ botId }: { botId: string }) {
           onClick={() => setActiveSubTab("deals")}
           className={`flex items-center gap-2 px-6 py-3 border-b-2 text-xs font-bold transition-all whitespace-nowrap ${
             activeSubTab === "deals"
-              ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[rgba(6,182,212,0.02)]"
+              ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-[rgba(6,182,212,0.02)]"
               : "border-transparent text-zinc-400 hover:text-white"
           }`}
         >
@@ -112,7 +112,7 @@ export default function CRMView({ botId }: { botId: string }) {
           onClick={() => setActiveSubTab("pipeline")}
           className={`flex items-center gap-2 px-6 py-3 border-b-2 text-xs font-bold transition-all whitespace-nowrap ${
             activeSubTab === "pipeline"
-              ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[rgba(6,182,212,0.02)]"
+              ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-[rgba(6,182,212,0.02)]"
               : "border-transparent text-zinc-400 hover:text-white"
           }`}
         >

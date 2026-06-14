@@ -206,7 +206,7 @@ export default function LegalPage() {
                         Deseo permanecer anónimo (Recomendado)
                       </label>
                     </div>
-                    <Button type="submit" disabled={submitMutation.isPending} className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white">
+                    <Button type="submit" disabled={submitMutation.isPending} className="w-full mt-4 bg-destructive hover:bg-destructive/90 text-white">
                       {submitMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Enviar Denuncia de Forma Segura"}
                     </Button>
                   </form>

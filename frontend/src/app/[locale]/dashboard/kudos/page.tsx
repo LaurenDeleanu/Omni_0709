@@ -13,7 +13,7 @@ const BADGES = [
   { name: "Above & Beyond", icon: Sparkles, color: "from-amber-500 to-orange-600 bg-amber-500/10 text-amber-500 border-amber-500/20", desc: "Supera todas las expectativas" },
   { name: "Innovation Hero", icon: Target, color: "from-violet-600 to-purple-600 bg-violet-500/10 text-violet-500 border-violet-500/20", desc: "Ideas creativas y soluciones innovadoras" },
   { name: "Leadership", icon: Smile, color: "from-emerald-600 to-teal-600 bg-emerald-500/10 text-emerald-500 border-emerald-500/20", desc: "Guía y motivación constante" },
-  { name: "Customer Champion", icon: Gift, color: "from-rose-600 to-pink-600 bg-rose-500/10 text-rose-500 border-rose-500/20", desc: "Excelente trato y pasión por el cliente" }
+  { name: "Customer Champion", icon: Gift, color: "from-rose-600 to-pink-600 bg-destructive/10 text-rose-500 border-rose-500/20", desc: "Excelente trato y pasión por el cliente" }
 ];
 
 export default function KudosWallPage() {
@@ -97,7 +97,7 @@ export default function KudosWallPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Upper Jumbotron */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 p-8 md:p-10 shadow-lg text-white">
+      <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br bg-primary/10 p-8 md:p-10 shadow-lg text-white">
         <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
@@ -113,7 +113,7 @@ export default function KudosWallPage() {
           
           <Button
             onClick={() => setShowModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-600/20 px-6 h-12 rounded-xl font-bold text-sm flex items-center gap-2"
+            className="bg-primary hover:bg-indigo-700 text-white shadow-xl shadow-indigo-600/20 px-6 h-12 rounded-xl font-bold text-sm flex items-center gap-2"
           >
             <Send className="h-4 w-4" />
             Enviar un Kudos
@@ -146,7 +146,7 @@ export default function KudosWallPage() {
             <Award className="h-10 w-10 text-muted-foreground/60" />
             <h3 className="text-lg font-bold text-foreground">El Muro está de estreno</h3>
             <p className="text-sm text-muted-foreground max-w-[280px]">Sé el primero en agradecer a un compañero por su excelente contribución.</p>
-            <Button onClick={() => setShowModal(true)} className="bg-indigo-600 hover:bg-indigo-700 font-semibold">Enviar el primer Kudos</Button>
+            <Button onClick={() => setShowModal(true)} className="bg-primary hover:bg-indigo-700 font-semibold">Enviar el primer Kudos</Button>
           </div>
         ) : (
           <div className="grid gap-4">
@@ -161,7 +161,7 @@ export default function KudosWallPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       {/* Sender and Receiver information */}
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 font-bold border border-indigo-200/50">
+                        <div className="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/30 flex items-center justify-center text-primary font-bold border border-indigo-200/50">
                           {k.sender?.full_name ? k.sender.full_name.split(" ").map((n) => n[0]).slice(0,2).join("").toUpperCase() : "U"}
                         </div>
                         <div className="flex items-center gap-1.5 text-sm">
@@ -191,13 +191,13 @@ export default function KudosWallPage() {
                         onClick={() => incrementReaction(k.id)}
                         className={`flex items-center gap-1.5 py-1 px-3 rounded-full font-bold border transition-all duration-150 active:scale-90 ${
                           reactionCount > 0
-                            ? "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                            ? "bg-destructive/10 text-rose-500 border-rose-500/20"
                             : "hover:bg-muted/80 text-muted-foreground border-border/60 hover:text-foreground"
                         }`}
                       >
                         <Heart className={`h-4 w-4 ${reactionCount > 0 ? "fill-rose-500 text-rose-500" : ""}`} />
                         <span>Me encanta</span>
-                        {reactionCount > 0 && <span className="ml-0.5 bg-rose-500 text-white rounded-full px-1.5 text-[9px]">{reactionCount}</span>}
+                        {reactionCount > 0 && <span className="ml-0.5 bg-destructive text-white rounded-full px-1.5 text-[9px]">{reactionCount}</span>}
                       </button>
                     </div>
                   </CardContent>
@@ -213,7 +213,7 @@ export default function KudosWallPage() {
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           <Card className="w-full max-w-lg shadow-2xl glass animate-in zoom-in-95 duration-200 relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl font-bold"><Award className="text-indigo-600 h-5 w-5" /> Enviar un Kudos de Agradecimiento</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl font-bold"><Award className="text-primary h-5 w-5" /> Enviar un Kudos de Agradecimiento</CardTitle>
               <CardDescription>Destaca los logros o el compañerismo de tus colegas.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -250,7 +250,7 @@ export default function KudosWallPage() {
                           onClick={() => setSelectedBadge(b.name)}
                           className={`p-2.5 text-left border rounded-xl flex items-center gap-2.5 transition-all text-xs ${
                             isSelected
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/10 font-bold scale-[1.02]"
+                              ? "bg-primary text-white border-indigo-600 shadow-md shadow-indigo-600/10 font-bold scale-[1.02]"
                               : "bg-card hover:bg-muted/40 border-border/80 text-foreground"
                           }`}
                         >
@@ -284,7 +284,7 @@ export default function KudosWallPage() {
                   <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={isSubmitting} className="bg-indigo-600 hover:bg-indigo-700 font-semibold">
+                  <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-indigo-700 font-semibold">
                     {isSubmitting ? "Enviando..." : "Enviar Reconocimiento"}
                   </Button>
                 </div>

@@ -224,7 +224,7 @@ export default function ContactsTable({
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
               <input
-                className="input pl-10 text-xs py-2.5 bg-zinc-900/60 border-zinc-800 focus:border-[var(--accent-primary)] text-white w-full rounded-xl"
+                className="input pl-10 text-xs py-2.5 bg-zinc-900/60 border-zinc-800 focus:border-[var(--color-primary)] text-white w-full rounded-xl"
                 placeholder="Search contacts by name, email, or company..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -253,7 +253,7 @@ export default function ContactsTable({
                   {isLoading ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-zinc-500 font-light">
-                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--accent-primary)] mx-auto mb-2" />
+                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--color-primary)] mx-auto mb-2" />
                         Loading contacts list...
                       </td>
                     </tr>
@@ -370,14 +370,14 @@ export default function ContactsTable({
 
             {isDetailLoading ? (
               <div className="py-24 text-center text-zinc-500">
-                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--accent-primary)] mx-auto mb-2" />
+                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--color-primary)] mx-auto mb-2" />
                 Loading contact timeline...
               </div>
             ) : detailedContact ? (
               <div className="space-y-6">
                 {/* Profile Header */}
                 <div className="border-b border-white/5 pb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center text-white font-extrabold text-lg mb-3">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-secondary)] flex items-center justify-center text-white font-extrabold text-lg mb-3">
                     {detailedContact.firstName?.[0] || detailedContact.lastName?.[0] || "?"}
                   </div>
                   <h3 className="text-base font-bold text-white leading-tight">
@@ -417,7 +417,7 @@ export default function ContactsTable({
                         <div key={deal.id} className="p-2.5 bg-black/30 border border-white/5 rounded-xl text-xs space-y-1">
                           <div className="flex justify-between items-center font-semibold text-white">
                             <span className="truncate pr-2">{deal.title}</span>
-                            <span className="text-[10px] text-[var(--accent-primary)] shrink-0">{deal.currency} {deal.value.toLocaleString()}</span>
+                            <span className="text-[10px] text-[var(--color-primary)] shrink-0">{deal.currency} {deal.value.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between items-center text-[10px] text-zinc-500">
                             <span className="capitalize">{deal.stage}</span>
@@ -443,7 +443,7 @@ export default function ContactsTable({
                           onClick={() => setNewActivityType(type as any)}
                           className={`capitalize px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all ${
                             newActivityType === type 
-                              ? "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/30 text-[var(--accent-primary)]"
+                              ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)]/30 text-[var(--color-primary)]"
                               : "bg-transparent border-white/5 text-zinc-400 hover:text-white"
                           }`}
                         >
@@ -492,7 +492,7 @@ export default function ContactsTable({
                             act.type === "email" ? "bg-blue-400" :
                             act.type === "call" ? "bg-orange-400" :
                             act.type === "meeting" ? "bg-purple-400" :
-                            "bg-[var(--accent-primary)]"
+                            "bg-[var(--color-primary)]"
                           }`} />
                           
                           <div className="space-y-0.5">
@@ -632,7 +632,7 @@ export default function ContactsTable({
                 <button type="button" onClick={onCloseAdd} disabled={isCreatingContact} className="btn-secondary flex-1 py-3 font-bold rounded-xl">
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary flex-1 py-3 font-bold rounded-xl shadow-lg shadow-[var(--accent-primary)]/10" disabled={isCreatingContact}>
+                <button type="submit" className="btn-primary flex-1 py-3 font-bold rounded-xl shadow-lg shadow-[var(--color-primary)]/10" disabled={isCreatingContact}>
                   {isCreatingContact ? "Creating Contact..." : "Create Contact"}
                 </button>
               </div>

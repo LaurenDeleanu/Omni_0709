@@ -53,7 +53,7 @@ export default function ToolBindingPanel({ activeTools, onToggleTool }: ToolBind
               onClick={() => onToggleTool(skill.id)}
               className={`text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between h-44 relative group ${
                 isSelected
-                  ? "border-[var(--accent-primary)] bg-[rgba(6,182,212,0.04)]"
+                  ? "border-[var(--color-primary)] bg-[rgba(6,182,212,0.04)]"
                   : "border-white/5 bg-zinc-950/20 hover:border-white/10 hover:bg-zinc-900/20"
               }`}
             >
@@ -64,7 +64,7 @@ export default function ToolBindingPanel({ activeTools, onToggleTool }: ToolBind
                 <div className="relative inline-flex items-center h-5 rounded-full w-9 shrink-0 transition-colors bg-zinc-800 border border-zinc-700 pointer-events-none">
                   <span
                     className={`inline-block w-3 h-3 transform rounded-full bg-white transition-transform ${
-                      isSelected ? "translate-x-5 bg-[var(--accent-primary)]" : "translate-x-1"
+                      isSelected ? "translate-x-5 bg-[var(--color-primary)]" : "translate-x-1"
                     }`}
                   />
                 </div>
@@ -72,7 +72,7 @@ export default function ToolBindingPanel({ activeTools, onToggleTool }: ToolBind
 
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-bold text-white group-hover:text-[var(--accent-primary)] transition-colors">
+                  <span className="text-sm font-bold text-white group-hover:text-[var(--color-primary)] transition-colors">
                     {skill.title}
                   </span>
                   <span className="text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400 font-mono">
@@ -90,7 +90,7 @@ export default function ToolBindingPanel({ activeTools, onToggleTool }: ToolBind
         {/* Custom Connector card */}
         <div className="border border-dashed border-white/10 rounded-2xl p-5 flex flex-col justify-center items-center text-center h-44 bg-zinc-950/10 hover:border-zinc-700 transition-colors cursor-pointer group">
           <div className="p-3 rounded-full bg-zinc-900 border border-white/5 mb-3 group-hover:scale-105 transition-transform">
-            <Code className="w-5 h-5 text-zinc-500 group-hover:text-[var(--accent-primary)]" />
+            <Code className="w-5 h-5 text-zinc-500 group-hover:text-[var(--color-primary)]" />
           </div>
           <span className="text-xs font-bold text-white mb-1">Connect Custom REST Tool</span>
           <p className="text-[10px] text-zinc-500 max-w-[200px] leading-normal font-light">

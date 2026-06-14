@@ -19,8 +19,14 @@ import {
 } from "recharts";
 
 const CHART_COLORS = [
-  "#6366f1", "#8b5cf6", "#a78bfa", "#c4b5fd",
-  "#818cf8", "#4f46e5", "#7c3aed", "#9333ea",
+  "var(--color-chart-1)",
+  "var(--color-chart-2)",
+  "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-5)",
+  "var(--color-chart-6)",
+  "var(--color-chart-7)",
+  "var(--color-chart-8)",
 ];
 
 function formatRelativeTime(isoDate: string | null): string {

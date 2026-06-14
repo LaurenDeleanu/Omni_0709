@@ -133,7 +133,7 @@ export default function PipelineConfigView({
   if (isLoading) {
     return (
       <div className="py-24 text-center text-zinc-500">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent-primary)] mx-auto mb-3" />
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)] mx-auto mb-3" />
         Loading pipeline stages...
       </div>
     );

@@ -65,7 +65,7 @@ export default function CapabilitiesPanel({ settings, onChange }: CapabilitiesPa
             onClick={() => handleToggle(cap.key)}
             className={`flex items-start gap-4 p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${
               isEnabled
-                ? "border-[var(--accent-primary)] bg-[rgba(6,182,212,0.04)]"
+                ? "border-[var(--color-primary)] bg-[rgba(6,182,212,0.04)]"
                 : "border-white/5 bg-zinc-950/20 hover:border-white/10 hover:bg-zinc-900/20"
             }`}
           >
@@ -86,7 +86,7 @@ export default function CapabilitiesPanel({ settings, onChange }: CapabilitiesPa
             <div className="relative inline-flex items-center h-6 rounded-full w-11 shrink-0 transition-colors bg-zinc-800 border border-zinc-700 pointer-events-none">
               <span
                 className={`inline-block w-4 h-4 transform rounded-full bg-white transition-transform ${
-                  isEnabled ? "translate-x-6 bg-[var(--accent-primary)]" : "translate-x-1"
+                  isEnabled ? "translate-x-6 bg-[var(--color-primary)]" : "translate-x-1"
                 }`}
               />
             </div>
