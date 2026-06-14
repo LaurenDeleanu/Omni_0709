@@ -378,7 +378,7 @@ export default function ESSProfilePage() {
       case "medical":
         return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">🩺 Médica</Badge>;
       case "personal":
-        return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20">🍃 Personal</Badge>;
+        return <Badge className="bg-warning/10 text-amber-500 border-amber-500/20">🍃 Personal</Badge>;
       case "marriage":
         return <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20">💍 Licencia</Badge>;
       default:
@@ -441,7 +441,7 @@ export default function ESSProfilePage() {
         return current >= start && current <= end;
       });
 
-      let bgColor = "hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground";
+      let bgColor = "hover:bg-muted dark:hover:bg-slate-800 text-foreground";
       let borderStyle = "border-transparent";
       let titleStr = undefined;
 
@@ -451,16 +451,16 @@ export default function ESSProfilePage() {
           borderStyle = "border-emerald-500/50";
           bgColor = matchingAbsence.absence_type === "medical" 
             ? "bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold" 
-            : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold";
+            : "bg-success/20 text-emerald-600 dark:text-emerald-400 font-bold";
         } else if (matchingAbsence.status === "pending") {
           borderStyle = "border-amber-500/50";
-          bgColor = "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium";
+          bgColor = "bg-warning/10 text-amber-600 dark:text-amber-400 font-medium";
         } else {
-          bgColor = "bg-rose-500/10 text-rose-600 dark:text-rose-400 font-medium";
+          bgColor = "bg-destructive/10 text-rose-600 dark:text-rose-400 font-medium";
         }
       } else if (holidayName) {
         borderStyle = "border-rose-500/40 border-dashed";
-        bgColor = "bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold";
+        bgColor = "bg-destructive/10 text-rose-600 dark:text-rose-400 font-bold";
         titleStr = `Festivo: ${holidayName}`;
       }
 
@@ -528,11 +528,11 @@ export default function ESSProfilePage() {
 
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <Badge className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-indigo-500/20 text-primary/80 border border-indigo-500/30">
                 Portal del Empleado
               </Badge>
               {isHrAdmin && (
-                <Badge className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <Badge className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-warning/20 text-amber-300 border border-amber-500/30">
                   RRHH Admin
                 </Badge>
               )}
@@ -553,7 +553,7 @@ export default function ESSProfilePage() {
       <EmployeeHub />
 
       {/* 2. TAB CONTROL CENTER */}
-      <div className="flex flex-wrap gap-2 p-1.5 border border-border/40 bg-slate-100/80 dark:bg-slate-900/60 rounded-2xl max-w-xl">
+      <div className="flex flex-wrap gap-2 p-1.5 border border-border/40 bg-card/80 dark:bg-slate-900/60 rounded-2xl max-w-xl">
         {[
           { id: "profile", label: "Mi Perfil", icon: User },
           { id: "vacations", label: "Vacaciones", icon: Calendar },
@@ -569,8 +569,8 @@ export default function ESSProfilePage() {
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center justify-center gap-2 flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 ${
                 activeTab === tab.id
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/10 border border-indigo-700"
-                  : "text-muted-foreground hover:text-foreground hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+                  ? "bg-primary text-white shadow-md shadow-indigo-600/10 border border-indigo-700"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/50 dark:hover:bg-slate-800/50"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -596,7 +596,7 @@ export default function ESSProfilePage() {
               <Button 
                 onClick={handleSaveContactProfile}
                 disabled={isSavingProfile}
-                className="bg-indigo-600 hover:bg-indigo-700 h-9 font-bold text-xs gap-1.5 shadow-md shadow-indigo-600/15"
+                className="bg-primary hover:bg-indigo-700 h-9 font-bold text-xs gap-1.5 shadow-md shadow-indigo-600/15"
               >
                 {isSavingProfile ? "Guardando..." : (
                   <>
@@ -611,13 +611,13 @@ export default function ESSProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
                 {/* 1. Email (Read-only) */}
-                <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border">
+                <div className="space-y-1 bg-muted/50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border">
                   <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Correo Electrónico</p>
                   <p className="text-sm font-semibold text-foreground/80">{user.email || "—"}</p>
                 </div>
 
                 {/* 2. Phone (Directly Editable) */}
-                <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex flex-col justify-center">
+                <div className="space-y-1 bg-muted/50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex flex-col justify-center">
                   <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider flex items-center gap-1">
                     <Phone className="w-3 h-3 text-indigo-500" /> Teléfono de Contacto
                   </p>
@@ -631,7 +631,7 @@ export default function ESSProfilePage() {
                 </div>
 
                 {/* 3. Address (Requires Approval) */}
-                <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex items-center justify-between gap-3">
+                <div className="space-y-1 bg-muted/50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Dirección Postal</p>
                     <p className="text-sm font-semibold text-foreground/80 truncate max-w-[200px]">{user.address || "No configurada"}</p>
@@ -647,7 +647,7 @@ export default function ESSProfilePage() {
                 </div>
 
                 {/* 4. IBAN Bancario (Requires Approval) */}
-                <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex items-center justify-between gap-3">
+                <div className="space-y-1 bg-muted/50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Cuenta Bancaria (IBAN)</p>
                     <p className="text-sm font-semibold font-mono text-foreground/80 truncate max-w-[200px]">
@@ -665,7 +665,7 @@ export default function ESSProfilePage() {
                 </div>
 
                 {/* 5. Contacto Emergencia (Directly Editable) */}
-                <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex flex-col justify-center">
+                <div className="space-y-1 bg-muted/50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border flex flex-col justify-center">
                   <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider flex items-center gap-1">
                     <HeartHandshake className="w-3.5 h-3.5 text-indigo-500" /> Contacto de Emergencia
                   </p>
@@ -679,7 +679,7 @@ export default function ESSProfilePage() {
                 </div>
 
                 {/* 6. Num Seguridad Social (Read-only) */}
-                <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border">
+                <div className="space-y-1 bg-muted/50/50 dark:bg-slate-900/10 p-2.5 rounded-lg border">
                   <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Nº Seguridad Social</p>
                   <p className="text-sm font-mono font-semibold text-foreground/80">{user.social_security_number || "32 / 12345678 / 90"}</p>
                 </div>
@@ -722,7 +722,7 @@ export default function ESSProfilePage() {
                 
                 {/* 1. Direct Manager */}
                 <div className="flex items-center gap-3 p-2.5 rounded-xl border bg-indigo-500/[0.02] border-indigo-500/10">
-                  <div className="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow">
+                  <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shrink-0 shadow">
                     HR
                   </div>
                   <div>
@@ -741,14 +741,14 @@ export default function ESSProfilePage() {
                       { name: "Carlos Mendoza", role: "Frontend Developer", email: "c.mendoza@successcore.com", status: "break" },
                       { name: "Elena Gómez", role: "Backend Developer", email: "e.gomez@successcore.com", status: "offline" }
                     ].map((peer, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2 rounded-lg border text-xs bg-slate-50/10 dark:bg-slate-900/10 hover:bg-slate-50/20 transition-all">
+                      <div key={idx} className="flex items-center justify-between p-2 rounded-lg border text-xs bg-muted/50/10 dark:bg-slate-900/10 hover:bg-muted/50/20 transition-all">
                         <div className="min-w-0">
                           <p className="font-bold truncate">{peer.name}</p>
                           <p className="text-[9px] text-muted-foreground font-semibold">{peer.role}</p>
                         </div>
                         <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                          peer.status === "working" ? "bg-emerald-500 animate-pulse" : 
-                          peer.status === "break" ? "bg-amber-500" : "bg-slate-400"
+                          peer.status === "working" ? "bg-success animate-pulse" : 
+                          peer.status === "break" ? "bg-warning" : "bg-slate-400"
                         }`} />
                       </div>
                     ))}
@@ -788,7 +788,7 @@ export default function ESSProfilePage() {
                     cy="72"
                     r="58"
                     stroke="currentColor"
-                    className="text-indigo-600 transition-all duration-500"
+                    className="text-primary transition-all duration-500"
                     strokeWidth="10"
                     fill="transparent"
                     strokeDasharray={2 * Math.PI * 58}
@@ -827,10 +827,10 @@ export default function ESSProfilePage() {
                 {renderCalendarDays()}
               </div>
               <div className="grid grid-cols-2 gap-y-1.5 gap-x-2 pt-2 text-[9px] font-bold text-muted-foreground border-t border-border/40">
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-emerald-500/20 border border-emerald-500/30" /> Aprobado</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-amber-500/10 border border-amber-500/30" /> Pendiente</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-success/20 border border-emerald-500/30" /> Aprobado</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-warning/10 border border-amber-500/30" /> Pendiente</span>
                 <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-blue-500/20 border border-blue-500/30" /> Médica</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-rose-500/10 border border-dashed border-rose-500/40" /> Festivo (ES)</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-destructive/10 border border-dashed border-rose-500/40" /> Festivo (ES)</span>
               </div>
             </Card>
 
@@ -921,7 +921,7 @@ export default function ESSProfilePage() {
                     </div>
                   )}
 
-                  <Button type="submit" disabled={isSubmittingVacation} className="w-full bg-indigo-600 hover:bg-indigo-700 font-bold gap-1.5">
+                  <Button type="submit" disabled={isSubmittingVacation} className="w-full bg-primary hover:bg-indigo-700 font-bold gap-1.5">
                     {isSubmittingVacation ? "Procesando..." : "Enviar Solicitud a RRHH"}
                   </Button>
                 </form>
@@ -942,7 +942,7 @@ export default function ESSProfilePage() {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                      <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-900 border-b border-border/40">
+                      <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-muted/50 dark:bg-slate-900 border-b border-border/40">
                         <tr>
                           <th className="px-4 py-2">Periodo</th>
                           <th className="px-4 py-2">Días</th>
@@ -1004,7 +1004,7 @@ export default function ESSProfilePage() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-900 border-b border-border/40">
+                    <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-muted/50 dark:bg-slate-900 border-b border-border/40">
                       <tr>
                         <th className="px-4 py-3">Código</th>
                         <th className="px-4 py-3">Bruto</th>
@@ -1035,7 +1035,7 @@ export default function ESSProfilePage() {
                                 disabled={isDownloading[p.id]}
                                 variant="outline"
                                 size="sm"
-                                className="h-8 flex items-center gap-1 border-indigo-600/30 text-indigo-600 hover:bg-indigo-600 hover:text-white font-bold text-xs"
+                                className="h-8 flex items-center gap-1 border-indigo-600/30 text-primary hover:bg-primary hover:text-white font-bold text-xs"
                               >
                                 <Download className="h-3.5 w-3.5" />
                                 {isDownloading[p.id] ? "..." : "PDF"}
@@ -1073,7 +1073,7 @@ export default function ESSProfilePage() {
                           {((selectedPayslipForVisual.net_salary / selectedPayslipForVisual.gross_salary) * 100).toFixed(1)}%
                         </span>
                       </div>
-                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-muted dark:bg-slate-800 rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" 
                           style={{ width: `${(selectedPayslipForVisual.net_salary / selectedPayslipForVisual.gross_salary) * 100}%` }}
@@ -1090,9 +1090,9 @@ export default function ESSProfilePage() {
                           {((selectedPayslipForVisual.deductions / selectedPayslipForVisual.gross_salary) * 100).toFixed(1)}%
                         </span>
                       </div>
-                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-muted dark:bg-slate-800 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-rose-500 rounded-full" 
+                          className="h-full bg-destructive rounded-full" 
                           style={{ width: `${(selectedPayslipForVisual.deductions / selectedPayslipForVisual.gross_salary) * 100}%` }}
                         />
                       </div>
@@ -1169,13 +1169,13 @@ export default function ESSProfilePage() {
                   <div key={w.id} className="space-y-6">
                     
                     {/* Dynamic Progress Bar */}
-                    <div className="space-y-2 p-4 bg-slate-50/50 dark:bg-slate-900/10 border rounded-2xl">
+                    <div className="space-y-2 p-4 bg-muted/50/50 dark:bg-slate-900/10 border rounded-2xl">
                       <div className="flex items-center justify-between text-xs font-bold">
                         <span className="text-foreground uppercase tracking-wider">{w.template?.name || "Plan de Acogida General"}</span>
                         <span className="text-indigo-500 font-mono">{progressPct}% completado ({completedSteps}/{totalSteps})</span>
                       </div>
-                      <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-600 rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+                      <div className="h-2 w-full bg-card dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
                       </div>
                     </div>
 
@@ -1191,7 +1191,7 @@ export default function ESSProfilePage() {
                           <div
                             key={step.id}
                             className={`p-4 rounded-xl border flex flex-col justify-between gap-3 transition-all duration-200 bg-card border-border/60 hover:shadow-sm ${
-                              stepState.completed ? "bg-emerald-500/[0.02] border-emerald-500/25" : ""
+                              stepState.completed ? "bg-success/[0.02] border-emerald-500/25" : ""
                             }`}
                           >
                             <div className="flex items-start justify-between gap-4">
@@ -1216,7 +1216,7 @@ export default function ESSProfilePage() {
                                 onClick={() => canToggle && handleToggleStep(w.id, step.id)}
                                 className={`h-5 w-5 rounded-full flex items-center justify-center border transition-all shrink-0 ${
                                   stepState.completed
-                                    ? "bg-emerald-500 border-emerald-500 text-white"
+                                    ? "bg-success border-emerald-500 text-white"
                                     : "border-border/80 hover:border-indigo-600/60"
                                 }`}
                               >
@@ -1277,7 +1277,7 @@ export default function ESSProfilePage() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-900 border-b border-border/40">
+                    <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-muted/50 dark:bg-slate-900 border-b border-border/40">
                       <tr>
                         <th className="px-6 py-3">Empleado (ID)</th>
                         <th className="px-6 py-3">Tipo de Permiso</th>
@@ -1309,7 +1309,7 @@ export default function ESSProfilePage() {
                               <div className="flex justify-end gap-1.5">
                                 <Button
                                   size="sm"
-                                  className="h-7 w-7 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white p-0 flex items-center justify-center shadow shadow-emerald-500/20"
+                                  className="h-7 w-7 rounded-full bg-success hover:bg-emerald-600 text-white p-0 flex items-center justify-center shadow shadow-emerald-500/20"
                                   onClick={() => handleReviewVacation(req.id, true)}
                                   title="Aprobar ausencia"
                                 >
@@ -1317,7 +1317,7 @@ export default function ESSProfilePage() {
                                 </Button>
                                 <Button
                                   size="sm"
-                                  className="h-7 w-7 rounded-full bg-rose-500 hover:bg-rose-600 text-white p-0 flex items-center justify-center shadow shadow-rose-500/20"
+                                  className="h-7 w-7 rounded-full bg-destructive hover:bg-rose-600 text-white p-0 flex items-center justify-center shadow shadow-rose-500/20"
                                   onClick={() => handleReviewVacation(req.id, false)}
                                   title="Rechazar ausencia"
                                 >
@@ -1353,7 +1353,7 @@ export default function ESSProfilePage() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-900 border-b border-border/40">
+                    <thead className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-muted/50 dark:bg-slate-900 border-b border-border/40">
                       <tr>
                         <th className="px-6 py-3">Empleado</th>
                         <th className="px-6 py-3">Campo</th>
@@ -1368,7 +1368,7 @@ export default function ESSProfilePage() {
                         <tr key={req.id} className="hover:bg-muted/10 text-xs">
                           <td className="px-6 py-4 font-bold text-foreground">ID Colaborador: {req.user_id.slice(0, 8)}...</td>
                           <td className="px-6 py-4">
-                            <Badge variant="outline" className="font-mono text-[10px] bg-slate-100 dark:bg-slate-900 font-bold uppercase">
+                            <Badge variant="outline" className="font-mono text-[10px] bg-muted dark:bg-slate-900 font-bold uppercase">
                               {req.field_name}
                             </Badge>
                           </td>
@@ -1376,11 +1376,11 @@ export default function ESSProfilePage() {
                           <td className="px-6 py-4 font-bold text-foreground truncate max-w-[150px] font-mono text-indigo-500">{req.new_value}</td>
                           <td className="px-6 py-4">
                             {req.status === "pending" ? (
-                              <Badge className="bg-amber-500 text-white font-bold border-none text-[9px] uppercase">PENDIENTE</Badge>
+                              <Badge className="bg-warning text-white font-bold border-none text-[9px] uppercase">PENDIENTE</Badge>
                             ) : req.status === "approved" ? (
-                              <Badge className="bg-emerald-500 text-white font-bold border-none text-[9px] uppercase">APROBADO</Badge>
+                              <Badge className="bg-success text-white font-bold border-none text-[9px] uppercase">APROBADO</Badge>
                             ) : (
-                              <Badge className="bg-rose-500 text-white font-bold border-none text-[9px] uppercase">DENEGADO</Badge>
+                              <Badge className="bg-destructive text-white font-bold border-none text-[9px] uppercase">DENEGADO</Badge>
                             )}
                           </td>
                           <td className="px-6 py-4 text-right">
@@ -1388,7 +1388,7 @@ export default function ESSProfilePage() {
                               <div className="flex justify-end gap-1.5">
                                 <Button
                                   size="sm"
-                                  className="h-7 w-7 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white p-0 flex items-center justify-center"
+                                  className="h-7 w-7 rounded-full bg-success hover:bg-emerald-600 text-white p-0 flex items-center justify-center"
                                   onClick={() => handleReviewRequest(req.id, true)}
                                   title="Aprobar e integrar en ficha"
                                 >
@@ -1396,7 +1396,7 @@ export default function ESSProfilePage() {
                                 </Button>
                                 <Button
                                   size="sm"
-                                  className="h-7 w-7 rounded-full bg-rose-500 hover:bg-rose-600 text-white p-0 flex items-center justify-center"
+                                  className="h-7 w-7 rounded-full bg-destructive hover:bg-rose-600 text-white p-0 flex items-center justify-center"
                                   onClick={() => handleReviewRequest(req.id, false)}
                                   title="Rechazar y archivar"
                                 >
@@ -1428,7 +1428,7 @@ export default function ESSProfilePage() {
             
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center"
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground h-6 w-6 rounded-full hover:bg-muted dark:hover:bg-slate-800 flex items-center justify-center"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1465,7 +1465,7 @@ export default function ESSProfilePage() {
                   Cancelar
                 </Button>
                 <Button 
-                  className="flex-1 text-xs h-9 font-bold bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-600/15"
+                  className="flex-1 text-xs h-9 font-bold bg-primary hover:bg-indigo-700 shadow-md shadow-indigo-600/15"
                   onClick={handleSubmitSensitiveRequest}
                   disabled={isSavingProfile}
                 >

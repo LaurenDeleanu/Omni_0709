@@ -133,7 +133,7 @@ export default function AgentStudioView({
   if (!bot) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-zinc-500">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent-primary)] mb-3" />
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)] mb-3" />
         <span className="text-xs font-light">Loading Laboratory...</span>
       </div>
     );
@@ -201,10 +201,10 @@ export default function AgentStudioView({
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)]">
+            <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
               🧪 Agent Studio
             </h2>
-            <span className="text-[10px] bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary)] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
               {bot.agentType || "CONVERSATIONAL"}
             </span>
           </div>
@@ -217,7 +217,7 @@ export default function AgentStudioView({
           <button
             onClick={saveConfig}
             disabled={isSaving}
-            className="btn-primary shadow-lg shadow-[var(--accent-primary)]/10 px-8 py-3 text-xs font-bold flex items-center gap-2"
+            className="btn-primary shadow-lg shadow-[var(--color-primary)]/10 px-8 py-3 text-xs font-bold flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
             {isSaving ? "Saving..." : saved ? "Config Updated!" : "Save Changes"}
@@ -235,7 +235,7 @@ export default function AgentStudioView({
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center gap-2 px-6 py-3 border-b-2 text-xs font-bold transition-all whitespace-nowrap ${
                 isActive
-                  ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[rgba(6,182,212,0.02)]"
+                  ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-[rgba(6,182,212,0.02)]"
                   : "border-transparent text-zinc-400 hover:text-white"
               }`}
             >
@@ -253,7 +253,7 @@ export default function AgentStudioView({
             {/* Identity Form */}
             <div className="glass-card p-6">
               <h3 className="text-base font-bold text-white mb-5 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[var(--accent-primary)]" />
+                <Sparkles className="w-4 h-4 text-[var(--color-primary)]" />
                 🎭 Identity & System Directives
               </h3>
               
@@ -325,7 +325,7 @@ export default function AgentStudioView({
             {/* Agent Type selector */}
             <div className="glass-card p-6">
               <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <Settings className="w-4 h-4 text-[var(--accent-primary)]" />
+                <Settings className="w-4 h-4 text-[var(--color-primary)]" />
                 Workload Specialization
               </h3>
               <p className="text-xs text-zinc-400 font-light mb-6">
@@ -340,7 +340,7 @@ export default function AgentStudioView({
             {/* API Credentials */}
             <div className="glass-card p-6">
               <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-[var(--accent-primary)]" />
+                <ShieldAlert className="w-4 h-4 text-[var(--color-primary)]" />
                 API Credentials (BYOK)
               </h3>
               <p className="text-xs text-zinc-400 font-light mb-6">
@@ -397,7 +397,7 @@ export default function AgentStudioView({
         {activeTab === "capabilities" && (
           <div className="glass-card p-6 animate-fade-in">
             <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-[var(--accent-primary)]" />
+              <Cpu className="w-4 h-4 text-[var(--color-primary)]" />
               Autonomous Capabilities
             </h3>
             <p className="text-xs text-zinc-400 font-light mb-6">
@@ -413,7 +413,7 @@ export default function AgentStudioView({
         {activeTab === "tools" && (
           <div className="glass-card p-6 animate-fade-in">
             <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-              <Settings className="w-4 h-4 text-[var(--accent-primary)]" />
+              <Settings className="w-4 h-4 text-[var(--color-primary)]" />
               Connector Hub & Skills
             </h3>
             <p className="text-xs text-zinc-400 font-light mb-6">
@@ -429,7 +429,7 @@ export default function AgentStudioView({
         {activeTab === "memory" && (
           <div className="glass-card p-6 animate-fade-in">
             <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-              <Database className="w-4 h-4 text-[var(--accent-primary)]" />
+              <Database className="w-4 h-4 text-[var(--color-primary)]" />
               Memory & Knowledge (RAG)
             </h3>
             <MemoryConfigPanel
@@ -446,7 +446,7 @@ export default function AgentStudioView({
         {activeTab === "guardrails" && (
           <div className="glass-card p-6 animate-fade-in">
             <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-[var(--accent-primary)]" />
+              <ShieldAlert className="w-4 h-4 text-[var(--color-primary)]" />
               Safety Guardrails & Compliance Policies
             </h3>
             <GuardrailsPanel
@@ -461,7 +461,7 @@ export default function AgentStudioView({
         {activeTab === "testbench" && (
           <div className="glass-card p-6 animate-fade-in">
             <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-[var(--accent-primary)]" />
+              <Terminal className="w-4 h-4 text-[var(--color-primary)]" />
               Real-time Simulation Bench
             </h3>
             <AgentTestBench

@@ -138,7 +138,7 @@ export function Sidebar({ className, variant = "desktop" }: { className?: string
         className={cn(
           "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 group",
           isActive
-            ? "bg-primary/10 text-primary font-medium border-l-2 border-l-violet-500 pl-[10px]"
+            ? "bg-primary/10 text-primary font-medium border-l-2 border-l-primary pl-[10px]"
             : "text-muted-foreground hover:bg-muted/80 hover:text-foreground border-l-2 border-l-transparent pl-[10px]"
         )}
       >
@@ -206,7 +206,7 @@ export function Sidebar({ className, variant = "desktop" }: { className?: string
               <Bell className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
               {t("notifications") || "Notifications"}
               {unreadCount > 0 && (
-                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-600 px-1.5 text-[10px] font-bold text-white">
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
                   {unreadCount}
                 </span>
               )}
@@ -256,7 +256,7 @@ export function Sidebar({ className, variant = "desktop" }: { className?: string
           <a
             href="/api/auth/logout"
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-destructive hover:bg-destructive/10 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             {t("logout") || "Cerrar sesión"}

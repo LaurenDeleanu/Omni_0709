@@ -103,7 +103,7 @@ export function NotificationCenter() {
       >
         <Bell className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white ring-2 ring-background animate-pulse">
+          <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground ring-2 ring-background animate-pulse">
             {unreadCount}
           </span>
         )}
@@ -123,7 +123,7 @@ export function NotificationCenter() {
             {unreadCount > 0 && (
               <button
                 onClick={handleReadAll}
-                className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-600 font-medium transition-colors focus:outline-none"
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors focus:outline-none"
               >
                 <Check className="h-3 w-3" />
                 Marcar leídas

@@ -369,7 +369,7 @@ export default function DealsBoard({
         <div className={`flex gap-4 overflow-x-auto pb-4 custom-scrollbar ${selectedDealId ? "lg:col-span-3" : ""}`} style={{ minHeight: "65vh" }}>
           {isLoading ? (
             <div className="w-full py-24 text-center text-zinc-500">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent-primary)] mx-auto mb-3" />
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)] mx-auto mb-3" />
               Loading deal flow pipeline...
             </div>
           ) : stages.length === 0 ? (
@@ -420,11 +420,11 @@ export default function DealsBoard({
                           onDragStart={(e) => handleDragStart(e, deal.id)}
                           onClick={() => setSelectedDealId(deal.id)}
                           className={`glass-card p-4 border border-white/5 rounded-xl cursor-grab active:cursor-grabbing hover:border-white/10 hover:bg-white/[0.01] transition-all relative group shadow-md space-y-3 ${
-                            selectedDealId === deal.id ? "border-[var(--accent-primary)]/50 bg-[var(--accent-primary)]/[0.01]" : ""
+                            selectedDealId === deal.id ? "border-[var(--color-primary)]/50 bg-[var(--color-primary)]/[0.01]" : ""
                           }`}
                         >
                           <div className="space-y-1">
-                            <h5 className="text-xs font-bold text-white group-hover:text-[var(--accent-primary)] transition-colors line-clamp-2">
+                            <h5 className="text-xs font-bold text-white group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
                               {deal.title}
                             </h5>
                             
@@ -446,7 +446,7 @@ export default function DealsBoard({
                           </div>
 
                           <div className="flex justify-between items-end border-t border-white/5 pt-2.5">
-                            <div className="text-xs font-mono font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)]">
+                            <div className="text-xs font-mono font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
                               $ {deal.value.toLocaleString()}
                             </div>
                             <div className={`px-1.5 py-0.5 rounded font-mono text-[9px] font-bold ${getProbabilityBadgeColor(deal.probability)}`}>
@@ -475,7 +475,7 @@ export default function DealsBoard({
 
             {isDetailLoading ? (
               <div className="py-24 text-center text-zinc-500">
-                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--accent-primary)] mx-auto mb-2" />
+                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--color-primary)] mx-auto mb-2" />
                 Loading deal records...
               </div>
             ) : detailedDeal ? (
@@ -483,7 +483,7 @@ export default function DealsBoard({
                 
                 {/* Details Header */}
                 <div className="border-b border-white/5 pb-4 space-y-2">
-                  <div className="w-10 h-10 rounded-xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 flex items-center justify-center text-[var(--accent-primary)]">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)]">
                     <DollarSign className="w-5 h-5" />
                   </div>
                   <h3 className="text-sm font-bold text-white leading-tight">
@@ -551,7 +551,7 @@ export default function DealsBoard({
                     <button 
                       type="submit" 
                       disabled={isUpdatingDeal}
-                      className="btn-primary flex-1 py-2 text-[10px] font-bold shadow-lg shadow-[var(--accent-primary)]/10"
+                      className="btn-primary flex-1 py-2 text-[10px] font-bold shadow-lg shadow-[var(--color-primary)]/10"
                     >
                       {isUpdatingDeal ? "Updating..." : "Save Edits"}
                     </button>
@@ -578,7 +578,7 @@ export default function DealsBoard({
                           onClick={() => setNewActivityType(type as any)}
                           className={`capitalize px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all ${
                             newActivityType === type 
-                              ? "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/30 text-[var(--accent-primary)]"
+                              ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)]/30 text-[var(--color-primary)]"
                               : "bg-transparent border-white/5 text-zinc-400 hover:text-white"
                           }`}
                         >
@@ -626,7 +626,7 @@ export default function DealsBoard({
                             act.type === "system" ? "bg-zinc-500" :
                             act.type === "email" ? "bg-blue-400" :
                             act.type === "call" ? "bg-orange-400" :
-                            "bg-[var(--accent-primary)]"
+                            "bg-[var(--color-primary)]"
                           }`} />
                           
                           <div className="space-y-0.5">
@@ -764,7 +764,7 @@ export default function DealsBoard({
                   <button type="button" onClick={onCloseAdd} disabled={isCreatingDeal} className="btn-secondary flex-1 py-3 font-bold rounded-xl">
                     Cancel
                   </button>
-                  <button type="submit" className="btn-primary flex-1 py-3 font-bold rounded-xl shadow-lg shadow-[var(--accent-primary)]/10" disabled={isCreatingDeal}>
+                  <button type="submit" className="btn-primary flex-1 py-3 font-bold rounded-xl shadow-lg shadow-[var(--color-primary)]/10" disabled={isCreatingDeal}>
                     {isCreatingDeal ? "Creating..." : "Create Deal"}
                   </button>
                 </div>

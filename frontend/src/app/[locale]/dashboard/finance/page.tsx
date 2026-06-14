@@ -567,7 +567,7 @@ export default function FinanceDashboard() {
           {activeTab === "expenses" && (
             <button
               onClick={() => setShowNewExpense(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-emerald-400/20 shadow-lg shadow-emerald-950/20"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-emerald-400/20 shadow-lg shadow-emerald-950/20"
             >
               <Plus className="w-3.5 h-3.5" />
               Escanear/Subir Recibo
@@ -704,7 +704,7 @@ export default function FinanceDashboard() {
             {isAdmin && (
               <button
                 onClick={() => { resetBudgetForm(); setShowBudgetModal(true); }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-emerald-400/20 shadow-lg shadow-emerald-950/20"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-emerald-400/20 shadow-lg shadow-emerald-950/20"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Nuevo Presupuesto
@@ -1071,7 +1071,7 @@ export default function FinanceDashboard() {
             </div>
             <button
               onClick={() => { resetInvoiceForm(); setShowInvoiceModal(true); }}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-emerald-400/20 shadow-lg shadow-emerald-950/20"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-emerald-400/20 shadow-lg shadow-emerald-950/20"
             >
               <Plus className="w-3.5 h-3.5" />
               Nueva Factura
@@ -1355,7 +1355,7 @@ export default function FinanceDashboard() {
                   <button
                     type="submit"
                     disabled={isSubmittingExpense}
-                    className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
+                    className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-emerald-500 hover:to-teal-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
                   >
                     {isSubmittingExpense ? "Registrando..." : "Guardar Nota de Gasto"}
                   </button>
@@ -1430,7 +1430,7 @@ export default function FinanceDashboard() {
                   Cancelar
                 </button>
                 <button type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-semibold rounded-lg cursor-pointer">
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-semibold rounded-lg cursor-pointer">
                   {editingBudget ? "Actualizar" : "Crear"} Presupuesto
                 </button>
               </div>
@@ -1474,7 +1474,7 @@ export default function FinanceDashboard() {
                   Cancelar
                 </button>
                 <button type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-semibold rounded-lg cursor-pointer">
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-semibold rounded-lg cursor-pointer">
                   Agregar Línea
                 </button>
               </div>
@@ -1576,7 +1576,7 @@ export default function FinanceDashboard() {
                   Cancelar
                 </button>
                 <button type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-semibold rounded-lg cursor-pointer">
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-semibold rounded-lg cursor-pointer">
                   {editingInvoice ? "Actualizar" : "Crear"} Factura
                 </button>
               </div>

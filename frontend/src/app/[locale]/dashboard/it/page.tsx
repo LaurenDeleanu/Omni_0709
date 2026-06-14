@@ -512,7 +512,7 @@ export default function ITDashboard() {
         {activeTab === "tickets" && (
           <button
             onClick={() => setShowNewTicket(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
           >
             <Plus className="w-3.5 h-3.5" />
             Nuevo Ticket
@@ -522,7 +522,7 @@ export default function ITDashboard() {
         {activeTab === "assets" && isAdmin && (
           <button
             onClick={() => setShowNewAsset(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
           >
             <Plus className="w-3.5 h-3.5" />
             Nuevo Activo
@@ -532,7 +532,7 @@ export default function ITDashboard() {
         {activeTab === "licenses" && isAdmin && (
           <button
             onClick={() => setShowNewLicense(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
           >
             <Plus className="w-3.5 h-3.5" />
             Nueva Licencia
@@ -542,7 +542,7 @@ export default function ITDashboard() {
         {activeTab === "requisitions" && (
           <button
             onClick={() => setShowNewRequisition(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
           >
             <Plus className="w-3.5 h-3.5" />
             Nueva Solicitud
@@ -553,7 +553,7 @@ export default function ITDashboard() {
           <button
             onClick={handleIndexTickets}
             disabled={kbIndexing}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted disabled:to-muted text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted disabled:to-muted text-white rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cyan-400/20 shadow-lg shadow-cyan-950/20"
           >
             <Sparkles className="w-3.5 h-3.5" />
             {kbIndexing ? "Indexando..." : "Generar desde Tickets Resueltos"}
@@ -910,7 +910,7 @@ export default function ITDashboard() {
             <button
               onClick={handleKbSearch}
               disabled={kbSearching || !kbSearchQuery.trim()}
-              className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted disabled:to-muted text-white rounded-lg text-sm font-semibold cursor-pointer transition-all border border-cyan-400/20"
+              className="px-6 py-3 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted disabled:to-muted text-white rounded-lg text-sm font-semibold cursor-pointer transition-all border border-cyan-400/20"
             >
               {kbSearching ? "Buscando..." : "Buscar"}
             </button>
@@ -1450,7 +1450,7 @@ export default function ITDashboard() {
                 <button
                   type="submit"
                   disabled={isSubmittingTicket}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
                 >
                   {isSubmittingTicket ? "Enviando..." : "Crear Ticket"}
                 </button>
@@ -1515,7 +1515,7 @@ export default function ITDashboard() {
                 <button
                   type="submit"
                   disabled={isSubmittingRequisition}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
                 >
                   {isSubmittingRequisition ? "Enviando..." : "Enviar Solicitud"}
                 </button>
@@ -1624,7 +1624,7 @@ export default function ITDashboard() {
                 <button
                   type="submit"
                   disabled={isSubmittingAsset}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
                 >
                   {isSubmittingAsset ? "Guardando..." : "Guardar Activo"}
                 </button>
@@ -1730,7 +1730,7 @@ export default function ITDashboard() {
                 <button
                   type="submit"
                   disabled={isUpdatingAsset}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
                 >
                   {isUpdatingAsset ? "Guardando..." : "Guardar Cambios"}
                 </button>
@@ -1812,7 +1812,7 @@ export default function ITDashboard() {
                 <button
                   type="submit"
                   disabled={isSubmittingLicense}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
                 >
                   {isSubmittingLicense ? "Guardando..." : "Guardar Licencia"}
                 </button>
@@ -1892,7 +1892,7 @@ export default function ITDashboard() {
                 <button
                   type="submit"
                   disabled={isUpdatingLicense}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r bg-primary hover:from-cyan-500 hover:to-indigo-500 disabled:from-muted text-white text-sm font-semibold rounded-lg cursor-pointer"
                 >
                   {isUpdatingLicense ? "Guardando..." : "Guardar Cambios"}
                 </button>

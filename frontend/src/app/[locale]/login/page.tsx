@@ -124,7 +124,7 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex bg-slate-950 overflow-hidden">
+    <div className="min-h-screen flex bg-background overflow-hidden">
       {/* ── Panel izquierdo: Branding ──────────────────────────────────────── */}
       <div
         className={`hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative
@@ -133,20 +133,20 @@ export default function LoginPage() {
       >
         {/* Fondo decorativo */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 -right-20 w-72 h-72 bg-violet-600/15 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 left-1/4 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl" />
+          <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 left-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
         </div>
 
         {/* Logo */}
         <div className="relative">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Building2 className="h-6 w-6 text-white" />
+            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+              <Building2 className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-white font-bold text-xl leading-none">SuccessCore</p>
-              <p className="text-indigo-400 text-xs font-semibold tracking-wider uppercase mt-1">HR Platform</p>
+              <p className="text-foreground font-bold text-xl leading-none">SuccessCore</p>
+              <p className="text-primary/80 text-xs font-semibold tracking-wider uppercase mt-1">HR Platform</p>
             </div>
           </div>
         </div>
@@ -154,17 +154,17 @@ export default function LoginPage() {
         {/* Headline + Features */}
         <div className="relative space-y-8">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-3 py-1">
-              <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-              <span className="text-indigo-300 text-xs font-medium">Enterprise SaaS · Multi-tenant</span>
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3 py-1">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span className="text-primary/80 text-xs font-medium">Enterprise SaaS · Multi-tenant</span>
             </div>
-            <h1 className="text-4xl font-bold text-white leading-tight">
+            <h1 className="text-4xl font-bold text-foreground leading-tight">
               El HR del futuro,<br />
-              <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 disponible hoy.
               </span>
             </h1>
-            <p className="text-slate-400 text-base leading-relaxed max-w-sm">
+            <p className="text-muted-foreground text-base leading-relaxed max-w-sm">
               Gestiona tu plantilla, automatiza reportes y controla el acceso
               de cada empleado con seguridad de nivel enterprise.
             </p>
@@ -175,15 +175,15 @@ export default function LoginPage() {
             {features.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl p-3.5
-                           backdrop-blur-sm hover:bg-white/8 transition-colors"
+                className="flex items-start gap-3 bg-muted/30 border border-border/30 rounded-xl p-3.5
+                           backdrop-blur-sm hover:bg-muted/50 transition-colors"
               >
-                <div className="h-8 w-8 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Icon className="h-4 w-4 text-indigo-400" />
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Icon className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-white text-sm font-medium">{title}</p>
-                  <p className="text-slate-400 text-xs mt-0.5 leading-relaxed">{desc}</p>
+                  <p className="text-foreground text-sm font-medium">{title}</p>
+                  <p className="text-muted-foreground text-xs mt-0.5 leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -192,7 +192,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="relative">
-          <p className="text-slate-600 text-xs">
+          <p className="text-muted-foreground/40 text-xs">
             © 2026 SuccessCore HR · Todos los derechos reservados
           </p>
         </div>
@@ -206,21 +206,21 @@ export default function LoginPage() {
         >
           {/* Mobile logo */}
           <div className="flex items-center gap-4 mb-8 lg:hidden">
-            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-white" />
+            <div className="h-11 w-11 rounded-xl bg-primary flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-white font-bold text-lg leading-none">SuccessCore HR</p>
-              <p className="text-indigo-400 text-xs mt-1">Enterprise Platform</p>
+              <p className="text-foreground font-bold text-lg leading-none">SuccessCore HR</p>
+              <p className="text-primary/80 text-xs mt-1">Enterprise Platform</p>
             </div>
           </div>
 
           {/* Card */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl shadow-2xl shadow-black/40 relative">
+          <div className="bg-card/80 border border-border rounded-2xl p-8 backdrop-blur-xl shadow-2xl shadow-foreground/5 relative">
             {/* Header */}
             <div className="space-y-1.5 mb-6">
-              <h2 className="text-2xl font-bold text-white">Bienvenido de vuelta</h2>
-              <p className="text-slate-400 text-sm">
+              <h2 className="text-2xl font-bold text-foreground">Bienvenido de vuelta</h2>
+              <p className="text-muted-foreground text-sm">
                 Inicia sesión con tus credenciales o mediante SSO corporativo.
               </p>
             </div>
@@ -228,40 +228,40 @@ export default function LoginPage() {
             {/* Formulario de Login Local */}
             <form onSubmit={handleSubmit} className="space-y-4 mb-6">
               {errorMsg && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-300 text-xs rounded-xl px-3 py-2">
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-xl px-3 py-2">
                   {errorMsg}
                 </div>
               )}
 
               <div className="space-y-1">
-                <label className="text-slate-300 text-xs font-medium">Correo Electrónico</label>
+                <label className="text-foreground/80 text-xs font-medium">Correo Electrónico</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="lauren.deleanu@gmail.com"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-muted/20 border border-border rounded-xl px-3.5 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 text-xs font-medium">Contraseña</label>
+                <label className="text-foreground/80 text-xs font-medium">Contraseña</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-muted/20 border border-border rounded-xl px-3.5 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40"
+                className="w-full py-3 px-6 bg-primary hover:brightness-110 disabled:opacity-50 text-primary-foreground font-semibold rounded-xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/30"
               >
                 {isSubmitting ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                 ) : (
                   <>
                     Iniciar sesión
@@ -273,15 +273,15 @@ export default function LoginPage() {
 
             {/* Divider */}
             <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-slate-600 text-xs">o continúa con SSO</span>
-              <div className="flex-1 h-px bg-white/10" />
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-muted-foreground text-xs">o continúa con SSO</span>
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             {/* SSO Badge */}
-            <div className="flex items-center gap-2 bg-indigo-500/5 border border-indigo-500/10 rounded-lg px-3 py-2 mb-4">
-              <ShieldCheck className="h-4 w-4 text-indigo-400 flex-shrink-0" />
-              <p className="text-indigo-300 text-[10px] leading-snug">
+            <div className="flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-lg px-3 py-2 mb-4">
+              <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0" />
+              <p className="text-primary/80 text-[10px] leading-snug">
                 <strong>SSO Corporativo</strong> — Si tu empresa requiere autenticación federada, usa los accesos rápidos a continuación.
               </p>
             </div>
@@ -290,14 +290,14 @@ export default function LoginPage() {
             <a
               href="/api/auth/login?returnTo=/en/dashboard"
               className="group flex items-center justify-center gap-3 w-full py-2.5 px-4
-                         bg-white/5 border border-white/10
-                         hover:bg-white/10
-                         text-slate-200 text-sm font-semibold rounded-xl
+                         bg-muted/20 border border-border
+                         hover:bg-muted/40
+                         text-foreground/80 text-sm font-semibold rounded-xl
                          transition-all duration-200
                          hover:scale-[1.01]
                          active:scale-[0.99] mb-3"
             >
-              <svg className="h-4 w-4 flex-shrink-0 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="h-4 w-4 flex-shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M21.98 7.448L19.62 0H4.347L2.02 7.448c-1.352 4.312.03 9.206 3.815 12.015L12.007 24l6.157-4.552c3.755-2.81 5.182-7.688 3.815-12.015v.015zm-9.973 10.37l-3.747-2.638 1.374-4.61h4.718l1.375 4.61-3.72 2.638z"/>
               </svg>
               Continuar con Auth0 SSO
@@ -309,9 +309,9 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => handleSSOLogin("google")}
                 className="flex items-center justify-center gap-2 py-2 px-3
-                           bg-white/5 border border-white/10 rounded-xl
-                           text-slate-300 text-xs font-medium
-                           hover:bg-white/10 transition-colors"
+                           bg-muted/20 border border-border rounded-xl
+                           text-foreground/70 text-xs font-medium
+                           hover:bg-muted/40 transition-colors"
               >
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -325,9 +325,9 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => handleSSOLogin("microsoft")}
                 className="flex items-center justify-center gap-2 py-2 px-3
-                           bg-white/5 border border-white/10 rounded-xl
-                           text-slate-300 text-xs font-medium
-                           hover:bg-white/10 transition-colors"
+                           bg-muted/20 border border-border rounded-xl
+                           text-foreground/70 text-xs font-medium
+                           hover:bg-muted/40 transition-colors"
               >
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="#00a1f1">
                   <path d="M11.5 2.75H2.75v8.75H11.5V2.75zm0 9.75H2.75v8.75H11.5V12.5zm1 0H21.25v8.75H12.5V12.5zm0-9.75H21.25v8.75H12.5V2.75z"/>
@@ -340,7 +340,7 @@ export default function LoginPage() {
             <div className="text-center mb-4">
               <Link
                 href="/careers"
-                className="inline-flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 text-xs font-medium transition-colors"
               >
                 <Briefcase className="h-3.5 w-3.5" />
                 View Open Positions
@@ -348,13 +348,13 @@ export default function LoginPage() {
             </div>
 
             {/* Footer note */}
-            <p className="text-center text-slate-600 text-xs mt-6 leading-relaxed">
+            <p className="text-center text-muted-foreground text-xs mt-6 leading-relaxed">
               Al iniciar sesión aceptas los{" "}
-              <span className="text-slate-400 hover:text-slate-300 cursor-pointer">
+              <span className="text-foreground/60 hover:text-foreground/80 cursor-pointer">
                 Términos de servicio
               </span>{" "}
               y la{" "}
-              <span className="text-slate-400 hover:text-slate-300 cursor-pointer">
+              <span className="text-foreground/60 hover:text-foreground/80 cursor-pointer">
                 Política de privacidad
               </span>
               .
@@ -363,8 +363,8 @@ export default function LoginPage() {
 
           {/* Loading state overlay */}
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 rounded-2xl backdrop-blur-sm">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-2xl backdrop-blur-sm">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           )}
         </div>

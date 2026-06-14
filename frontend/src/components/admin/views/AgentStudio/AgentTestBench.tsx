@@ -297,7 +297,7 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
                   className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border ${
                     isUser
                       ? "bg-zinc-900 border-zinc-700 text-white"
-                      : "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/20 text-[var(--accent-primary)]"
+                      : "bg-[var(--color-primary)]/10 border-[var(--color-primary)]/20 text-[var(--color-primary)]"
                   }`}
                 >
                   {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
@@ -308,7 +308,7 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
                     className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
                       isUser
                         ? "bg-zinc-900 text-zinc-100 border border-zinc-800 rounded-tr-none"
-                        : "bg-[var(--bg-tertiary)] text-white border border-white/5 rounded-tl-none"
+                        : "bg-[var(--color-muted)] text-white border border-white/5 rounded-tl-none"
                     }`}
                   >
                     {msg.content || (isSending && index === messages.length - 1 ? (
@@ -359,7 +359,7 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
       {/* Traces and Metrics Panel */}
       <div className="border border-white/5 bg-zinc-950/20 rounded-2xl p-5 flex flex-col gap-5 h-full overflow-hidden">
         <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 shrink-0">
-          <Cpu className="w-4 h-4 text-[var(--accent-primary)]" />
+          <Cpu className="w-4 h-4 text-[var(--color-primary)]" />
           Trace Inspector
         </h3>
 
