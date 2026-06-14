@@ -85,7 +85,7 @@ function useAuth0UserSession() {
   const [localUser, setLocalUser] = useState<any>(null);
   const [isLocalLoading, setIsLocalLoading] = useState(true);
 
-  const checkLocalUser = () => {
+  const checkLocalUser = async () => {
     if (typeof window !== "undefined") {
       const userStr = sessionStorage.getItem("local_user");
       if (userStr) {
@@ -96,7 +96,13 @@ function useAuth0UserSession() {
           setLocalUser(null);
         }
       } else {
-        setLocalUser(null);
+        try {
+          const freshUser = await UserAPI.getMe();
+          setLocalUser(freshUser);
+          sessionStorage.setItem("local_user", JSON.stringify(freshUser));
+        } catch {
+          setLocalUser(null);
+        }
       }
       setIsLocalLoading(false);
     }
@@ -152,17 +158,20 @@ function useAuth0UserSession() {
     return { user: localUser, error: undefined, isLoading: false, invalidate, logout };
   }
 
-  return {
-    ...auth0,
-    invalidate,
-    logout,
-  };
+  if (auth0.user) {
+    return { ...auth0, invalidate, logout };
+  }
+
+  if (auth0.isLoading) {
+    return { user: undefined, error: undefined, isLoading: true, invalidate, logout };
+  }
+
+  return { user: null, error: undefined, isLoading: false, invalidate, logout };
 }
 
 export function useUser() {
   if (isAuth0Configured) {
     return useAuth0UserSession();
-  } else {
-    return useLocalUserSession();
   }
+  return useLocalUserSession();
 }
