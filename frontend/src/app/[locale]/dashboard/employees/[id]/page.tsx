@@ -195,7 +195,7 @@ function statusBadge(status: string) {
   return `text-[10px] font-bold px-2 py-0.5 rounded-full border ${map[status] || "bg-muted text-muted-foreground border-border"}`;
 }
 
-function ListCard({ title, children }: { title: string; children: React.ReactNode }) {
+function ListCard({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
   return (
     <Card className="backdrop-blur-md bg-card/50 border-border/50 shadow-md">
       <CardHeader className="pb-3 border-b">
