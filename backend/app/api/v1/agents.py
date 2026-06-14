@@ -467,6 +467,7 @@ async def delete_agent(
 @limiter.limit("30/minute")
 @router.post("/{agent_id}/run")
 async def run_agent(
+    request: Request,
     agent_id: str,
     payload: ChatRequest,
     db: AsyncSession = Depends(get_tenant_db),
@@ -492,6 +493,7 @@ async def run_agent(
 @limiter.limit("30/minute")
 @router.post("/{agent_id}/stream")
 async def stream_agent(
+    request: Request,
     agent_id: str,
     payload: ChatRequest,
     db: AsyncSession = Depends(get_tenant_db),
@@ -1324,7 +1326,8 @@ async def classify_agent_risk(agent_type: str):
 @limiter.limit("10/minute")
 @router.post("/crew/execute")
 async def execute_crew_task(
-    request: CrewTaskRequest,
+    request: Request,
+    payload: CrewTaskRequest,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user),
 ):
@@ -1332,10 +1335,10 @@ async def execute_crew_task(
 
     try:
         result = await execute_crew_task(
-            task=request.task,
-            agent_ids=request.agent_ids,
-            max_parallel=request.max_parallel,
-            worker_timeout=request.worker_timeout_seconds,
+            task=payload.task,
+            agent_ids=payload.agent_ids,
+            max_parallel=payload.max_parallel,
+            worker_timeout=payload.worker_timeout_seconds,
             db=db,
             user_id=current_user.get("sub", "").split("|")[-1],
             tenant_id=current_user.get("tenant_id", "default"),
@@ -1348,7 +1351,8 @@ async def execute_crew_task(
 @limiter.limit("10/minute")
 @router.post("/crew/stream")
 async def crew_stream(
-    request: CrewTaskRequest,
+    request: Request,
+    payload: CrewTaskRequest,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user),
 ):
@@ -1367,10 +1371,10 @@ async def crew_stream(
 
         async def run_task():
             return await execute_crew_task(
-                task=request.task,
-                agent_ids=request.agent_ids,
-                max_parallel=request.max_parallel,
-                worker_timeout=request.worker_timeout_seconds,
+                task=payload.task,
+                agent_ids=payload.agent_ids,
+                max_parallel=payload.max_parallel,
+                worker_timeout=payload.worker_timeout_seconds,
                 db=db,
                 user_id=user_id,
                 tenant_id=tenant_id,
@@ -1416,7 +1420,8 @@ async def crew_stream(
 @limiter.limit("10/minute")
 @router.post("/swarm/run")
 async def run_swarm(
-    request: SwarmRunRequest,
+    request: Request,
+    payload: SwarmRunRequest,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user),
 ):
@@ -1424,7 +1429,7 @@ async def run_swarm(
 
     user_id = current_user.get("sub", "").split("|")[-1]
 
-    starting_agent_id = request.starting_agent_id
+    starting_agent_id = payload.starting_agent_id
     if not starting_agent_id:
         agents_res = await db.execute(select(Agent).where(Agent.is_active == True).limit(1))
         first = agents_res.scalar_one_or_none()
@@ -1435,10 +1440,10 @@ async def run_swarm(
 
     try:
         result = await execute_swarm_run(
-            task=request.task,
+            task=payload.task,
             starting_agent_id=starting_agent_id,
-            max_handoffs=request.max_handoffs,
-            agent_ids=request.agent_ids,
+            max_handoffs=payload.max_handoffs,
+            agent_ids=payload.agent_ids,
             db=db,
             user_id=user_id,
             tenant_id=current_user.get("tenant_id", "default"),
@@ -1453,7 +1458,8 @@ async def run_swarm(
 @limiter.limit("10/minute")
 @router.post("/swarm/stream")
 async def stream_swarm(
-    request: SwarmRunRequest,
+    request: Request,
+    payload: SwarmRunRequest,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user),
 ):
@@ -1464,10 +1470,10 @@ async def stream_swarm(
 
     agents_res = await db.execute(select(Agent).where(Agent.is_active == True).limit(1))
     first = agents_res.scalar_one_or_none()
-    if not request.starting_agent_id and not first:
+    if not payload.starting_agent_id and not first:
         raise HTTPException(status_code=400, detail="No active agents available")
 
-    starting_agent_id = request.starting_agent_id or first.id
+    starting_agent_id = payload.starting_agent_id or first.id
 
     progress_events: list[dict] = []
 
@@ -1479,10 +1485,10 @@ async def stream_swarm(
 
         async def run_task():
             return await execute_swarm_run(
-                task=request.task,
+                task=payload.task,
                 starting_agent_id=starting_agent_id,
-                max_handoffs=request.max_handoffs,
-                agent_ids=request.agent_ids,
+                max_handoffs=payload.max_handoffs,
+                agent_ids=payload.agent_ids,
                 db=db,
                 user_id=user_id,
                 tenant_id=tenant_id,
