@@ -172,8 +172,8 @@ async def _get_or_create_copilot_agent(db: AsyncSession):
 @router.post("/copilot")
 @limiter.limit("30/minute")
 async def run_platform_copilot(
-    request: AICopilotRequest,
-    request_http: Request,
+    request: Request,
+    body: AICopilotRequest,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user)
 ):
@@ -208,18 +208,18 @@ async def run_platform_copilot(
         platform_knowledge = ""
         try:
             from app.services.platform_knowledge import query_platform_knowledge
-            platform_knowledge = await query_platform_knowledge(request.message, db, limit=3)
+            platform_knowledge = await query_platform_knowledge(body.message, db, limit=3)
         except Exception as pk_err:
             logger.warning(f"Platform knowledge query failed: {pk_err}")
 
         # Determine language (locale)
-        accept_language = request_http.headers.get("Accept-Language", "")
+        accept_language = request.headers.get("Accept-Language", "")
         language = "en" if "en" in accept_language.lower() else "es"
         if current_user.get("locale") == "en" or current_user.get("language") == "en":
             language = "en"
 
         enhanced_system_prompt = await build_copilot_prompt(
-            module_context=request.module_context or "",
+            module_context=body.module_context or "",
             user_role=user_payload["role"],
             platform_knowledge=platform_knowledge,
             language=language,
@@ -227,7 +227,7 @@ async def run_platform_copilot(
 
         try:
             from app.services.semantic_memory import retrieve_context_for_query as _retrieve_context
-            memory_context = await _retrieve_context(request.message, user_id, db, max_memories=3)
+            memory_context = await _retrieve_context(body.message, user_id, db, max_memories=3)
             if memory_context:
                 enhanced_system_prompt = f"{enhanced_system_prompt}\n\n[USER MEMORY CONTEXT]\n{memory_context}\n"
         except Exception as mem_err:
@@ -254,23 +254,23 @@ async def run_platform_copilot(
             f"Usa su email ({user_email}) como identificador por defecto.\n"
         )
 
-        if request.module_context:
-            user_context += f"\n[MÓDULO ACTUAL]\n{request.module_context}\n"
+        if body.module_context:
+            user_context += f"\n[MÓDULO ACTUAL]\n{body.module_context}\n"
 
         input_payload = {
-            "message": f"{user_context}\n\n[SOLICITUD]\n{request.message}",
+            "message": f"{user_context}\n\n[SOLICITUD]\n{body.message}",
             "user_id": user_id,
         }
 
         # Detect if this query should be delegated to a specialist agent
-        delegation = await detect_delegation_intent(request.message, db)
+        delegation = await detect_delegation_intent(body.message, db)
 
         response_text = ""
         delegated_to = None
 
         if delegation["should_delegate"] and delegation["confidence"] > 0.7:
             agent_type = delegation["agent_type"]
-            specialist_result = await delegate_to_specialist(request.message, agent_type, user_id, db)
+            specialist_result = await delegate_to_specialist(body.message, agent_type, user_id, db)
             response_text = specialist_result.get("reply", "")
             delegated_to = agent_type
             if not response_text:
@@ -282,7 +282,7 @@ async def run_platform_copilot(
             result = await execute_agent_run(db, agent_id, input_payload, trigger_source="manual")
             response_text = result.get("reply", "")
 
-        await save_conversation_turn(session.id, "user", request.message, db)
+        await save_conversation_turn(session.id, "user", body.message, db)
         await save_conversation_turn(session.id, "assistant", response_text, db)
 
         return {
@@ -302,8 +302,8 @@ async def run_platform_copilot(
 @router.post("/copilot/stream")
 @limiter.limit("30/minute")
 async def stream_platform_copilot(
-    request: AICopilotRequest,
-    request_http: Request,
+    request: Request,
+    body: AICopilotRequest,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user)
 ):
@@ -324,10 +324,10 @@ async def stream_platform_copilot(
 
         agent = await _get_or_create_copilot_agent(db)
         session = await get_or_create_session(user_id, agent.id, db)
-        await save_conversation_turn(session.id, "user", request.message, db)
+        await save_conversation_turn(session.id, "user", body.message, db)
 
         # Detect delegation in streaming
-        delegation = await detect_delegation_intent(request.message, db)
+        delegation = await detect_delegation_intent(body.message, db)
         streaming_agent_id = agent.id
         delegated_to = None
 
@@ -351,18 +351,18 @@ async def stream_platform_copilot(
         platform_knowledge = ""
         try:
             from app.services.platform_knowledge import query_platform_knowledge
-            platform_knowledge = await query_platform_knowledge(request.message, db, limit=3)
+            platform_knowledge = await query_platform_knowledge(body.message, db, limit=3)
         except Exception as pk_err:
             logger.warning(f"Platform knowledge query failed (stream): {pk_err}")
 
         # Determine language (locale)
-        accept_language = request_http.headers.get("Accept-Language", "")
+        accept_language = request.headers.get("Accept-Language", "")
         language = "en" if "en" in accept_language.lower() else "es"
         if current_user.get("locale") == "en" or current_user.get("language") == "en":
             language = "en"
 
         enhanced_system_prompt = await build_copilot_prompt(
-            module_context=request.module_context or "",
+            module_context=body.module_context or "",
             user_role=user_payload["role"],
             platform_knowledge=platform_knowledge,
             language=language,
@@ -370,7 +370,7 @@ async def stream_platform_copilot(
 
         try:
             from app.services.semantic_memory import retrieve_context_for_query as _retrieve_context
-            memory_context = await _retrieve_context(request.message, user_id, db, max_memories=3)
+            memory_context = await _retrieve_context(body.message, user_id, db, max_memories=3)
             if memory_context:
                 enhanced_system_prompt = f"{enhanced_system_prompt}\n\n[USER MEMORY CONTEXT]\n{memory_context}\n"
         except Exception as mem_err:
@@ -394,11 +394,11 @@ async def stream_platform_copilot(
             f"Usa su email ({user_email}) como identificador por defecto.\n"
         )
 
-        if request.module_context:
-            user_context += f"\n[MÓDULO ACTUAL]\n{request.module_context}\n"
+        if body.module_context:
+            user_context += f"\n[MÓDULO ACTUAL]\n{body.module_context}\n"
 
         input_payload = {
-            "message": f"{user_context}\n\n[SOLICITUD]\n{request.message}",
+            "message": f"{user_context}\n\n[SOLICITUD]\n{body.message}",
             "user_id": user_id,
         }
 
