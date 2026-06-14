@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response
 import os
+import sys
 from contextlib import asynccontextmanager
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -38,6 +39,13 @@ async def lifespan(app: FastAPI):
     if not db_ready:
         logger.error("Database unavailable — starting in degraded mode")
     else:
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            from scripts.seed import seed_tenant_and_users
+            await seed_tenant_and_users()
+        except Exception as e:
+            logger.warning(f"Auto-seed skipped: {e}")
+
         async with engine.begin() as conn:
             await conn.run_sync(GlobalBase.metadata.create_all)
 
