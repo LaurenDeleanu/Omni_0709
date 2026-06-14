@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
@@ -93,7 +93,7 @@ async def authorize(
 
 @router.post("/token")
 @limiter.limit("20/minute")
-async def token(body: TokenRequest, db: AsyncSession = Depends(get_tenant_db)):
+async def token(request: Request, body: TokenRequest, db: AsyncSession = Depends(get_tenant_db)):
     if body.grant_type == "authorization_code":
         if not body.code:
             raise HTTPException(status_code=400, detail="code is required")
@@ -115,7 +115,7 @@ async def token(body: TokenRequest, db: AsyncSession = Depends(get_tenant_db)):
 
 @router.post("/introspect")
 @limiter.limit("20/minute")
-async def introspect(body: IntrospectRequest, db: AsyncSession = Depends(get_tenant_db)):
+async def introspect(request: Request, body: IntrospectRequest, db: AsyncSession = Depends(get_tenant_db)):
     result = await introspect_token(db, body.token)
     if not result:
         return {"active": False}

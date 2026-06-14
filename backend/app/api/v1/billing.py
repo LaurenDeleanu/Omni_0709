@@ -76,6 +76,7 @@ async def get_billing_settings(
 @router.patch("/settings")
 @limiter.limit("30/minute")
 async def update_billing_settings(
+    request: Request,
     payload: BillingSettingsUpdate,
     global_db: AsyncSession = Depends(get_global_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -131,6 +132,7 @@ async def update_billing_settings(
 @router.post("/checkout")
 @limiter.limit("10/minute")
 async def checkout_payment(
+    request: Request,
     payload: CheckoutPayload,
     db: AsyncSession = Depends(get_tenant_db),
     global_db: AsyncSession = Depends(get_global_db),
@@ -327,6 +329,7 @@ class ApiKeyCreate(BaseModel):
 @router.post("/api-keys", status_code=status.HTTP_201_CREATED)
 @limiter.limit("30/minute")
 async def create_api_key(
+    request: Request,
     body: ApiKeyCreate,
     current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
 ):
@@ -347,6 +350,7 @@ async def get_api_keys(
 @router.post("/api-keys/{key_hash}/revoke")
 @limiter.limit("30/minute")
 async def revoke_api_key_endpoint(
+    request: Request,
     key_hash: str,
     _: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
 ):
@@ -380,6 +384,7 @@ async def get_usage_quotas(
 @router.post("/api-keys/{key_hash}/rotate")
 @limiter.limit("30/minute")
 async def rotate_api_key_endpoint(
+    request: Request,
     key_hash: str,
     _: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
 ):

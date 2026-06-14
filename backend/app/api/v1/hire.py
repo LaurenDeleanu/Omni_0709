@@ -1010,9 +1010,9 @@ async def promote_candidate(
 @router.post("/candidates/screen")
 @limiter.limit("20/minute")
 async def screen_candidate_full(
+    request: Request,
     file: UploadFile = File(...),
     job_id: str = Form(...),
-    request: Request = None,
     db: AsyncSession = Depends(get_tenant_db),
     _: dict = Depends(require_roles(["hr_admin", "recruiter", "manager"]))
 ):
@@ -1138,9 +1138,9 @@ async def generate_interview_questions_endpoint(
 @router.post("/candidates/batch-screen")
 @limiter.limit("20/minute")
 async def batch_screen_endpoint(
+    request: Request,
     files: List[UploadFile] = File(...),
     job_id: str = Form(...),
-    request: Request = None,
     db: AsyncSession = Depends(get_tenant_db),
     _: dict = Depends(require_roles(["hr_admin", "recruiter", "manager"]))
 ):

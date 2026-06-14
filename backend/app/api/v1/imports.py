@@ -103,6 +103,7 @@ register_task("import_expenses", _import_expenses)
 @limiter.limit("5/minute")
 @router.post("/upload")
 async def upload_employees_file(
+    request: Request,
     file: UploadFile = File(...),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"])),
 ):
@@ -236,6 +237,7 @@ async def get_import_entities():
 @limiter.limit("5/minute")
 @router.post("/upload/{entity_type}")
 async def upload_entity_file(
+    request: Request,
     entity_type: str,
     file: UploadFile = File(...),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"])),
@@ -352,6 +354,7 @@ async def preview_csv_import(body: dict, current_user: dict = Depends(get_curren
 @limiter.limit("5/minute")
 @router.post("/csv/import")
 async def csv_import_bulk(
+    request: Request,
     body: dict,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user),

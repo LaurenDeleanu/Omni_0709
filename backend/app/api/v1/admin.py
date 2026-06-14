@@ -470,8 +470,8 @@ class TenantDeprovisionRequest(BaseModel):
 @router.post("/tenants", status_code=status.HTTP_201_CREATED)
 @limiter.limit("20/minute")
 async def create_tenant(
-    body: TenantProvisionRequest,
     request: Request,
+    body: TenantProvisionRequest,
     global_db: AsyncSession = Depends(get_global_db),
     tenant_db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(get_current_user),
@@ -522,6 +522,7 @@ async def delete_tenant(
 @router.get("/tenants/{tenant_id}/status")
 @limiter.limit("20/minute")
 async def get_tenant_status(
+    request: Request,
     tenant_id: str,
     global_db: AsyncSession = Depends(get_global_db),
     _: bool = Depends(require_super_admin()),

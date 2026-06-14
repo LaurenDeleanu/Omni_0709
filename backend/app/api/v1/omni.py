@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List, Dict, Any, Optional
@@ -137,6 +137,7 @@ async def get_codebase_files(
 @router.post("/files")
 @limiter.limit("30/minute")
 async def save_codebase_file(
+    request: Request,
     payload: FileWritePayload,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -155,6 +156,7 @@ async def save_codebase_file(
 @router.delete("/files")
 @limiter.limit("30/minute")
 async def delete_codebase_file(
+    request: Request,
     path: str = Query(..., description="Relative path of file to delete"),
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -202,6 +204,7 @@ async def get_omni_master(
 @router.post("/master")
 @limiter.limit("30/minute")
 async def execute_omni_master_endpoint(
+    request: Request,
     payload: MasterExecutePayload,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -221,6 +224,7 @@ async def execute_omni_master_endpoint(
 @router.post("/orchestrate")
 @limiter.limit("30/minute")
 async def execute_orchestration_endpoint(
+    request: Request,
     payload: OrchestratePayload,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -244,6 +248,7 @@ async def execute_orchestration_endpoint(
 @router.patch("/master")
 @limiter.limit("30/minute")
 async def configure_omni_agent(
+    request: Request,
     payload: MasterConfigPayload,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -363,6 +368,7 @@ async def get_edit_mode(
 @router.patch("/edit-mode")
 @limiter.limit("30/minute")
 async def set_edit_mode(
+    request: Request,
     payload: EditModePayload,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -379,6 +385,7 @@ async def set_edit_mode(
 @router.post("/branches")
 @limiter.limit("30/minute")
 async def create_branch_session(
+    request: Request,
     payload: BranchCreatePayload,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -426,6 +433,7 @@ async def list_branch_proposals(
 @router.post("/proposals/{proposal_id}/apply")
 @limiter.limit("30/minute")
 async def apply_proposal(
+    request: Request,
     proposal_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -444,6 +452,7 @@ async def apply_proposal(
 @router.post("/proposals/{proposal_id}/reject")
 @limiter.limit("30/minute")
 async def reject_proposal(
+    request: Request,
     proposal_id: str,
     payload: ProposalReviewPayload,
     db: AsyncSession = Depends(get_tenant_db),
@@ -463,6 +472,7 @@ async def reject_proposal(
 @router.post("/branches/{branch_id}/apply-all")
 @limiter.limit("30/minute")
 async def apply_all_proposals(
+    request: Request,
     branch_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
@@ -493,6 +503,7 @@ async def get_proposal_diff(
 @router.post("/branches/{branch_id}/pr")
 @limiter.limit("30/minute")
 async def create_pr_from_branch(
+    request: Request,
     branch_id: str,
     payload: PRCreatePayload,
     db: AsyncSession = Depends(get_tenant_db),
