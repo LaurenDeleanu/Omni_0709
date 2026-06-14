@@ -8,7 +8,7 @@ from alembic import op
 import sqlalchemy as sa
 
 revision = "rls_001"
-down_revision = None  # Set to actual previous revision
+down_revision = "add_invoices_and_currency_rates"
 branch_labels = None
 depends_on = None
 
