@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Optional
+from typing import Optional, List
 
 from app.services.file_parser import parse_file_content as _parse_file
 from app.services.llm_router import get_llm_client

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
@@ -155,7 +155,6 @@ async def checkout_payment(
         
     raise HTTPException(status_code=400, detail="Acción de checkout no válida")
 
-from fastapi import Request
 
 @router.post("/webhook")
 async def stripe_webhook(request: Request, global_db: AsyncSession = Depends(get_global_db)):
