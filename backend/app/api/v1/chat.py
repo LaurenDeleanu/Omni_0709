@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from app.api.dependencies import get_tenant_db, get_current_user, require_roles, _get_or_create_sessionmaker
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles
 from app.models.user import User
 from app.models.chat import Team, TeamMember, ChatRoom, ChatRoomMember, ChatMessage
 from app.core.auth import auth_verifier

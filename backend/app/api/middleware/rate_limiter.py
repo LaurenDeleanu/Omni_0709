@@ -38,6 +38,8 @@ class PerClientRateLimiter(BaseHTTPMiddleware):
             return (2, 5)
         if "/omni" in path and "/master" in path:
             return (1, 3)
+        if "/signup" in path or "/users/login" in path or "/users/password-reset" in path:
+            return (1, 5)  # 1 req/sec, burst 5 for auth routes
         if "/health" in path or "/ready" in path or "/live" in path:
             return (999, 999)
         return (10, 30)

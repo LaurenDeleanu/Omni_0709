@@ -38,7 +38,7 @@ Fields:
 - tax: number (tax amount, 0 if not shown)
 - currency: string (USD, EUR, etc.)
 - category: string (one of: meals, travel, office_supplies, software, utilities, rent, marketing, other)
-- items: list of {description: string, amount: number}
+- items: list of {{description: string, amount: number}}
 - payment_method: string (cash, credit_card, debit_card, other)
 - notes: string (any additional notes)
 

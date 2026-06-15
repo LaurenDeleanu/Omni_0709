@@ -443,23 +443,11 @@ async def login_local(req: LoginRequest, request: Request):
     tenant_id = req.tenant_id
     tenant_schema = f"tenant_{tenant_id}"
     
-    from app.core.database import engine
-    from sqlalchemy.ext.asyncio import async_sessionmaker
+    from app.core.database import AsyncSessionGlobal
+    from app.core.tenant_context import set_tenant_context
     
-    if is_sqlite:
-        tenant_engine = engine
-    else:
-        tenant_engine = engine.execution_options(schema_translate_map={None: tenant_schema})
-    
-    AsyncSessionTenant = async_sessionmaker(
-        bind=tenant_engine,
-        class_=AsyncSession,
-        autocommit=False,
-        autoflush=False,
-        expire_on_commit=False
-    )
-    
-    async with AsyncSessionTenant() as db:
+    async with AsyncSessionGlobal() as db:
+        await set_tenant_context(db, tenant_id)
         result = await db.execute(select(User).where(User.email == req.email))
         user = result.scalar_one_or_none()
         

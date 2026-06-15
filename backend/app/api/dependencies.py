@@ -68,13 +68,10 @@ async def get_current_user_optional(
         return None
 
 
-# [M9 FIX] — TTL-based cache for tenant sessionmakers instead of @lru_cachevent
-# the sessionmakers dict from growing unboundedly in long-running servers.
-@lru_cache(maxsize=256)
-def _get_or_create_sessionmaker(tenant_schema: str) -> async_sessionmaker:
-    tenant_engine = engine.execution_options(schema_translate_map={None: tenant_schema})
+# [M9 FIX] — TTL-based cache for tenant sessionmakers is no longer needed since we use RLS on public schema.
+def _get_sessionmaker() -> async_sessionmaker:
     return async_sessionmaker(
-        bind=tenant_engine,
+        bind=engine,
         class_=AsyncSession,
         autocommit=False,
         autoflush=False,
@@ -121,7 +118,7 @@ async def get_tenant_db(
             expire_on_commit=False
         )
     else:
-        AsyncSessionTenant = _get_or_create_sessionmaker(tenant_schema)
+        AsyncSessionTenant = _get_sessionmaker()
 
     async with AsyncSessionTenant() as db:
         # Set tenant context for RLS policies (defense-in-depth)
@@ -301,7 +298,7 @@ async def get_tenant_db_from_api_key(
             expire_on_commit=False
         )
     else:
-        AsyncSessionTenant = _get_or_create_sessionmaker(tenant_schema)
+        AsyncSessionTenant = _get_sessionmaker()
         
     async with AsyncSessionTenant() as db:
         if not api_key.startswith("mock_zapier_key_"):

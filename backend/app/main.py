@@ -11,7 +11,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from app.api.v1 import users, imports, reports, employees, schedules, tenant, calendar, metadata, ai, it, finance, training, admin, hire, sales, work, pay, legal, rbac, grow, ops, intelligence, notifications, announcements, kudos, workflows, integrations, agents, harness, crm, git, monitoring, omni, billing, chat, search, bulk, comments, oauth, workflow_exec, bot_steps, email_templates, notification_prefs, plugins, slack, docusign, onboarding, approvals, public_agents, demo_recorder, benchmarks, surveys, reviews_360, interviews, time_tracking, checklists, manager, talent_grid, job_board, it_kb_enhanced, auto_onboard, interview_scheduler, it_auto_routing, tool_registry, signup, documents, marketplace, self_service, interview_kits, performance, dev_portal_api, webhooks_api, agent_budgets, agent_schedules, agent_triggers, employee_roles, hr_panel, tax_admin
+from app.api.v1 import users, imports, reports, employees, schedules, tenant, calendar, metadata, ai, it, finance, training, admin, hire, sales, work, pay, legal, rbac, grow, ops, intelligence, notifications, announcements, kudos, workflows, integrations, agents, harness, crm, git, monitoring, omni, billing, chat, search, bulk, comments, oauth, workflow_exec, bot_steps, email_templates, notification_prefs, plugins, slack, docusign, onboarding, approvals, public_agents, demo_recorder, benchmarks, surveys, reviews_360, interviews, time_tracking, checklists, manager, talent_grid, job_board, it_kb_enhanced, auto_onboard, interview_scheduler, it_auto_routing, tool_registry, signup, documents, marketplace, self_service, interview_kits, performance, dev_portal_api, webhooks_api, agent_budgets, agent_schedules, agent_triggers, employee_roles, hr_panel, tax_admin, health
 from app.api.middleware.csrf import CSRFMiddleware
 from app.api.middleware.rate_limiter import PerClientRateLimiter
 from app.api.middleware.correlation import CorrelationMiddleware
@@ -290,66 +290,7 @@ app.include_router(agent_schedules.router, prefix=f"{settings.API_V1_STR}/agents
 app.include_router(agent_triggers.router, prefix=f"{settings.API_V1_STR}/agents", tags=["Agent Triggers"])
 app.include_router(hr_panel.router, prefix=f"{settings.API_V1_STR}/hr-panel", tags=["HR Panel"])
 app.include_router(tax_admin.router, prefix=f"{settings.API_V1_STR}", tags=["Tax Administration"])
-
-
-
-@app.get("/health", tags=["System"])
-async def health_check():
-    import time as _time
-    db_status = {"status": "degraded", "latency_ms": 0}
-    redis_status = {"status": "unavailable"}
-    llm_status = {"status": "unknown"}
-
-    # ── Database ──
-    try:
-        from app.core.database import engine
-        from sqlalchemy import text
-        async with engine.connect() as conn:
-            start = _time.monotonic()
-            await conn.execute(text("SELECT 1"))
-            db_status = {"status": "ok", "latency_ms": int((_time.monotonic() - start) * 1000)}
-    except Exception as e:
-        db_status = {"status": "degraded", "error": str(e)[:200]}
-
-    # ── Redis ──
-    try:
-        from app.core.redis import get_redis
-        r = await get_redis()
-        if r is not None:
-            start = _time.monotonic()
-            await r.ping()
-            redis_status = {"status": "ok", "latency_ms": int((_time.monotonic() - start) * 1000)}
-    except Exception as e:
-        redis_status = {"status": "degraded", "error": str(e)[:200]}
-
-    # ── LLM Providers ──
-    try:
-        from app.services.model_fallback import get_provider_health
-        tracker = get_provider_health()
-        stats = await tracker.get_all_stats()
-        llm_status = {
-            "status": "ok",
-            "providers": {s["provider"]: {"healthy": s["healthy"], "circuit_open": s["circuit_open"]} for s in stats},
-        }
-    except Exception:
-        llm_status = {"status": "unknown"}
-
-    components = {"database": db_status, "redis": redis_status, "llm_providers": llm_status}
-    all_ok = all(c.get("status") == "ok" for c in components.values())
-
-    return {
-        "status": "healthy" if all_ok else "degraded",
-        "message": "SuccessCore HR API is running",
-        "version": settings.VERSION,
-        "components": components,
-    }
-
-
-@app.get("/ready", tags=["System"])
-async def ready_check():
-    return {"status": "ready"}
-
-
+app.include_router(health.router, tags=["System"])
 @app.get("/metrics", tags=["System"])
 async def prometheus_metrics_endpoint():
     from app.services.prometheus_metrics import generate_prometheus_metrics
@@ -368,10 +309,6 @@ async def synthetic_history(limit: int = 20):
     from app.services.synthetic_monitor import get_synthetic_history
     return {"history": get_synthetic_history(limit)}
 
-
-@app.get("/live", tags=["System"])
-async def liveness_probe():
-    return {"status": "alive"}
 
 
 @app.get("/openapi.json", tags=["System"], include_in_schema=False)

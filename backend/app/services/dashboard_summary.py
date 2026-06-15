@@ -37,43 +37,16 @@ async def get_admin_dashboard_summary(db: AsyncSession, tenant_id: str = "defaul
     new_hires_res = await db.execute(select(func.count(User.id)).where(User.created_at >= week_ago))
     new_hires = new_hires_res.scalar() or 0
 
-    headcount_by_dept = {"live": None, "matview": None}
-    try:
-        mv_rows = await db.execute(text(
-            "SELECT department, total_count FROM mv_employee_headcount ORDER BY total_count DESC"
-        ))
-        headcount_by_dept["matview"] = [
-            {"department": r[0], "count": r[1]} for r in mv_rows.fetchall()
-        ]
-    except Exception as e:
-        logger.warning(f"mv_employee_headcount unavailable: {e}")
+    headcount_by_dept = {}
+    dept_res = await db.execute(
+        select(User.department, func.count(User.id)).group_by(User.department)
+    )
+    headcount_by_dept["live"] = [
+        {"department": r[0] or "Unassigned", "count": r[1]} for r in dept_res.fetchall()
+    ]
 
-    if not headcount_by_dept["matview"]:
-        dept_res = await db.execute(
-            select(User.department, func.count(User.id)).group_by(User.department)
-        )
-        headcount_by_dept["live"] = [
-            {"department": r[0] or "Unassigned", "count": r[1]} for r in dept_res.fetchall()
-        ]
+    payroll_summary = []
 
-    payroll_summary = None
-    try:
-        payroll_rows = await db.execute(text(
-            "SELECT month, currency, total_gross, total_net, payslip_count "
-            "FROM mv_monthly_payroll ORDER BY month DESC LIMIT 12"
-        ))
-        payroll_summary = [
-            {
-                "month": str(r[0]),
-                "currency": r[1],
-                "total_gross": float(r[2]),
-                "total_net": float(r[3]),
-                "payslip_count": r[4],
-            }
-            for r in payroll_rows.fetchall()
-        ]
-    except Exception as e:
-        logger.warning(f"mv_monthly_payroll unavailable: {e}")
 
     agent_runs_res = await db.execute(select(func.count(AgentExecutionRun.id)))
     total_agent_runs = agent_runs_res.scalar() or 0
@@ -106,30 +79,22 @@ async def get_admin_dashboard_summary(db: AsyncSession, tenant_id: str = "defaul
     candidates_res = await db.execute(select(func.count(Candidate.id)))
     active_candidates = candidates_res.scalar() or 0
 
-    hiring_funnel = None
-    try:
-        funnel_rows = await db.execute(text(
-            "SELECT stage, SUM(candidate_count) AS total FROM mv_hiring_funnel GROUP BY stage"
-        ))
-        hiring_funnel = {r[0]: r[1] for r in funnel_rows.fetchall()}
-    except Exception as e:
-        logger.warning(f"mv_hiring_funnel unavailable: {e}")
+    funnel_rows = await db.execute(
+        select(Candidate.stage, func.count(Candidate.id)).group_by(Candidate.stage)
+    )
+    hiring_funnel = {r[0]: r[1] for r in funnel_rows.fetchall()}
 
     enrollments_res = await db.execute(
         select(func.count(CourseEnrollment.id)).where(CourseEnrollment.status == "in_progress")
     )
     active_enrollments = enrollments_res.scalar() or 0
 
-    training_rates = None
-    try:
-        training_rows = await db.execute(text(
-            "SELECT course_id, completion_rate FROM mv_training_completion ORDER BY completion_rate DESC"
-        ))
-        training_rates = [
-            {"course_id": r[0], "completion_rate": float(r[1])} for r in training_rows.fetchall()
-        ]
-    except Exception as e:
-        logger.warning(f"mv_training_completion unavailable: {e}")
+    training_rows = await db.execute(
+        select(CourseEnrollment.course_id, func.avg(CourseEnrollment.progress_percentage)).group_by(CourseEnrollment.course_id)
+    )
+    training_rates = [
+        {"course_id": r[0], "completion_rate": float(r[1])} for r in training_rows.fetchall()
+    ]
 
     kudos_res = await db.execute(select(func.count(Kudos.id)).where(Kudos.created_at >= week_ago))
     kudos_week = kudos_res.scalar() or 0
@@ -145,7 +110,7 @@ async def get_admin_dashboard_summary(db: AsyncSession, tenant_id: str = "defaul
             "total_employees": total_users,
             "active_employees": active_users,
             "new_hires_7d": new_hires,
-            "headcount_by_department": headcount_by_dept["matview"] or headcount_by_dept["live"],
+            "headcount_by_department": headcount_by_dept["live"],
         },
         "ai_agents": {
             "total_runs": total_agent_runs,

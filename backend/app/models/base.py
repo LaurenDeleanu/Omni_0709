@@ -10,8 +10,13 @@ import uuid
 is_sqlite = "sqlite" in settings.SQLALCHEMY_DATABASE_URI
 global_schema = None if is_sqlite else "public"
 
+from sqlalchemy import Column, String
+from sqlalchemy.orm import declared_attr
+
 class Base(DeclarativeBase):
-    pass
+    @declared_attr
+    def tenant_id(cls):
+        return Column(String(50), nullable=False, index=True)
 
 class GlobalBase(DeclarativeBase):
     metadata = MetaData(schema=global_schema)

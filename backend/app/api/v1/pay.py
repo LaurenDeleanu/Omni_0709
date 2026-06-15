@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 import asyncio
 
-from app.api.dependencies import get_tenant_db, require_super_admin, get_current_user, require_roles, _get_or_create_sessionmaker
+from app.api.dependencies import get_tenant_db, require_super_admin, get_current_user, require_roles
 from app.models.pay import PayrollCycle, Payslip, TaxRule, PayslipLineItem, Bonus
 from app.models.finance import WorkSchedule, TimeLog, BreakLog
 from app.models.user import User

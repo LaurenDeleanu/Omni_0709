@@ -48,37 +48,10 @@ async def seed_tenant_and_users():
         else:
             print("Tenant 'acme_corp' ya existe.")
 
-    # 3. Crear tablas del tenant y usuarios
-    tenant_schema = "tenant_acme_corp"
+    # 3. Tables are globally created via migrations, so we don't need schema_translate_map
     
-    # En PostgreSQL hay que asegurarse que el esquema exista
-    from app.core.config import settings
-    from sqlalchemy import text
-    if "sqlite" not in settings.SQLALCHEMY_DATABASE_URI:
-        async with engine.begin() as conn:
-            await conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {tenant_schema}"))
-    
-    try:
-        from app.models.base import Base
-        tenant_engine = engine.execution_options(schema_translate_map={None: tenant_schema})
-        async with tenant_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-            
-            # Explicitly ensure the roles column exists in case Alembic skipped it or failed silently
-            try:
-                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
-                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS current_debt NUMERIC(10, 2) DEFAULT 0.00"))
-                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS base_salary NUMERIC(10, 2)"))
-                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS vacation_allowance INTEGER DEFAULT 20"))
-            except Exception as e:
-                logger.warning(f"Error while ensuring columns: {e}")
-                
-    except Exception as e:
-        logger.error(f"Failed to initialize tenant {tenant_schema} tables: {e}")
-
-    AsyncSessionTenant = async_sessionmaker(bind=tenant_engine, class_=AsyncSession, expire_on_commit=False)
-    
-    async with AsyncSessionTenant() as db:
+    # We will use AsyncSessionGlobal directly, but pass tenant_id to all instances
+    async with AsyncSessionGlobal() as db:
         # 1. Administrador general
         res = await db.execute(select(User).where(User.email == 'admin@successcore.com'))
         admin = res.scalar_one_or_none()
@@ -91,7 +64,8 @@ async def seed_tenant_and_users():
                 role='hr_admin',
                 roles=['hr_admin', 'sys_admin'],
                 is_active=True,
-                hashed_password=hash_password('admin')
+                hashed_password=hash_password('admin'),
+                tenant_id='tenant_acme_1'
             )
             db.add(admin)
             print("Usuario 'admin@successcore.com' creado.")
@@ -108,7 +82,8 @@ async def seed_tenant_and_users():
                 role='hr_admin',
                 roles=['hr_admin', 'employee'],
                 is_active=True,
-                hashed_password=hash_password('admin')
+                hashed_password=hash_password('admin'),
+                tenant_id='tenant_acme_1'
             )
             db.add(lauren)
             print("Usuario 'lauren.deleanu@gmail.com' creado.")
@@ -126,7 +101,8 @@ async def seed_tenant_and_users():
                 status="assigned",
                 assigned_to_id=lauren.id,
                 purchase_date=date(2026, 1, 15),
-                cost=2499.00
+                cost=2499.00,
+                tenant_id='tenant_acme_1'
             )
             asset_2 = ITAsset(
                 id=uuid.uuid4().hex,
@@ -135,7 +111,8 @@ async def seed_tenant_and_users():
                 category="monitor",
                 status="available",
                 purchase_date=date(2026, 2, 10),
-                cost=399.00
+                cost=399.00,
+                tenant_id='tenant_acme_1'
             )
             db.add_all([asset_1, asset_2])
             print("Activos de IT de prueba creados.")
@@ -151,7 +128,8 @@ async def seed_tenant_and_users():
                 priority="high",
                 status="open",
                 requester_id=lauren.id,
-                assignee_id=admin.id
+                assignee_id=admin.id,
+                tenant_id='tenant_acme_1'
             )
             ticket_2 = ITTicket(
                 id=uuid.uuid4().hex,
@@ -161,7 +139,8 @@ async def seed_tenant_and_users():
                 priority="low",
                 status="closed",
                 requester_id=lauren.id,
-                assignee_id=admin.id
+                assignee_id=admin.id,
+                tenant_id='tenant_acme_1'
             )
             db.add_all([ticket_1, ticket_2])
             print("Tickets de IT de prueba creados.")
@@ -175,7 +154,8 @@ async def seed_tenant_and_users():
                 seat_cost=12.50,
                 assigned_to_id=lauren.id,
                 status="active",
-                renewal_date=date(2026, 12, 31)
+                renewal_date=date(2026, 12, 31),
+                tenant_id='tenant_acme_1'
             )
             lic_2 = SaaSLicense(
                 id=uuid.uuid4().hex,
@@ -183,7 +163,8 @@ async def seed_tenant_and_users():
                 seat_cost=18.00,
                 assigned_to_id=lauren.id,
                 status="active",
-                renewal_date=date(2026, 12, 31)
+                renewal_date=date(2026, 12, 31),
+                tenant_id='tenant_acme_1'
             )
             db.add_all([lic_1, lic_2])
             print("Licencias SaaS de prueba creadas.")
@@ -202,7 +183,8 @@ async def seed_tenant_and_users():
                 category="meals",
                 receipt_url="https://example.com/receipts/meals1.jpg",
                 approved_by_id=admin.id,
-                comments="Almuerzo de negocios con clientes de Acme Corp."
+                comments="Almuerzo de negocios con clientes de Acme Corp.",
+                tenant_id='tenant_acme_1'
             )
             claim_2 = ExpenseClaim(
                 id=uuid.uuid4().hex,
@@ -214,7 +196,8 @@ async def seed_tenant_and_users():
                 status="pending",
                 category="software",
                 receipt_url="https://example.com/receipts/jetbrains.pdf",
-                comments="Suscripción anual para IDE WebStorm."
+                comments="Suscripción anual para IDE WebStorm.",
+                tenant_id='tenant_acme_1'
             )
             db.add_all([claim_1, claim_2])
             print("Notas de gastos de prueba creadas.")
@@ -230,7 +213,8 @@ async def seed_tenant_and_users():
                 is_scorm=True,
                 scorm_version="1.2",
                 min_duration_hours=4.0,
-                is_fundae_eligible=True
+                is_fundae_eligible=True,
+                tenant_id='tenant_acme_1'
             )
             course_2 = Course(
                 id=uuid.uuid4().hex,
@@ -238,7 +222,8 @@ async def seed_tenant_and_users():
                 description="Curso obligatorio sobre salud e higiene en el puesto de trabajo.",
                 is_scorm=False,
                 min_duration_hours=2.0,
-                is_fundae_eligible=True
+                is_fundae_eligible=True,
+                tenant_id='tenant_acme_1'
             )
             db.add_all([course_1, course_2])
             print("Cursos de prueba creados.")
@@ -257,7 +242,8 @@ async def seed_tenant_and_users():
                 progress_percentage=100.00,
                 score=8.50,
                 time_spent_seconds=15000,  # ~4.1 horas (cumple > 4h)
-                completed_at=datetime.now(timezone.utc)
+                completed_at=datetime.now(timezone.utc),
+                tenant_id='tenant_acme_1'
             )
             db.add(enroll)
             await db.flush()
@@ -269,7 +255,8 @@ async def seed_tenant_and_users():
                 progress_valid=True,
                 test_valid=True,
                 survey_valid=True,
-                overall_eligible=True
+                overall_eligible=True,
+                tenant_id='tenant_acme_1'
             )
             db.add(val)
             print("Matrículas y validaciones FUNDAE de prueba creadas.")
@@ -287,21 +274,24 @@ async def seed_tenant_and_users():
                     user_id=admin_id,
                     action="MODULE_TOGGLE",
                     details="Activado modulo de IT Management.",
-                    ip_address="192.168.1.50"
+                    ip_address="192.168.1.50",
+                    tenant_id='tenant_acme_1'
                 ),
                 AuditLog(
                     id=uuid.uuid4().hex,
                     user_id=admin_id,
                     action="ROLE_CHANGED",
                     details="Cambiado rol de Lucas Martin a employee.",
-                    ip_address="192.168.1.50"
+                    ip_address="192.168.1.50",
+                    tenant_id='tenant_acme_1'
                 ),
                 AuditLog(
                     id=uuid.uuid4().hex,
                     user_id=admin_id,
                     action="COURSE_ASSIGNED",
                     details="Asignado curso 'Introduccion a la Ciberseguridad' en lote a 3 participantes.",
-                    ip_address="192.168.1.50"
+                    ip_address="192.168.1.50",
+                    tenant_id='tenant_acme_1'
                 )
             ])
             print("Audit Logs mock creados.")
