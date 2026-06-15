@@ -71,6 +71,10 @@ async def lifespan(app: FastAPI):
                 await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_author_tenant VARCHAR(100)"))
             except Exception:
                 pass
+            try:
+                await conn.execute(text("ALTER TABLE public.users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
+            except Exception:
+                pass
 
             if "sqlite" not in settings.SQLALCHEMY_DATABASE_URI:
                 try:
@@ -93,6 +97,23 @@ async def lifespan(app: FastAPI):
                     await alter_conn.commit()
             except Exception as e:
                 logger.info(f"Column tier: {e}")
+
+        # Create tenant-scoped tables in all existing tenant schemas
+        from app.models.base import Base
+        try:
+            async with engine.connect() as conn:
+                tenant_result = await conn.execute(text("SELECT schema_name FROM public.tenants WHERE is_active = true"))
+                tenant_schemas = [row[0] for row in tenant_result.fetchall()]
+                for schema in tenant_schemas:
+                    try:
+                        tenant_engine = engine.execution_options(schema_translate_map={None: schema})
+                        async with tenant_engine.begin() as tenant_conn:
+                            await tenant_conn.run_sync(Base.metadata.create_all)
+                        logger.info(f"Tenant tables created/verified for schema: {schema}")
+                    except Exception as e:
+                        logger.debug(f"Tenant schema {schema} tables: {e}")
+        except Exception as e:
+            logger.warning(f"Tenant table creation skipped: {e}")
 
     from app.services.backup_scheduler import start_backup_scheduler
     start_backup_scheduler()
