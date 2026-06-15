@@ -428,6 +428,8 @@ class LoginRequest(BaseModel):
 @router.post("/login", response_model=dict)
 @limiter.limit("5/minute")  # [M12] IP-based rate limit
 async def login_local(req: LoginRequest, request: Request):
+    import traceback as _tb
+    try:
     from app.services.login_guard import check_login_allowed, record_login_attempt, clear_login_attempts
 
     client_ip = request.client.host if request.client else "unknown"
@@ -537,6 +539,8 @@ async def login_local(req: LoginRequest, request: Request):
         )
         
         return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login error: {str(e)}\n{_tb.format_exc()}")
 
 
 class ResetPasswordRequest(BaseModel):
