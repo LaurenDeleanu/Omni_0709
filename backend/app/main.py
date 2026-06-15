@@ -49,32 +49,6 @@ async def lifespan(app: FastAPI):
 
         async with engine.begin() as conn:
             await conn.run_sync(GlobalBase.metadata.create_all)
-            # Auto-migrate: add new columns that may not exist in production DB
-            try:
-                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(100)"))
-                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS subscription_id VARCHAR(100)"))
-                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50) DEFAULT 'inactive'"))
-                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR(50)"))
-            except Exception:
-                pass
-            try:
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT FALSE"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_published_at TIMESTAMPTZ"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_category VARCHAR(50)"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_price FLOAT DEFAULT 0"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_rating FLOAT DEFAULT 0"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_downloads INTEGER DEFAULT 0"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_tags JSONB DEFAULT '[]'"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_tools JSONB DEFAULT '[]'"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_preview_image VARCHAR(500)"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_author VARCHAR(200)"))
-                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_author_tenant VARCHAR(100)"))
-            except Exception:
-                pass
-            try:
-                await conn.execute(text("ALTER TABLE public.users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
-            except Exception:
-                pass
 
             if "sqlite" not in settings.SQLALCHEMY_DATABASE_URI:
                 try:
@@ -98,27 +72,8 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 logger.info(f"Column tier: {e}")
 
-    # Create tenant-scoped tables in all existing tenant schemas
-    if db_ready:
-        try:
-            from app.models.base import Base
-            async with engine.begin() as tconn:
-                result = await tconn.execute(text("SELECT schema_name FROM tenants WHERE is_active = true"))
-                rows = result.fetchall()
-                for (schema,) in rows:
-                    try:
-                        te = engine.execution_options(schema_translate_map={None: schema})
-                        async with te.begin() as tc:
-                            await tc.run_sync(Base.metadata.create_all)
-                            await tc.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-
-    if db_ready:
-        from app.services.backup_scheduler import start_backup_scheduler
-        start_backup_scheduler()
+    from app.services.backup_scheduler import start_backup_scheduler
+    start_backup_scheduler()
 
     from app.services.event_notification_bridge import bind_event_notifications
     bind_event_notifications()
