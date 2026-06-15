@@ -8,6 +8,9 @@ from slowapi.util import get_remote_address
 from app.services import docusign_service
 from app.core.config import settings
 
+from app.api.dependencies import get_current_user
+from fastapi import Depends
+
 logger = logging.getLogger("successcore.docusign_api")
 
 limiter = Limiter(key_func=get_remote_address)
@@ -17,8 +20,6 @@ WEBHOOK_SECRET = os.getenv("DOCUSIGN_WEBHOOK_SECRET", settings.SECRET_KEY)
 
 
 def _verify_webhook(request: Request):
-    if not WEBHOOK_SECRET or WEBHOOK_SECRET == settings.SECRET_KEY:
-        return True
     token = request.headers.get("X-Docusign-Signature") or request.headers.get("X-Webhook-Secret")
     if not token or token != WEBHOOK_SECRET:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
@@ -42,7 +43,7 @@ class WebhookEvent(BaseModel):
 
 @router.post("/send", status_code=status.HTTP_200_OK)
 @limiter.limit("10/minute")
-async def send_for_signature(request: Request, req: SendEnvelopeRequest):
+async def send_for_signature(request: Request, req: SendEnvelopeRequest, current_user: dict = Depends(get_current_user)):
     if not docusign_service._configured:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -92,7 +93,7 @@ async def docusign_webhook(event: dict, request: Request):
 
 
 @router.get("/status/{envelope_id}", status_code=status.HTTP_200_OK)
-async def get_envelope_status(envelope_id: str):
+async def get_envelope_status(envelope_id: str, current_user: dict = Depends(get_current_user)):
     if not docusign_service._configured:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

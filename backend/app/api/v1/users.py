@@ -20,7 +20,7 @@ from pydantic import BaseModel, EmailStr, field_validator
 from jose import jwt
 from datetime import datetime, timedelta, timezone
 from app.core.config import settings
-from app.core.auth import verify_password, hash_password
+from app.core.auth import verify_password, hash_password, verify_password_async, hash_password_async
 from app.core.logger import logger
 
 from slowapi import Limiter
@@ -302,7 +302,7 @@ async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_tenant
     create_data = user_in.model_dump(exclude={"password"})
     new_user = User(
         id=uuid.uuid4().hex,
-        hashed_password=hash_password(user_in.password) if getattr(user_in, 'password', None) else None,
+        hashed_password=await hash_password_async(user_in.password) if getattr(user_in, 'password', None) else None,
         **create_data
     )
     db.add(new_user)
@@ -428,9 +428,7 @@ class LoginRequest(BaseModel):
 @router.post("/login", response_model=dict)
 @limiter.limit("5/minute")  # [M12] IP-based rate limit
 async def login_local(req: LoginRequest, request: Request):
-    import traceback
-    try:
-        from app.services.login_guard import check_login_allowed, record_login_attempt, clear_login_attempts
+    from app.services.login_guard import check_login_allowed, record_login_attempt, clear_login_attempts
 
     client_ip = request.client.host if request.client else "unknown"
     allowed, block_msg = await check_login_allowed(req.email, client_ip)
@@ -486,7 +484,7 @@ async def login_local(req: LoginRequest, request: Request):
                 detail="Esta cuenta no tiene una contraseña configurada. Solicita un enlace de acceso al administrador."
             )
             
-        if not verify_password(req.password, user.hashed_password):
+        if not await verify_password_async(req.password, user.hashed_password):
             await record_login_attempt(req.email, client_ip)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -539,8 +537,6 @@ async def login_local(req: LoginRequest, request: Request):
         )
         
         return response
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e), "traceback": traceback.format_exc()})
 
 
 class ResetPasswordRequest(BaseModel):
@@ -564,7 +560,7 @@ async def reset_user_password(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    user.hashed_password = hash_password(payload.password)
+    user.hashed_password = await hash_password_async(payload.password)
     await db.commit()
     return {"message": f"Contraseña actualizada para {user.email}"}
 

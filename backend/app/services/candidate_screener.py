@@ -10,6 +10,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from app.services.agent_executor import _call_llm_cascade
+from app.services.llm_router import get_llm_client
 
 logger = logging.getLogger("successcore.candidate_screener")
 
@@ -207,3 +208,90 @@ async def screen_resume_full(
         "job_title": job_title,
         "word_count": len(resume_text.split()),
     }
+
+
+async def batch_screen_resumes(files: list[dict], job_id: str, db=None, model: str = "gpt-4o-mini") -> list[dict]:
+    """Batch screen multiple resumes against a job and return ranked reports."""
+    results = []
+    for f in files:
+        try:
+            content = f.get("content", b"")
+            filename = f.get("filename", "resume.pdf")
+            res = await screen_resume_full(content, filename, job_id, db, model)
+            # Accommodate expected test format
+            if "score" in res and res["score"]:
+                res["overall_score"] = res["score"].get("overall_score", 0)
+            else:
+                res["overall_score"] = res.get("overall_score", 0)
+            res["success"] = True
+            results.append(res)
+        except Exception as e:
+            results.append({"success": False, "error": str(e), "overall_score": 0})
+    
+    # Sort by overall_score descending
+    results.sort(key=lambda x: x.get("overall_score", 0), reverse=True)
+    
+    # Add rank
+    for i, res in enumerate(results):
+        res["rank"] = i + 1
+        
+    return results
+
+
+async def _get_job_requirements(job_id: str, db) -> str:
+    """Helper to fetch job requirements for offer letters."""
+    from sqlalchemy import select
+    from app.models.hire import JobPosting
+    if not db or not job_id:
+        return ""
+    try:
+        result = await db.execute(select(JobPosting).where(JobPosting.id == job_id))
+        job = result.scalar_one_or_none()
+        if job:
+            return f"Title: {job.title}\nDescription: {job.description or ''}"
+    except Exception:
+        pass
+    return ""
+
+
+async def generate_personalized_offer_letter(
+    candidate_id: str, job_id: str, salary: float, start_date: str, template: str, db
+) -> dict:
+    """Generate a personalized offer letter using LLMs."""
+    from sqlalchemy import select
+    from app.models.hire import Candidate
+    
+    cand_res = await db.execute(select(Candidate).where(Candidate.id == candidate_id))
+    candidate = cand_res.scalar_one_or_none()
+    if not candidate:
+        raise ValueError("Candidate not found")
+        
+    requirements = await _get_job_requirements(job_id, db)
+    
+    prompt = f"""Generate a personalized offer letter for the following candidate.
+Candidate: {candidate.first_name} {candidate.last_name}
+Salary: {salary}
+Start Date: {start_date}
+Job Requirements: {requirements}
+Template Guidelines: {template}
+
+Return ONLY valid JSON with:
+- offer_letter: string (the full text of the personalized offer letter)
+JSON:"""
+
+    client, _ = await get_llm_client("gpt-4o-mini", None, db)
+    response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3
+    )
+    
+    raw = response.choices[0].message.content.strip()
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+    data = json.loads(raw)
+    
+    return {"offer_letter_text": data.get("offer_letter", "")}
+

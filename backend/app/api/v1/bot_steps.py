@@ -14,8 +14,6 @@ from app.models.workflow_trigger import WorkflowTrigger
 
 def _verify_webhook_signature(request: Request):
     secret = os.getenv("WEBHOOK_SECRET", settings.SECRET_KEY)
-    if not secret or secret == settings.SECRET_KEY:
-        return True
     token = request.headers.get("X-Webhook-Secret") or request.headers.get("X-Hub-Signature")
     if not token or token != secret:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
@@ -195,7 +193,11 @@ async def duplicate_step(
 
 
 @router.get("/{bot_id}/products")
-async def get_products(bot_id: str, db: AsyncSession = Depends(get_tenant_db)):
+async def get_products(
+    bot_id: str,
+    db: AsyncSession = Depends(get_tenant_db),
+    _: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(
         select(WorkflowStep).where(WorkflowStep.bot_id == bot_id, WorkflowStep.type == "SHOW_PRODUCTS").order_by(WorkflowStep.order.asc())
     )
@@ -204,7 +206,10 @@ async def get_products(bot_id: str, db: AsyncSession = Depends(get_tenant_db)):
 
 
 @router.get("/schedules")
-async def get_schedules(db: AsyncSession = Depends(get_tenant_db)):
+async def get_schedules(
+    db: AsyncSession = Depends(get_tenant_db),
+    _: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(
         select(WorkflowStep).where(WorkflowStep.type == "SCHEDULE").order_by(WorkflowStep.order.desc()).limit(20)
     )

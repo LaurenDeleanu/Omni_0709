@@ -1022,3 +1022,58 @@ async def resume_agent_run(
         "trace": trace_steps
     }
 
+
+async def _call_llm_cascade(
+    messages: List[Dict[str, Any]],
+    model: str = "gpt-4o-mini",
+    temperature: float = 0.2,
+    max_tokens: Optional[int] = None,
+    db: Optional[AsyncSession] = None,
+) -> str:
+    """
+    Simplified direct LLM caller that runs the model cascade and returns the text response.
+    Used by domain services like candidate_screener.py that don't need a full agent session.
+    """
+    cascade = build_full_cascade(model, None, agent_model=model)
+    health = get_provider_health()
+    last_error = None
+
+    for attempt, entry in enumerate(cascade):
+        model_name = entry["model"]
+        provider = entry["provider"]
+
+        if not await health.is_healthy(provider):
+            continue
+
+        try:
+            client, _ = await resolve_provider_client(model_name, None, db)
+            
+            # Prepare kwargs for the chat completions create call
+            kwargs = {
+                "model": model_name,
+                "messages": messages,
+                "temperature": temperature,
+            }
+            if max_tokens is not None:
+                kwargs["max_tokens"] = max_tokens
+
+            llm_start = time.monotonic()
+            _safe_call = async_retry(max_retries=2, base_delay=0.5)(_make_llm_call_direct)
+            response = await _safe_call(client, kwargs)
+            llm_latency = int((time.monotonic() - llm_start) * 1000)
+            await health.record_success(provider, llm_latency)
+
+            choice = response.choices[0]
+            return choice.message.content or ""
+        except Exception as e:
+            await health.record_failure(provider)
+            last_error = e
+            logger.warning(f"Direct LLM cascade fallback attempt {attempt + 1} failed for {model_name}: {e}")
+
+    raise last_error or RuntimeError("All cascade models failed in direct call")
+
+
+async def _make_llm_call_direct(client, kwargs):
+    return await client.chat.completions.create(**kwargs)
+
+

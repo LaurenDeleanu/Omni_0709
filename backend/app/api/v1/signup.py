@@ -14,7 +14,7 @@ from app.api.dependencies import get_global_db
 from app.core.config import settings
 from app.models.tenant import Tenant
 from app.models.user import User
-from app.core.auth import hash_password
+from app.core.auth import hash_password, hash_password_async
 
 logger = logging.getLogger("successcore.signup")
 
@@ -149,7 +149,7 @@ async def signup(body: SignupRequest, request: Request, db: AsyncSession = Depen
 
     # Create admin user in the tenant schema
     user_id = uuid.uuid4().hex
-    pwd_hash = hash_password(body.admin_password)
+    pwd_hash = await hash_password_async(body.admin_password)
     admin_user = User(
         id=user_id,
         email=body.admin_email.strip().lower(),

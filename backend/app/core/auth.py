@@ -40,10 +40,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     if len(hashed_password) == 64 and all(c in '0123456789abcdefABCDEF' for c in hashed_password):
         # Legacy SHA-256 support
-        import hashlib
-        legacy_hash = hashlib.sha256(plain_password.encode()).hexdigest()
-        return legacy_hash == hashed_password
-        
     pwd_bytes = plain_password.encode('utf-8')
     hash_bytes = hashed_password.encode('utf-8')
     try:
@@ -51,6 +47,15 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     except ValueError:
         return False
 
+import asyncio
+
+async def hash_password_async(password: str) -> str:
+    """Async wrapper for hash_password to prevent blocking the event loop."""
+    return await asyncio.to_thread(hash_password, password)
+
+async def verify_password_async(plain_password: str, hashed_password: str) -> bool:
+    """Async wrapper for verify_password to prevent blocking the event loop."""
+    return await asyncio.to_thread(verify_password, plain_password, hashed_password)
 
 class VerifyToken:
     """

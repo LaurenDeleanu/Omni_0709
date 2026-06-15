@@ -203,12 +203,14 @@ async def correlation_middleware(request: Request, call_next):
     response.headers["X-Request-ID"] = req_id
     return response
 
-# FRONTEND_URL es configurable en .env (default: localhost:3000)
-_allowed_origins = list({settings.FRONTEND_URL, "http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"})
+# FRONTEND_URL and ALLOWED_ORIGINS are configurable in .env
+_allowed_origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",") if origin.strip()]
+if settings.FRONTEND_URL not in _allowed_origins:
+    _allowed_origins.append(settings.FRONTEND_URL)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://.*\.vercel\.app|https://successcore-api\.onrender\.com|http://localhost:\d+",
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Request-ID", "X-CSRF-Token"],
