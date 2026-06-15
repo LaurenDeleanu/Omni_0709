@@ -109,6 +109,10 @@ async def lifespan(app: FastAPI):
                         tenant_engine = engine.execution_options(schema_translate_map={None: schema})
                         async with tenant_engine.begin() as tenant_conn:
                             await tenant_conn.run_sync(Base.metadata.create_all)
+                            # Add new columns to existing tenant tables
+                            await tenant_conn.execute(text(
+                                "ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"
+                            ))
                         logger.info(f"Tenant tables created/verified for schema: {schema}")
                     except Exception as e:
                         logger.debug(f"Tenant schema {schema} tables: {e}")
