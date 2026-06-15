@@ -98,27 +98,27 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 logger.info(f"Column tier: {e}")
 
-    from app.services.backup_scheduler import start_backup_scheduler
-    start_backup_scheduler()
+    # Create tenant-scoped tables in all existing tenant schemas
+    if db_ready:
+        try:
+            from app.models.base import Base
+            async with engine.begin() as tconn:
+                result = await tconn.execute(text("SELECT schema_name FROM tenants WHERE is_active = true"))
+                rows = result.fetchall()
+                for (schema,) in rows:
+                    try:
+                        te = engine.execution_options(schema_translate_map={None: schema})
+                        async with te.begin() as tc:
+                            await tc.run_sync(Base.metadata.create_all)
+                            await tc.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
+                    except Exception:
+                        pass
+        except Exception:
+            pass
 
-    # Create tenant-scoped tables in all existing tenant schemas (deferred from above)
-    try:
-        from app.models.base import Base
-        async with engine.connect() as tconn:
-            result = await tconn.execute(text("SELECT schema_name FROM tenants WHERE is_active = true"))
-            rows = result.fetchall()
-            for (schema,) in rows:
-                try:
-                    te = engine.execution_options(schema_translate_map={None: schema})
-                    async with te.connect() as tc:
-                        await tc.run_sync(Base.metadata.create_all)
-                        await tc.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
-                        await tc.commit()
-                except Exception:
-                    pass
-    except Exception:
-        pass
-    start_backup_scheduler()
+    if db_ready:
+        from app.services.backup_scheduler import start_backup_scheduler
+        start_backup_scheduler()
 
     from app.services.event_notification_bridge import bind_event_notifications
     bind_event_notifications()
