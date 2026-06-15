@@ -20,6 +20,7 @@ from app.models.it import ITAsset, ITTicket, SaaSLicense
 from app.models.finance import ExpenseClaim, TimeLog
 from app.models.training import Course, CourseEnrollment, FundaeValidation
 from app.models.admin import AuditLog
+from app.models.agent import Agent
 
 
 
@@ -295,6 +296,48 @@ async def seed_tenant_and_users():
                 )
             ])
             print("Audit Logs mock creados.")
+
+        # 10. Seed 12 Official AI Agents
+        from app.services.agent_fleet import deploy_agent_fleet
+        print("Deploying official agent fleet...")
+        await deploy_agent_fleet(db, tenant.id)
+
+        # 11. Seed Agent RAG Knowledge Bases
+        from app.services.rag_service import add_document_to_knowledge
+        import os
+        FILE_TO_AGENT_MAP = {
+            "hr_copilot.md": ["HR Assistant Pro"],
+            "payroll_agent.md": ["Payroll Specialist"],
+            "it_support_agent.md": ["IT Helpdesk"],
+            "recruitment_agent.md": ["Recruiter Pro"],
+            "sales_agent.md": ["Sales Coach & CRM Manager"],
+            "performance_agent.md": ["Performance Coach"],
+            "onboarding_agent.md": ["Onboarding Buddy"],
+            "compliance_agent.md": ["Compliance Officer"],
+            "finance_agent.md": ["Finance Manager"],
+            "training_agent.md": ["Onboarding Buddy", "HR Assistant Pro"],
+            "global_core_context.md": ["Omni Master Pro", "Platform Copilot", "Data Analyst"]
+        }
+        
+        print("Seeding RAG documents for agents...")
+        res_agents = await db.execute(select(Agent).where(Agent.tenant_id == tenant.id))
+        agents = res_agents.scalars().all()
+        agent_dict = {a.name: a for a in agents}
+        
+        kb_dir = "knowledge_base"
+        for filename, agent_names in FILE_TO_AGENT_MAP.items():
+            filepath = os.path.join(kb_dir, filename)
+            if not os.path.exists(filepath):
+                continue
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+            for agent_name in agent_names:
+                agent = agent_dict.get(agent_name)
+                if agent:
+                    try:
+                        await add_document_to_knowledge(db, agent.id, filename, content)
+                    except Exception as e:
+                        print(f"Error seeding {filename} for {agent_name}: {e}")
 
         await db.commit()
         print("Seeding completado.")

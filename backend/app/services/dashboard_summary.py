@@ -72,6 +72,11 @@ async def get_admin_dashboard_summary(db: AsyncSession, tenant_id: str = "defaul
     ]
 
 
+    from app.models.agent import Agent, AgentExecutionRun
+    
+    configured_agents_res = await db.execute(select(func.count(Agent.id)).where(Agent.is_active == True))
+    total_configured_agents = configured_agents_res.scalar() or 0
+
     agent_runs_res = await db.execute(select(func.count(AgentExecutionRun.id)))
     total_agent_runs = agent_runs_res.scalar() or 0
 
@@ -137,6 +142,7 @@ async def get_admin_dashboard_summary(db: AsyncSession, tenant_id: str = "defaul
             "headcount_by_department": headcount_by_dept["live"],
         },
         "ai_agents": {
+            "total_configured_agents": total_configured_agents,
             "total_runs": total_agent_runs,
             "runs_this_month": agent_runs_month,
             "success_rate": round(agent_success / max(total_agent_runs, 1) * 100, 1),

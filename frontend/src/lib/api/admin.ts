@@ -10,6 +10,7 @@ export interface AdminDashboardSummary {
     headcount_by_department: { department: string; count: number }[];
   };
   ai_agents: {
+    total_configured_agents: number;
     total_runs: number;
     runs_this_month: number;
     success_rate: number;

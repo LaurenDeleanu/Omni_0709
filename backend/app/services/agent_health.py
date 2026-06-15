@@ -111,6 +111,7 @@ async def check_agent_health(agent_id: str, db: AsyncSession) -> Dict[str, Any]:
         status=status,
         response_time_ms=response_time_ms,
         error_message=error_message,
+        tenant_id=agent.tenant_id,
     )
     db.add(health_record)
     await db.flush()
@@ -277,6 +278,7 @@ async def check_agent_health(agent_id: str, db: AsyncSession) -> Dict[str, Any]:
         status=status,
         response_time_ms=response_time_ms,
         error_message=error_message,
+        tenant_id=agent.tenant_id,
     )
     db.add(health_record)
     await db.flush()

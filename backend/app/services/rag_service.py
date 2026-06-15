@@ -102,12 +102,16 @@ async def add_document_to_knowledge(db: AsyncSession, agent_id: str, filename: s
     Creates a document, chunks it semantically, assigns document-level metadata,
     generates embeddings, and stores chunks atomically.
     """
+    agent_res = await db.execute(select(Agent).where(Agent.id == agent_id))
+    agent = agent_res.scalar_one_or_none()
+    
     # 1. Create document
     doc = KnowledgeDocument(
         id=uuid.uuid4().hex,
         agent_id=agent_id,
         filename=filename,
-        content=content
+        content=content,
+        tenant_id=agent.tenant_id if agent else "tenant_acme_1"
     )
     db.add(doc)
     await db.flush()
@@ -115,8 +119,7 @@ async def add_document_to_knowledge(db: AsyncSession, agent_id: str, filename: s
     # 2. Semantic chunking
     chunks = semantic_chunk_text(content)
     
-    agent_res = await db.execute(select(Agent).where(Agent.id == agent_id))
-    agent = agent_res.scalar_one_or_none()
+    # Agent already fetched above
     
     # 3. Infer document category metadata (filename + content keywords)
     category = classify_document(filename, content)
@@ -138,7 +141,8 @@ async def add_document_to_knowledge(db: AsyncSession, agent_id: str, filename: s
                 "date": datetime.now(timezone.utc).isoformat(),
                 "category": category,
                 "char_offset": idx * 800,
-            }
+            },
+            tenant_id=agent.tenant_id if agent else "tenant_acme_1"
         )
         db.add(chunk)
         

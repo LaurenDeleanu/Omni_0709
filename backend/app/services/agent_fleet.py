@@ -877,7 +877,7 @@ AGENT_FLEET = [
 ]
 
 
-async def deploy_agent_fleet(db: AsyncSession) -> Dict[str, Any]:
+async def deploy_agent_fleet(db: AsyncSession, tenant_id: str = "tenant_acme_1") -> Dict[str, Any]:
     """
     Deploy all 10 agents to the database. Creates missing agents and their
     AgentConfigs. Updates existing agents with latest configuration.
@@ -940,6 +940,7 @@ async def deploy_agent_fleet(db: AsyncSession) -> Dict[str, Any]:
                     max_tokens_per_run=100000 if fleet_entry["agent_type"] == "omni_master" else 50000,
                     input_schema={},
                     output_schema={},
+                    tenant_id=tenant_id,
                 )
                 db.add(cfg)
 
@@ -977,6 +978,7 @@ async def deploy_agent_fleet(db: AsyncSession) -> Dict[str, Any]:
                 ai_guardrails=fleet_entry["ai_guardrails"],
                 agent_settings=settings,
                 is_active=fleet_entry.get("is_active", True),
+                tenant_id=tenant_id,
             )
             db.add(agent)
 
@@ -988,6 +990,7 @@ async def deploy_agent_fleet(db: AsyncSession) -> Dict[str, Any]:
                 max_tokens_per_run=100000 if fleet_entry["agent_type"] == "omni_master" else 50000,
                 input_schema={},
                 output_schema={},
+                tenant_id=tenant_id,
             )
             db.add(cfg)
 

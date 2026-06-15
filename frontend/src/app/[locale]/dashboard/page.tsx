@@ -254,6 +254,18 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card className="glass shadow-sm hover:shadow-md transition-all">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Agentes Configurados</CardTitle>
+                  <Bot className="h-4 w-4 text-indigo-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{data.ai_agents.total_configured_agents}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Agentes activos en el sistema
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="glass shadow-sm hover:shadow-md transition-all">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                   <CardTitle className="text-sm font-medium text-muted-foreground">Runs de IA (Mes)</CardTitle>
                   <Cpu className="h-4 w-4 text-indigo-500" />
                 </CardHeader>

@@ -89,7 +89,7 @@ export default function EmbedChatPage() {
               fullResponse += data.text;
               setStreamingText(fullResponse);
             }
-          } catch {}
+          } catch { }
         }
       }
 
@@ -127,9 +127,8 @@ export default function EmbedChatPage() {
       }}
     >
       <div
-        className={`flex items-center justify-between px-4 py-3 shrink-0 border-b ${
-          isDark ? "bg-gradient-to-r from-slate-950 to-indigo-950 border-violet-500/15" : "bg-gray-50 border-gray-200"
-        }`}
+        className={`flex items-center justify-between px-4 py-3 shrink-0 border-b ${isDark ? "bg-gradient-to-r from-slate-950 to-indigo-950 border-violet-500/15" : "bg-gray-50 border-gray-200"
+          }`}
       >
         <div className="flex items-center gap-2">
           <Sparkles size={18} className="text-violet-400" />
@@ -156,15 +155,14 @@ export default function EmbedChatPage() {
             className={`flex ${msg.role === "assistant" ? "justify-start" : "justify-end"}`}
           >
             <div
-              className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                msg.role === "assistant"
+              className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${msg.role === "assistant"
                   ? isDark
                     ? "bg-slate-900 border border-zinc-800 text-zinc-200 rounded-tl-none"
                     : "bg-gray-100 border border-gray-200 text-gray-800 rounded-tl-none"
                   : isDark
-                  ? "bg-gradient-to-r from-violet-950/70 to-indigo-950/70 border border-violet-500/30 text-white rounded-tr-none"
-                  : "bg-violet-600 text-white rounded-tr-none"
-              }`}
+                    ? "bg-gradient-to-r from-violet-950/70 to-indigo-950/70 border border-violet-500/30 text-white rounded-tr-none"
+                    : "bg-violet-600 text-white rounded-tr-none"
+                }`}
             >
               <MarkdownRenderer content={msg.content} />
             </div>
@@ -174,9 +172,8 @@ export default function EmbedChatPage() {
         {streamingText && (
           <div className="flex justify-start">
             <div
-              className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed rounded-tl-none ${
-                isDark ? "bg-slate-900 border border-zinc-800 text-zinc-200" : "bg-gray-100 border border-gray-200 text-gray-800"
-              }`}
+              className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed rounded-tl-none ${isDark ? "bg-slate-900 border border-zinc-800 text-zinc-200" : "bg-gray-100 border border-gray-200 text-gray-800"
+                }`}
             >
               <MarkdownRenderer content={streamingText} />
               <span className="animate-pulse ml-0.5 text-violet-400">|</span>
@@ -187,9 +184,8 @@ export default function EmbedChatPage() {
         {isLoading && !streamingText && (
           <div className="flex justify-start">
             <div
-              className={`px-4 py-3 rounded-2xl text-xs rounded-tl-none ${
-                isDark ? "bg-slate-900 border border-zinc-800 text-zinc-400" : "bg-gray-100 border border-gray-200 text-gray-500"
-              }`}
+              className={`px-4 py-3 rounded-2xl text-xs rounded-tl-none ${isDark ? "bg-slate-900 border border-zinc-800 text-zinc-400" : "bg-gray-100 border border-gray-200 text-gray-500"
+                }`}
             >
               <Loader2 size={12} className="animate-spin inline mr-1.5 text-violet-400" />
               Thinking...
@@ -210,11 +206,10 @@ export default function EmbedChatPage() {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Type your message..."
-          className={`flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none transition-colors disabled:opacity-50 ${
-            isDark
+          className={`flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none transition-colors disabled:opacity-50 ${isDark
               ? "bg-slate-900 border border-zinc-800 focus:border-violet-500/50 text-white placeholder-zinc-600"
               : "bg-white border border-gray-300 focus:border-violet-500 text-gray-900 placeholder-gray-400"
-          }`}
+            }`}
         />
         <button
           type="submit"
