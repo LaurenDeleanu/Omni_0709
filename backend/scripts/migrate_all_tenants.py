@@ -24,7 +24,22 @@ async def get_tenants():
 def run_migrations_for_all_tenants():
     from alembic.config import Config
     from alembic import command
+    from app.core.database import engine
+    from app.models.base import GlobalBase, Base
+    from sqlalchemy import text
+    import asyncio
     
+    # Run GlobalBase creation
+    async def create_global():
+        async with engine.begin() as conn:
+            await conn.run_sync(GlobalBase.metadata.create_all)
+            
+    try:
+        asyncio.run(create_global())
+        logger.info("Global tables created/verified")
+    except Exception as e:
+        logger.error(f"Failed to create global tables: {e}")
+
     try:
         tenants, settings = asyncio.run(get_tenants())
     except Exception as e:
@@ -36,15 +51,23 @@ def run_migrations_for_all_tenants():
         return
 
     alembic_cfg = Config(os.path.join(os.path.dirname(__file__), "..", "alembic.ini"))
+    
+    async def create_tenant_tables(schema: str):
+        tenant_engine = engine.execution_options(schema_translate_map={None: schema})
+        async with tenant_engine.begin() as conn:
+            await conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
+            await conn.run_sync(Base.metadata.create_all)
 
     for tenant in tenants:
         schema = f"tenant_{tenant.schema_name}" if not settings.SQLALCHEMY_DATABASE_URI.startswith("sqlite") else None
         if schema:
             logger.info(f"Migrating tenant schema: {schema}")
             try:
-                # Pass schema to env.py via attributes
+                # 1. Create schema and base tables
+                asyncio.run(create_tenant_tables(schema))
+                
+                # 2. Run alembic upgrade
                 alembic_cfg.attributes["tenant_schema"] = schema
-                # Run upgrade synchronously
                 command.upgrade(alembic_cfg, "head")
                 logger.info(f"  Done: {tenant.name} ({schema})")
             except Exception as e:
