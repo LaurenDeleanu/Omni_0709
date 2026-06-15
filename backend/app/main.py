@@ -72,23 +72,8 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 logger.info(f"Column tier: {e}")
 
-        # Migrate tenant-schema tables (add missing columns to existing schemas)
-        try:
-            from app.models.base import Base
-            async with engine.connect() as tconn:
-                result = await tconn.execute(text("SELECT schema_name FROM tenants WHERE is_active = true"))
-                rows = result.fetchall()
-                for (schema_name,) in rows:
-                    try:
-                        tenant_schema = f"tenant_{schema_name}"
-                        te = engine.execution_options(schema_translate_map={None: tenant_schema})
-                        async with te.begin() as tc:
-                            await tc.run_sync(Base.metadata.create_all)
-                            await tc.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+        # Tenant schema migrations are now handled externally by migrate_all_tenants.py 
+        # before uvicorn boots, preventing event-loop blocks here.
 
     from app.services.backup_scheduler import start_backup_scheduler
     start_backup_scheduler()
