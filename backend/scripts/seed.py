@@ -58,11 +58,23 @@ async def seed_tenant_and_users():
         async with engine.begin() as conn:
             await conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {tenant_schema}"))
     
-    # Para SQLite (local) o PostgreSQL configurado
-    tenant_engine = engine.execution_options(schema_translate_map={None: tenant_schema})
-    
-    # Migrations are now handled by Alembic and migrate_all_tenants.py. 
-    # Skipping run_sync(create_all) to avoid event loop blocking.
+    try:
+        from app.models.base import Base
+        tenant_engine = engine.execution_options(schema_translate_map={None: tenant_schema})
+        async with tenant_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            
+            # Explicitly ensure the roles column exists in case Alembic skipped it or failed silently
+            try:
+                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
+                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS current_debt NUMERIC(10, 2) DEFAULT 0.00"))
+                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS base_salary NUMERIC(10, 2)"))
+                await conn.execute(text(f"ALTER TABLE {tenant_schema}.users ADD COLUMN IF NOT EXISTS vacation_allowance INTEGER DEFAULT 20"))
+            except Exception as e:
+                logger.warning(f"Error while ensuring columns: {e}")
+                
+    except Exception as e:
+        logger.error(f"Failed to initialize tenant {tenant_schema} tables: {e}")
 
     AsyncSessionTenant = async_sessionmaker(bind=tenant_engine, class_=AsyncSession, expire_on_commit=False)
     
