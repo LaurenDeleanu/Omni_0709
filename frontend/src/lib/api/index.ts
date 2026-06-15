@@ -18,7 +18,7 @@ export { AiAPI, CopilotAPI } from './ai';
 export { ITAPI } from './it';
 export { FinanceAPI } from './finance';
 export { TrainingAPI } from './training';
-export { AdminAPI } from './admin';
+export { type AdminDashboardSummary, AdminAPI } from './admin';
 export { type JobPosting, type Candidate, type CandidatePool, type PoolCandidate, type CrmCandidate, HireAPI } from './hire';
 export { type Client, type Lead, SalesAPI } from './sales';
 export { type Project, type BoardColumn, type KanbanBoard, type WikiPage, WorkAPI } from './work';

@@ -45,7 +45,31 @@ async def get_admin_dashboard_summary(db: AsyncSession, tenant_id: str = "defaul
         {"department": r[0] or "Unassigned", "count": r[1]} for r in dept_res.fetchall()
     ]
 
-    payroll_summary = []
+    from app.models.pay import PayrollCycle, Payslip
+    
+    payroll_rows = await db.execute(
+        select(
+            PayrollCycle.period_name.label('month'), 
+            PayrollCycle.currency, 
+            PayrollCycle.total_gross, 
+            PayrollCycle.total_net, 
+            func.count(Payslip.id).label('payslip_count')
+        )
+        .outerjoin(Payslip, PayrollCycle.id == Payslip.cycle_id)
+        .group_by(PayrollCycle.id)
+        .order_by(PayrollCycle.start_date.desc())
+        .limit(12)
+    )
+    payroll_summary = [
+        {
+            "month": str(r.month),
+            "currency": r.currency,
+            "total_gross": float(r.total_gross),
+            "total_net": float(r.total_net),
+            "payslip_count": r.payslip_count,
+        }
+        for r in payroll_rows.fetchall()
+    ]
 
 
     agent_runs_res = await db.execute(select(func.count(AgentExecutionRun.id)))
