@@ -49,6 +49,28 @@ async def lifespan(app: FastAPI):
 
         async with engine.begin() as conn:
             await conn.run_sync(GlobalBase.metadata.create_all)
+            # Auto-migrate: add new columns that may not exist in production DB
+            try:
+                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(100)"))
+                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS subscription_id VARCHAR(100)"))
+                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50) DEFAULT 'inactive'"))
+                await conn.execute(text("ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR(50)"))
+            except Exception:
+                pass
+            try:
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT FALSE"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_published_at TIMESTAMPTZ"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_category VARCHAR(50)"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_price FLOAT DEFAULT 0"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_rating FLOAT DEFAULT 0"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_downloads INTEGER DEFAULT 0"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_tags JSONB DEFAULT '[]'"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_tools JSONB DEFAULT '[]'"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_preview_image VARCHAR(500)"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_author VARCHAR(200)"))
+                await conn.execute(text("ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS marketplace_author_tenant VARCHAR(100)"))
+            except Exception:
+                pass
 
             if "sqlite" not in settings.SQLALCHEMY_DATABASE_URI:
                 try:
