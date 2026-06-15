@@ -57,7 +57,7 @@ export async function fetchClient(endpoint: string, options: RequestInit = {}) {
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, {
