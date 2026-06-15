@@ -428,8 +428,6 @@ class LoginRequest(BaseModel):
 @router.post("/login", response_model=dict)
 @limiter.limit("5/minute")  # [M12] IP-based rate limit
 async def login_local(req: LoginRequest, request: Request):
-    import traceback as _tb
-    try:
     from app.services.login_guard import check_login_allowed, record_login_attempt, clear_login_attempts
 
     client_ip = request.client.host if request.client else "unknown"
@@ -539,8 +537,6 @@ async def login_local(req: LoginRequest, request: Request):
         )
         
         return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Login error: {str(e)}\n{_tb.format_exc()}")
 
 
 class ResetPasswordRequest(BaseModel):
@@ -601,3 +597,28 @@ async def store_push_subscription(
 
     await db.commit()
     return {"status": "stored"}
+
+
+@router.get("/debug-login")
+async def debug_login(email: str = "admin@successcore.com", tenant_id: str = "acme_corp"):
+    import traceback
+    try:
+        from app.core.database import engine
+        from sqlalchemy.ext.asyncio import async_sessionmaker
+        from app.models.user import User
+        from sqlalchemy import select
+
+        tenant_schema = f"tenant_{tenant_id}"
+        is_sqlite = "sqlite" in settings.SQLALCHEMY_DATABASE_URI
+        tenant_engine = engine if is_sqlite else engine.execution_options(schema_translate_map={None: tenant_schema})
+
+        AsyncSessionTenant = async_sessionmaker(bind=tenant_engine, class_=AsyncSession, autocommit=False, autoflush=False, expire_on_commit=False)
+
+        async with AsyncSessionTenant() as db:
+            result = await db.execute(select(User).where(User.email == email))
+            user = result.scalar_one_or_none()
+            if user:
+                return {"found": True, "email": user.email, "id": user.id, "role": user.role, "is_active": user.is_active, "has_password": bool(user.hashed_password)}
+            return {"found": False}
+    except Exception as e:
+        return {"error": str(e), "traceback": traceback.format_exc()}
