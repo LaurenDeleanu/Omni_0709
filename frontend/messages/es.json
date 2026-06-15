@@ -43,7 +43,11 @@
     "help_support": "Ayuda y Soporte",
     "view_careers": "Ver Carreras",
     "admin_section": "Admin",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "time_tracking": "Registro de Tiempo",
+    "reviews_360": "Evaluaciones 360",
+    "reviews": "Evaluaciones",
+    "surveys": "Encuestas"
   },
   "Dashboard": {
     "welcome": "Bienvenido de nuevo",

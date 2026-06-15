@@ -91,7 +91,7 @@ async def export_employees_excel(
             emp.full_name or "—",
             emp.email,
             emp.department or "—",
-            emp.role.replace("_", " ").title(),
+            (emp.role or "Sin rol").replace("_", " ").title(),
             "Activo" if emp.is_active else "Archivado",
             emp.created_at.strftime("%d/%m/%Y") if emp.created_at else "—"
         ]
@@ -147,7 +147,7 @@ async def get_dashboard_data(
             "active": active_result.scalar() or 0,
             "inactive": total - (active_result.scalar() or 0),
             "by_department": [{"name": d or "Sin dept.", "count": c} for d, c in by_dept.all()],
-            "by_role": [{"name": r.replace("_", " ").title() or "Sin rol", "count": c} for r, c in by_role.all()],
+            "by_role": [{"name": (r or "Sin rol").replace("_", " ").title(), "count": c} for r, c in by_role.all()],
         }
 
     if "departments" in metrics_list:
@@ -370,7 +370,7 @@ async def get_dashboard_summary(
         select(User.role, func.count(User.id)).group_by(User.role)
     )
     roles = [
-        {"name": r.replace("_", " ").title(), "count": c, "percentage": round(c / total * 100, 1) if total > 0 else 0}
+        {"name": (r or "Sin rol").replace("_", " ").title(), "count": c, "percentage": round(c / total * 100, 1) if total > 0 else 0}
         for r, c in roles_result.all()
     ]
 
@@ -382,7 +382,7 @@ async def get_dashboard_summary(
             "id": u.id,
             "full_name": u.full_name or u.email,
             "department": u.department or "Sin departamento",
-            "role": u.role.replace("_", " ").title(),
+            "role": (u.role or "Sin rol").replace("_", " ").title(),
             "created_at": u.created_at.isoformat() if u.created_at else None
         }
         for u in recent_result.scalars().all()
