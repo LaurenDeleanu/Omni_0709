@@ -88,11 +88,22 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+from sqlalchemy import text
+
 def do_run_migrations(connection: Connection) -> None:
+    schema = config.attributes.get("tenant_schema")
+    x_args = context.get_x_argument(as_dictionary=True)
+    if 'schema' in x_args:
+        schema = x_args['schema']
+
+    if schema:
+        connection.execute(text(f"SET search_path TO {schema}"))
+
     context.configure(
         connection=connection, 
         target_metadata=target_metadata,
         include_schemas=True, # Important to see 'public' and others
+        version_table_schema=schema if schema else None,
     )
 
     with context.begin_transaction():
