@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from typing import List
@@ -24,6 +24,7 @@ class BulkIdsIn(BaseModel):
 @limiter.limit("10/minute")
 @router.post("/expenses/approve")
 async def bulk_approve_expenses(
+    request: Request,
     body: BulkIdsIn,
     db: AsyncSession = Depends(get_tenant_db),
     _: dict = Depends(require_roles(["hr_admin"]))
@@ -41,6 +42,7 @@ async def bulk_approve_expenses(
 @limiter.limit("10/minute")
 @router.post("/payslips/generate")
 async def bulk_generate_payslips(
+    request: Request,
     cycle_id: str,
     db: AsyncSession = Depends(get_tenant_db),
     _: dict = Depends(require_roles(["hr_admin"]))
@@ -80,6 +82,7 @@ async def bulk_generate_payslips(
 @limiter.limit("10/minute")
 @router.post("/courses/assign")
 async def bulk_assign_courses(
+    request: Request,
     course_id: str,
     body: BulkIdsIn,
     db: AsyncSession = Depends(get_tenant_db),

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, WebSocket, WebSocketDisconnect, Query
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, WebSocket, WebSocketDisconnect, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, or_, and_, func
 from typing import List, Optional, Dict
@@ -469,6 +469,7 @@ async def get_thread_messages(
 @limiter.limit("60/minute")
 @router.post("/rooms/{room_id}/messages/{message_id}/reply", response_model=MessageResponse)
 async def reply_to_message(
+    request: Request,
     room_id: str,
     message_id: str,
     payload: ThreadMessageCreate,
@@ -971,6 +972,7 @@ async def join_collab_room(
 @limiter.limit("60/minute")
 @collab_router.post("/rooms/{room_id}/message")
 async def send_collab_message(
+    request: Request,
     room_id: str,
     body: SendCollabMessageBody,
     db: AsyncSession = Depends(get_tenant_db),
