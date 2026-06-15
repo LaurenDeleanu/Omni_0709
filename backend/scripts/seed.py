@@ -65,6 +65,7 @@ async def seed_tenant_and_users():
     
     async with tenant_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
         print(f"Tablas para tenant {tenant_schema} creadas/verificadas.")
 
     AsyncSessionTenant = async_sessionmaker(bind=tenant_engine, class_=AsyncSession, expire_on_commit=False)
