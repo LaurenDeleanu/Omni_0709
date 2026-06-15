@@ -34,7 +34,7 @@ class MarketplaceAgent(BaseModel):
 async def list_marketplace_agents(
     search: Optional[str] = Query(default=None),
     category: Optional[str] = Query(default=None),
-    sort: str = Query(default="popular", regex="^(popular|newest|rating|price)$"),
+    sort: str = Query(default="popular", pattern="^(popular|newest|rating|price)$"),
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=20, ge=1, le=50),
     db: AsyncSession = Depends(get_tenant_db),
