@@ -16,7 +16,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column("users", sa.Column("roles", sa.JSON(), server_default='["employee"]', nullable=False))
+    # Use raw SQL to add the column conditionally, avoiding DuplicateColumnError 
+    # if it was manually added to the public schema previously.
+    op.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSON DEFAULT '[\"employee\"]' NOT NULL")
 
 
 def downgrade() -> None:
