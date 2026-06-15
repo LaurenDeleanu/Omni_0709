@@ -35,7 +35,7 @@ def run_migrations_for_all_tenants():
         logger.info("No active tenants found")
         return
 
-    alembic_cfg = Config(os.path.join(os.path.dirname(__file__), "..", "backend", "alembic.ini"))
+    alembic_cfg = Config(os.path.join(os.path.dirname(__file__), "..", "alembic.ini"))
 
     for tenant in tenants:
         schema = f"tenant_{tenant.schema_name}" if not settings.SQLALCHEMY_DATABASE_URI.startswith("sqlite") else None
