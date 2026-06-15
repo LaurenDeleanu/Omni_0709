@@ -27,9 +27,7 @@ async def seed_tenant_and_users():
     print("Iniciando DB seeding...")
     
     # 1. Crear tablas globales
-    async with engine.begin() as conn:
-        await conn.run_sync(GlobalBase.metadata.create_all)
-        print("Tablas globales creadas/verificadas.")
+    # Migrations are now handled externally, skipping run_sync(GlobalBase.metadata.create_all)
 
     # 2. Crear Tenant acme_corp
     async with AsyncSessionGlobal() as db:
@@ -63,10 +61,8 @@ async def seed_tenant_and_users():
     # Para SQLite (local) o PostgreSQL configurado
     tenant_engine = engine.execution_options(schema_translate_map={None: tenant_schema})
     
-    async with tenant_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS roles JSONB DEFAULT '[\"employee\"]'"))
-        print(f"Tablas para tenant {tenant_schema} creadas/verificadas.")
+    # Migrations are now handled by Alembic and migrate_all_tenants.py. 
+    # Skipping run_sync(create_all) to avoid event loop blocking.
 
     AsyncSessionTenant = async_sessionmaker(bind=tenant_engine, class_=AsyncSession, expire_on_commit=False)
     

@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Auto-seed skipped: {e}")
 
         async with engine.begin() as conn:
-            await conn.run_sync(GlobalBase.metadata.create_all)
+            # Migrations are handled by Alembic
 
             if "sqlite" not in settings.SQLALCHEMY_DATABASE_URI:
                 try:
