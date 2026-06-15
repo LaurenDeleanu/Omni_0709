@@ -33,6 +33,7 @@ def hash_password(password: str) -> str:
     hashed_password = bcrypt.hashpw(pwd_bytes, salt)
     return hashed_password.decode('utf-8')
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verify a password. Supports seamless migration from SHA-256 to bcrypt.
@@ -40,6 +41,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     if len(hashed_password) == 64 and all(c in '0123456789abcdefABCDEF' for c in hashed_password):
         # Legacy SHA-256 support
+        import hashlib
+        legacy_hash = hashlib.sha256(plain_password.encode()).hexdigest()
+        return legacy_hash == hashed_password
+        
     pwd_bytes = plain_password.encode('utf-8')
     hash_bytes = hashed_password.encode('utf-8')
     try:
