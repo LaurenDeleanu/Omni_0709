@@ -66,16 +66,15 @@ class PerClientRateLimiter(BaseHTTPMiddleware):
             if not allowed:
                 from app.services.rate_alerts import record_rate_limit_hit
                 record_rate_limit_hit(client_key, path)
-                raise HTTPException(
+                from fastapi.responses import JSONResponse
+                return JSONResponse(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail="Rate limit exceeded. Retry after a few seconds.",
-                    headers={"Retry-After": "5"},
+                    content={"detail": "Rate limit exceeded. Retry after a few seconds."},
+                    headers={"Retry-After": "5"}
                 )
             response = await call_next(request)
             response.headers["X-RateLimit-Remaining"] = str(remaining)
             return response
-        except HTTPException:
-            raise
         except Exception:
             pass
 
@@ -83,10 +82,11 @@ class PerClientRateLimiter(BaseHTTPMiddleware):
         if not await bucket.consume():
             from app.services.rate_alerts import record_rate_limit_hit
             record_rate_limit_hit(client_key, path)
-            raise HTTPException(
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Rate limit exceeded. Retry after a few seconds.",
-                headers={"Retry-After": "5"},
+                content={"detail": "Rate limit exceeded. Retry after a few seconds."},
+                headers={"Retry-After": "5"}
             )
 
         response = await call_next(request)
