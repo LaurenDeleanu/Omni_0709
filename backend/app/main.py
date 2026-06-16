@@ -193,6 +193,13 @@ _allowed_origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(
 if settings.FRONTEND_URL not in _allowed_origins:
     _allowed_origins.append(settings.FRONTEND_URL)
 
+app.add_middleware(BodySizeLimitMiddleware)
+app.add_middleware(CSRFMiddleware)
+app.add_middleware(PerClientRateLimiter)
+app.add_middleware(CorrelationMiddleware)
+app.add_middleware(ApiKeyRateLimiter)
+app.add_middleware(CompressionMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
@@ -201,13 +208,6 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Request-ID", "X-CSRF-Token"],
     expose_headers=["Content-Disposition"],
 )
-
-app.add_middleware(BodySizeLimitMiddleware)
-app.add_middleware(CSRFMiddleware)
-app.add_middleware(PerClientRateLimiter)
-app.add_middleware(CorrelationMiddleware)
-app.add_middleware(ApiKeyRateLimiter)
-app.add_middleware(CompressionMiddleware)
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(users.router,     prefix=f"{settings.API_V1_STR}/users",     tags=["Users"])
