@@ -23,6 +23,8 @@ from app.models.notification import Notification
 from app.models.announcement import Announcement
 from app.models.kudos import Kudos
 from app.models.workflow import WorkflowTemplate, UserWorkflow
+from app.models.visual_workflow import VisualWorkflow
+from app.models.approval import Approval
 from app.models.agent import Agent, AgentConfig, AgentExecutionRun, ModelPerformance, SkillCertification, AgentReputationScore, DemoSession, DemoSkill, DiscoveryReport, LLMCallAudit
 from app.models.harness import TestSuite, TestCase, TestRun
 from app.models.agent_trigger import Trigger

@@ -175,7 +175,7 @@ export default function CareersPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ── NAV ──────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
@@ -216,7 +216,7 @@ export default function CareersPage() {
                 with us
               </span>
             </h1>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Explore open positions at SuccessCore and join a team that is redefining
               HR technology with AI agents.
             </p>
@@ -227,21 +227,21 @@ export default function CareersPage() {
       {/* ── FILTERS ─────────────────────────────────────────── */}
       <section className="pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row gap-3 bg-white/3 border border-white/5 rounded-xl p-4">
+          <div className="flex flex-col sm:flex-row gap-3 bg-card border border-border/50 rounded-xl p-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search jobs..."
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-muted/20 border border-border rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
             >
               <option value="">All departments</option>
               {departments.map((d) => (
@@ -251,7 +251,7 @@ export default function CareersPage() {
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
             >
               <option value="">All locations</option>
               {locations.map((l) => (
@@ -261,7 +261,7 @@ export default function CareersPage() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500 transition-colors"
             >
               <option value="">All types</option>
               {employmentTypes.map((t) => (
@@ -276,7 +276,7 @@ export default function CareersPage() {
                   setLocationFilter("");
                   setTypeFilter("");
                 }}
-                className="text-slate-400 hover:text-foreground text-sm transition-colors px-3"
+                className="text-muted-foreground hover:text-foreground text-sm transition-colors px-3"
               >
                 Clear
               </button>
@@ -296,7 +296,7 @@ export default function CareersPage() {
 
           {error && (
             <div className="text-center py-20">
-              <p className="text-slate-400 mb-4">{error}</p>
+              <p className="text-muted-foreground mb-4">{error}</p>
               <button
                 onClick={() => window.location.reload()}
                 className="text-indigo-400 hover:text-indigo-300 text-sm"
@@ -308,9 +308,9 @@ export default function CareersPage() {
 
           {!loading && !error && filteredJobs.length === 0 && (
             <div className="text-center py-20">
-              <Briefcase className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-400 text-lg mb-2">No positions found</p>
-              <p className="text-slate-600 text-sm">
+              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground text-lg mb-2">No positions found</p>
+              <p className="text-muted-foreground text-sm">
                 {jobs.length === 0
                   ? "There are no open positions at this time. Check back soon."
                   : "Try adjusting your search or filters."}
@@ -320,11 +320,11 @@ export default function CareersPage() {
 
           {!loading && !error && filteredJobs.length > 0 && (
             <div className="space-y-3">
-              <p className="text-slate-500 text-sm mb-4">{filteredJobs.length} position{filteredJobs.length !== 1 ? "s" : ""} found</p>
+              <p className="text-muted-foreground text-sm mb-4">{filteredJobs.length} position{filteredJobs.length !== 1 ? "s" : ""} found</p>
               {filteredJobs.map((job) => (
                 <div
                   key={job.id}
-                  className="bg-white/3 border border-white/5 hover:border-white/10 rounded-xl p-5 transition-all duration-200 group"
+                  className="bg-card border border-border/50 hover:border-border rounded-xl p-5 transition-all duration-200 group"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-2 flex-1">
@@ -339,20 +339,20 @@ export default function CareersPage() {
                           </span>
                         )}
                         {job.location && (
-                          <span className="inline-flex items-center gap-1.5 text-slate-400 text-xs">
+                          <span className="inline-flex items-center gap-1.5 text-muted-foreground text-xs">
                             <MapPin className="h-3 w-3" />
                             {job.location}
                           </span>
                         )}
                         {job.employment_type && (
-                          <span className="inline-flex items-center gap-1.5 text-slate-400 text-xs">
+                          <span className="inline-flex items-center gap-1.5 text-muted-foreground text-xs">
                             <Clock className="h-3 w-3" />
                             {typeLabels[job.employment_type] || job.employment_type}
                           </span>
                         )}
                       </div>
                       {job.description && (
-                        <p className="text-slate-500 text-sm leading-relaxed line-clamp-2">{job.description}</p>
+                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">{job.description}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -364,7 +364,7 @@ export default function CareersPage() {
                       </button>
                       <button
                         onClick={() => openDetail(job)}
-                        className="py-2.5 px-4 bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 text-sm rounded-lg transition-colors flex items-center gap-1"
+                        className="py-2.5 px-4 bg-muted/20 border border-border hover:bg-muted/30 text-foreground/90 text-sm rounded-lg transition-colors flex items-center gap-1"
                       >
                         Details
                         <ChevronRight className="h-3.5 w-3.5" />
@@ -382,12 +382,12 @@ export default function CareersPage() {
       {showDetail && displayJob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={closeDetail}>
           <div
-            className="bg-slate-900 border border-white/10 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 shadow-2xl"
+            className="bg-slate-900 border border-border rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-2xl font-bold text-foreground">{displayJob.title}</h2>
-              <button onClick={closeDetail} className="text-slate-400 hover:text-foreground transition-colors">
+              <button onClick={closeDetail} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -399,20 +399,20 @@ export default function CareersPage() {
                 </span>
               )}
               {displayJob.location && (
-                <span className="inline-flex items-center gap-1.5 text-slate-400 text-sm">
+                <span className="inline-flex items-center gap-1.5 text-muted-foreground text-sm">
                   <MapPin className="h-3.5 w-3.5" />
                   {displayJob.location}
                 </span>
               )}
               {displayJob.employment_type && (
-                <span className="inline-flex items-center gap-1.5 text-slate-400 text-sm">
+                <span className="inline-flex items-center gap-1.5 text-muted-foreground text-sm">
                   <Clock className="h-3.5 w-3.5" />
                   {typeLabels[displayJob.employment_type] || displayJob.employment_type}
                 </span>
               )}
             </div>
             {displayJob.description && (
-              <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap mb-6">
+              <div className="text-foreground/90 text-sm leading-relaxed whitespace-pre-wrap mb-6">
                 {displayJob.description}
               </div>
             )}
@@ -433,15 +433,15 @@ export default function CareersPage() {
       {formModal && displayJob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setFormModal(false)}>
           <div
-            className="bg-slate-900 border border-white/10 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl"
+            className="bg-slate-900 border border-border rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-xl font-bold text-foreground">Apply</h2>
-                <p className="text-slate-400 text-sm mt-0.5">{displayJob.title}</p>
+                <p className="text-muted-foreground text-sm mt-0.5">{displayJob.title}</p>
               </div>
-              <button onClick={() => setFormModal(false)} className="text-slate-400 hover:text-foreground transition-colors">
+              <button onClick={() => setFormModal(false)} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -450,10 +450,10 @@ export default function CareersPage() {
               <div className="text-center py-8">
                 <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto mb-4" />
                 <h3 className="text-foreground font-bold text-lg mb-2">Application submitted</h3>
-                <p className="text-slate-400 text-sm mb-6">We will review your application and get back to you soon.</p>
+                <p className="text-muted-foreground text-sm mb-6">We will review your application and get back to you soon.</p>
                 <button
                   onClick={() => setFormModal(false)}
-                  className="w-full py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-foreground rounded-xl transition-colors"
+                  className="w-full py-2.5 bg-muted/20 border border-border hover:bg-muted/30 text-foreground rounded-xl transition-colors"
                 >
                   Close
                 </button>
@@ -467,56 +467,56 @@ export default function CareersPage() {
                 )}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-slate-300 text-xs font-medium">First name *</label>
+                    <label className="text-foreground/90 text-xs font-medium">First name *</label>
                     <input
                       type="text"
                       value={formData.first_name}
                       onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                       required
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                      className="w-full bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500 transition-colors"
                       placeholder="John"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-slate-300 text-xs font-medium">Last name *</label>
+                    <label className="text-foreground/90 text-xs font-medium">Last name *</label>
                     <input
                       type="text"
                       value={formData.last_name}
                       onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                       required
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                      className="w-full bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500 transition-colors"
                       placeholder="Doe"
                     />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-300 text-xs font-medium">Email *</label>
+                  <label className="text-foreground/90 text-xs font-medium">Email *</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500 transition-colors"
                     placeholder="john@example.com"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-300 text-xs font-medium">Phone</label>
+                  <label className="text-foreground/90 text-xs font-medium">Phone</label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500 transition-colors"
                     placeholder="+34 600 000 000"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-300 text-xs font-medium">Cover letter</label>
+                  <label className="text-foreground/90 text-xs font-medium">Cover letter</label>
                   <textarea
                     value={formData.cover_letter}
                     onChange={(e) => setFormData({ ...formData, cover_letter: e.target.value })}
                     rows={4}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+                    className="w-full bg-muted/20 border border-border rounded-lg px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500 transition-colors resize-none"
                     placeholder="Tell us why you are interested in this role..."
                   />
                 </div>
@@ -541,9 +541,9 @@ export default function CareersPage() {
       )}
 
       {/* ── FOOTER ──────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 py-10 mt-auto">
+      <footer className="border-t border-border/50 py-10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center gap-2 text-slate-600 text-sm mb-2">
+          <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm mb-2">
             <Building2 className="h-3.5 w-3.5" />
             <span>Powered by SuccessCore</span>
           </div>

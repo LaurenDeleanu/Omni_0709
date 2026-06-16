@@ -132,7 +132,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* ── NAV ──────────────────────────────────────────────────── */}
       <nav
-        className={`sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 transition-all duration-700 ${
+        className={`sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 transition-all duration-700 ${
           animIn ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
         }`}
       >
@@ -227,14 +227,14 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/pricing"
-              className="w-full sm:w-auto py-3.5 px-8 bg-muted/20 border border-border/20 hover:bg-white/10 text-foreground font-semibold rounded-xl transition-all duration-200"
+              className="w-full sm:w-auto py-3.5 px-8 bg-muted/20 border border-border/20 hover:bg-muted/30 text-foreground font-semibold rounded-xl transition-all duration-200"
             >
               Ver planes y precios
             </Link>
           </div>
 
           <div
-            className={`mt-8 text-slate-500 text-sm transition-all duration-700 delay-300 ease-out ${
+            className={`mt-8 text-muted-foreground text-sm transition-all duration-700 delay-300 ease-out ${
               animIn ? "opacity-100" : "opacity-0"
             }`}
           >
@@ -263,7 +263,7 @@ export default function LandingPage() {
             {features.map(({ icon: Icon, title, desc }, i) => (
               <div
                 key={title}
-                className="bg-white/3 border border-white/5 rounded-2xl p-6 hover:bg-muted/20 hover:border-border/20 transition-all duration-300"
+                className="bg-card border border-border/50 rounded-2xl p-6 hover:bg-muted/20 hover:border-border/20 transition-all duration-300"
               >
                 <div className="h-10 w-10 rounded-xl bg-primary/10 border border-indigo-500/20 flex items-center justify-center mb-4">
                   <Icon className="h-5 w-5 text-primary" />
@@ -277,7 +277,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── MODULES GRID ─────────────────────────────────────────── */}
-      <section className="relative py-24 sm:py-32 bg-white/[0.02]">
+      <section className="relative py-24 sm:py-32 bg-muted/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold">
@@ -293,11 +293,11 @@ export default function LandingPage() {
             {modules.map(({ name, desc }) => (
               <div
                 key={name}
-                className="bg-white/3 border border-white/5 rounded-xl p-4 hover:bg-muted/20 transition-colors"
+                className="bg-card border border-border/50 rounded-xl p-4 hover:bg-muted/20 transition-colors"
               >
                 <Check className="h-4 w-4 text-primary mb-2" />
                 <p className="text-foreground text-sm font-medium">{name}</p>
-                <p className="text-slate-500 text-xs mt-1">{desc}</p>
+                <p className="text-muted-foreground text-xs mt-1">{desc}</p>
               </div>
             ))}
           </div>
@@ -324,7 +324,7 @@ export default function LandingPage() {
                 className={`relative rounded-2xl p-6 border transition-all duration-300 ${
                   plan.highlighted
                     ? "bg-gradient-to-b from-indigo-600/10 to-violet-600/5 border-indigo-500/30 shadow-xl shadow-indigo-500/10 scale-[1.02]"
-                    : "bg-white/3 border-white/5 hover:border-border/20"
+                    : "bg-card border-border/50 hover:border-border/20"
                 }`}
               >
                 {plan.highlighted && (
@@ -351,7 +351,7 @@ export default function LandingPage() {
                   className={`block text-center py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
                     plan.highlighted
                       ? "bg-gradient-to-r from-primary to-primary/80 hover:from-indigo-500 hover:to-violet-500 text-foreground"
-                      : "bg-muted/20 border border-border/20 hover:bg-white/10 text-foreground"
+                      : "bg-muted/20 border border-border/20 hover:bg-muted/30 text-foreground"
                   }`}
                 >
                   {plan.cta}
@@ -373,7 +373,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────────── */}
-      <section className="relative py-24 sm:py-32 bg-white/[0.02]">
+      <section className="relative py-24 sm:py-32 bg-muted/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
             ¿Listo para transformar tu departamento de RRHH?
@@ -401,7 +401,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ───────────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 py-12">
+      <footer className="border-t border-border/50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">

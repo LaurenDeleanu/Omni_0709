@@ -269,13 +269,13 @@ export default function DocsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* NAV */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80">
               <Building2 className="h-5 w-5 text-indigo-400" />
               <span className="text-foreground font-bold">SuccessCore</span>
-              <span className="text-slate-500 text-sm">/ docs</span>
+              <span className="text-muted-foreground text-sm">/ docs</span>
             </Link>
             <div className="flex items-center gap-4">
               <Link
@@ -308,7 +308,7 @@ export default function DocsPage() {
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
                     activeSection === section.id
                       ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-                      : "text-slate-400 hover:text-foreground hover:bg-white/5"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
                   }`}
                 >
                   <section.icon className="h-4 w-4 flex-shrink-0" />
@@ -323,7 +323,7 @@ export default function DocsPage() {
             <select
               value={activeSection}
               onChange={(e) => setActiveSection(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-foreground text-sm"
+              className="w-full bg-muted/20 border border-border rounded-xl px-4 py-2.5 text-foreground text-sm"
             >
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -356,7 +356,7 @@ export default function DocsPage() {
                       return (
                         <pre
                           key={i}
-                          className="bg-white/5 border border-white/10 rounded-xl p-4 my-4 overflow-x-auto text-sm text-slate-300 font-mono leading-relaxed"
+                          className="bg-muted/20 border border-border rounded-xl p-4 my-4 overflow-x-auto text-sm text-foreground/90 font-mono leading-relaxed"
                         >
                           <code>{codeContent}</code>
                         </pre>
@@ -379,11 +379,11 @@ export default function DocsPage() {
 
                       return (
                         <div key={i} className="overflow-x-auto my-4">
-                          <table className="w-full text-sm border border-white/10 rounded-xl overflow-hidden">
+                          <table className="w-full text-sm border border-border rounded-xl overflow-hidden">
                             <thead>
-                              <tr className="bg-white/5">
+                              <tr className="bg-muted/20">
                                 {headers.map((h) => (
-                                  <th key={h} className="text-left px-4 py-2 text-slate-300 font-medium">
+                                  <th key={h} className="text-left px-4 py-2 text-foreground/90 font-medium">
                                     {h}
                                   </th>
                                 ))}
@@ -393,10 +393,10 @@ export default function DocsPage() {
                               {rows.map((row, ri) => (
                                 <tr
                                   key={ri}
-                                  className="border-t border-white/5 hover:bg-white/[0.02]"
+                                  className="border-t border-border/50 hover:bg-muted/5"
                                 >
                                   {row.map((cell, ci) => (
-                                    <td key={ci} className="px-4 py-2 text-slate-400">
+                                    <td key={ci} className="px-4 py-2 text-muted-foreground">
                                       {cell}
                                     </td>
                                   ))}
@@ -409,7 +409,7 @@ export default function DocsPage() {
                     }
 
                     return (
-                      <p key={i} className="text-slate-300 leading-relaxed mb-4 whitespace-pre-line">
+                      <p key={i} className="text-foreground/90 leading-relaxed mb-4 whitespace-pre-line">
                         {paragraph}
                       </p>
                     );

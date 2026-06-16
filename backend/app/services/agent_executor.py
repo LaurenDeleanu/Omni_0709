@@ -424,8 +424,45 @@ async def _execute_agent_run_inner(
 
         # 5. Exec Loop Patterns (Plan-Execute or ReAct or Standard loop)
         agent_settings = agent.agent_settings or {}
-        use_plan_execute = agent_settings.get("use_plan_execute", False)
         
+        use_blackboard_orchestrator = agent_settings.get("use_blackboard_orchestrator", False)
+        if use_blackboard_orchestrator:
+            from app.services.blackboard import BlackboardSession
+            session_id = input_payload.get("blackboard_session_id")
+            if not session_id:
+                session_id = await BlackboardSession.create_session(task_description=user_msg, metadata={"original_agent": agent_id})
+                trace_steps.append({"step": "blackboard_session_created", "session_id": session_id})
+            
+            bb_prompt = f"You are participating in Blackboard Session {session_id}. Provide a well-reasoned hypothesis or validate existing ones."
+            messages.append({"role": "system", "content": bb_prompt})
+            
+            response, llm_latency, used_model = await _call_llm_with_cascade(
+                agent=agent, db=db, messages=messages,
+                tools=active_tools if active_tools else None,
+                temperature=agent.ai_temperature, trace_steps=trace_steps,
+            )
+            
+            final_text = response.choices[0].message.content or ""
+            hyp_id = await BlackboardSession.post_hypothesis(session_id, agent_id, final_text)
+            trace_steps.append({"step": "blackboard_hypothesis_posted", "hypothesis_id": hyp_id})
+            
+            safe_text = f"Blackboard Session {session_id} active. Hypothesis {hyp_id} posted. Awaiting peer validation.\n\n{final_text}"
+            
+            run_log.status = "success"
+            run_log.output_result = {"reply": safe_text, "blackboard_session_id": session_id}
+            run_log.latency_ms = int((time.monotonic() - start_time) * 1000)
+            run_log.execution_trace = json.dumps(trace_steps, ensure_ascii=False)
+            
+            await apply_reseller_billing(agent, db, run_log.cost_usd, input_payload)
+            await db.commit()
+            await db.refresh(run_log)
+            try:
+                release_run_slot(tenant)
+            except Exception:
+                pass
+            return {"reply": safe_text, "blackboard_session_id": session_id}
+
+        use_plan_execute = agent_settings.get("use_plan_execute", False)
         if use_plan_execute:
             from app.services.plan_execute import PlanExecuteLoop
             plan_tools = active_tools if active_tools else None

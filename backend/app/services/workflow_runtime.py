@@ -2,19 +2,22 @@ import json
 import logging
 import asyncio
 from typing import Dict, Any, Optional
+from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.models.workflow_step import WorkflowStep
-from app.models.workflow_trigger import WorkflowTrigger
+from app.models.visual_workflow import VisualWorkflow
 
 logger = logging.getLogger("successcore.workflow_runtime")
 
 TRANSPARENT_STEPS = {
     "CONDITION", "API_CALL", "AB_TEST", "ADD_TO_CART", "CREATE_LEAD",
     "HUMAN_TAKEOVER", "CALL_WORKFLOW", "CRM_ACTION", "DATA_TRANSFORM",
-    "CODE_GENERATE", "GIT_COMMIT", "APPROVAL_GATE", "AI_DECISION", "NOTIFICATION",
+    "CODE_GENERATE", "GIT_COMMIT", "APPROVAL_GATE", "AI_DECISION", "NOTIFICATION", "APPROVAL"
 }
+
+DEFAULT_TIMEOUT = 30
 
 
 async def _execute_transparent_step(step: dict, collected_data: dict) -> dict:
@@ -70,8 +73,10 @@ async def _execute_transparent_step(step: dict, collected_data: dict) -> dict:
         collected_data["_condition_result"] = (str(actual) == str(value)) if operator == "==" else (str(actual) != str(value))
         return {"status": "completed", "data": collected_data}
 
-    if step_type == "HUMAN_TAKEOVER":
+    if step_type in ("HUMAN_TAKEOVER", "APPROVAL_GATE", "APPROVAL"):
         collected_data["_takeover"] = True
+        # For approvals, we can trigger notifications here.
+        # This aligns with Human-in-the-Loop validations.
         return {"status": "paused", "data": collected_data}
 
     return {"status": "completed", "data": collected_data}
@@ -79,7 +84,7 @@ async def _execute_transparent_step(step: dict, collected_data: dict) -> dict:
 
 async def execute_workflow_run(
     db: AsyncSession,
-    bot_id: str,
+    workflow_id: str,
     input_message: str,
     collected_data: Optional[dict] = None,
     current_step_id: Optional[str] = None,
@@ -89,15 +94,20 @@ async def execute_workflow_run(
     data = collected_data or {}
     data["_initial_message"] = input_message
 
+    # Ensure workflow exists
+    wf_res = await db.execute(select(VisualWorkflow).where(VisualWorkflow.id == workflow_id))
+    if not wf_res.scalar_one_or_none():
+         return {"status": "no_workflow", "message": "Workflow does not exist"}
+
     # Load the starting step
     if current_step_id:
         result = await db.execute(
-            select(WorkflowStep).where(WorkflowStep.id == current_step_id, WorkflowStep.bot_id == bot_id)
+            select(WorkflowStep).where(WorkflowStep.id == current_step_id, WorkflowStep.workflow_id == workflow_id)
         )
         step = result.scalar_one_or_none()
     else:
         result = await db.execute(
-            select(WorkflowStep).where(WorkflowStep.bot_id == bot_id).order_by(WorkflowStep.order.asc()).limit(1)
+            select(WorkflowStep).where(WorkflowStep.workflow_id == workflow_id).order_by(WorkflowStep.order.asc()).limit(1)
         )
         step = result.scalar_one_or_none()
 
@@ -108,7 +118,10 @@ async def execute_workflow_run(
     max_iterations = 50
     iteration = 0
 
-    current = {"id": step.id, "type": step.type, "label": step.label, "config": step.config, "order": step.order}
+    current = {
+        "id": step.id, "type": step.type, "label": step.label, 
+        "config": step.config, "order": step.order, "next_nodes": step.next_nodes
+    }
 
     while current and iteration < max_iterations:
         iteration += 1
@@ -148,7 +161,8 @@ async def execute_workflow_run(
             "step_id": current["id"], "type": step_type, "action": "visited",
             "duration_ms": int((datetime.now(timezone.utc) - step_start).total_seconds() * 1000),
         })
-        next_step = await resolve_next_step(db, bot_id, current, data)
+        
+        next_step = await resolve_next_step(db, workflow_id, current, data)
         current = next_step
 
     status = "completed" if current is None else "max_iterations"

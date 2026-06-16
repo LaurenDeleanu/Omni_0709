@@ -11,7 +11,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from app.api.v1 import users, imports, reports, employees, schedules, tenant, calendar, metadata, ai, it, finance, training, admin, hire, sales, work, pay, legal, rbac, grow, ops, intelligence, notifications, announcements, kudos, workflows, integrations, agents, harness, crm, git, monitoring, omni, billing, chat, search, bulk, comments, oauth, workflow_exec, bot_steps, email_templates, notification_prefs, plugins, slack, docusign, onboarding, approvals, public_agents, demo_recorder, benchmarks, surveys, reviews_360, interviews, time_tracking, checklists, manager, talent_grid, job_board, it_kb_enhanced, auto_onboard, interview_scheduler, it_auto_routing, tool_registry, signup, documents, marketplace, self_service, interview_kits, performance, dev_portal_api, webhooks_api, agent_budgets, agent_schedules, agent_triggers, employee_roles, hr_panel, tax_admin, health
+from app.api.v1 import users, imports, reports, employees, schedules, tenant, calendar, metadata, ai, it, finance, training, admin, hire, sales, work, pay, legal, rbac, grow, ops, intelligence, notifications, announcements, kudos, workflows, integrations, agents, harness, crm, git, monitoring, omni, billing, chat, search, bulk, comments, oauth, workflow_exec, visual_workflows, email_templates, notification_prefs, plugins, slack, docusign, onboarding, approvals, public_agents, demo_recorder, benchmarks, surveys, reviews_360, interviews, time_tracking, checklists, manager, talent_grid, job_board, it_kb_enhanced, auto_onboard, interview_scheduler, it_auto_routing, tool_registry, signup, documents, marketplace, self_service, interview_kits, performance, dev_portal_api, webhooks_api, agent_budgets, agent_schedules, agent_triggers, employee_roles, hr_panel, tax_admin, health
 from app.api.middleware.csrf import CSRFMiddleware
 from app.api.middleware.rate_limiter import PerClientRateLimiter
 from app.api.middleware.correlation import CorrelationMiddleware
@@ -253,7 +253,7 @@ app.include_router(bulk.router,       prefix=f"{settings.API_V1_STR}/bulk",     
 app.include_router(comments.router,   prefix=f"{settings.API_V1_STR}/comments",    tags=["Comments"])
 app.include_router(oauth.router,      prefix=f"{settings.API_V1_STR}/oauth",       tags=["OAuth2"])
 app.include_router(workflow_exec.router, prefix=f"{settings.API_V1_STR}/workflow-exec", tags=["Workflow Exec"])
-app.include_router(bot_steps.router,  prefix=f"{settings.API_V1_STR}/bots", tags=["Bot Steps"])
+app.include_router(visual_workflows.router,  prefix=f"{settings.API_V1_STR}/visual-workflows", tags=["Visual Workflows"])
 app.include_router(email_templates.router, prefix=f"{settings.API_V1_STR}/email-templates", tags=["Email Templates"])
 app.include_router(notification_prefs.router, prefix=f"{settings.API_V1_STR}/notification-prefs", tags=["Notification Prefs"])
 app.include_router(plugins.router, prefix=f"{settings.API_V1_STR}/plugins", tags=["Plugin Marketplace"])

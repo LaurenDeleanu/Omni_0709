@@ -112,7 +112,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ── NAV ──────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
@@ -152,7 +152,7 @@ export default function PricingPage() {
                 con tu empresa
               </span>
             </h1>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Todos los planes incluyen acceso a agentes de IA. Sin costes ocultos.
               Cambia de plan en cualquier momento.
             </p>
@@ -170,7 +170,7 @@ export default function PricingPage() {
                 className={`relative rounded-2xl p-6 border transition-all duration-300 ${
                   plan.highlighted
                     ? "bg-gradient-to-b from-indigo-600/10 to-violet-600/5 border-indigo-500/30 shadow-xl shadow-indigo-500/10 lg:scale-[1.02] scale-[1.02] md:scale-100"
-                    : "bg-white/3 border-white/5 hover:border-white/10"
+                    : "bg-card border-border/50 hover:border-border"
                 }`}
               >
                 {plan.highlighted && (
@@ -181,12 +181,12 @@ export default function PricingPage() {
                 <h3 className="text-foreground font-bold text-lg mb-1">{plan.name}</h3>
                 <div className="mb-2">
                   <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-slate-400 text-sm"> {plan.period}</span>
+                  <span className="text-muted-foreground text-sm"> {plan.period}</span>
                 </div>
-                <p className="text-slate-400 text-sm mb-6 leading-relaxed">{plan.description}</p>
+                <p className="text-muted-foreground text-sm mb-6 leading-relaxed">{plan.description}</p>
                 <ul className="space-y-2.5 mb-8">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
+                    <li key={f} className="flex items-start gap-2 text-sm text-foreground/90">
                       <Check className="h-4 w-4 text-indigo-400 flex-shrink-0 mt-0.5" />
                       {f}
                     </li>
@@ -197,7 +197,7 @@ export default function PricingPage() {
                   className={`block text-center py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
                     plan.highlighted
                       ? "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-foreground shadow-lg shadow-indigo-500/25"
-                      : "bg-white/5 border border-white/10 hover:bg-white/10 text-foreground"
+                      : "bg-muted/20 border border-border hover:bg-muted/30 text-foreground"
                   }`}
                 >
                   {plan.cta}
@@ -217,8 +217,8 @@ export default function PricingPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left py-4 px-4 text-slate-400 font-medium">Funcionalidad</th>
+                <tr className="border-b border-border">
+                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">Funcionalidad</th>
                   <th className="py-4 px-4 text-foreground font-semibold text-center">Gratuito</th>
                   <th className="py-4 px-4 text-foreground font-semibold text-center">Starter</th>
                   <th className="py-4 px-4 text-foreground font-semibold text-center bg-indigo-500/5">Pro</th>
@@ -227,12 +227,12 @@ export default function PricingPage() {
               </thead>
               <tbody>
                 {comparisonFeatures.map((row, i) => (
-                  <tr key={row.name} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="py-3 px-4 text-slate-300">{row.name}</td>
-                    <td className="py-3 px-4 text-slate-400 text-center">{row.free}</td>
-                    <td className="py-3 px-4 text-slate-400 text-center">{row.starter}</td>
+                  <tr key={row.name} className="border-b border-border/50 hover:bg-muted/5">
+                    <td className="py-3 px-4 text-foreground/90">{row.name}</td>
+                    <td className="py-3 px-4 text-muted-foreground text-center">{row.free}</td>
+                    <td className="py-3 px-4 text-muted-foreground text-center">{row.starter}</td>
                     <td className="py-3 px-4 text-indigo-300 text-center bg-indigo-500/[0.03]">{row.pro}</td>
-                    <td className="py-3 px-4 text-slate-400 text-center">{row.enterprise}</td>
+                    <td className="py-3 px-4 text-muted-foreground text-center">{row.enterprise}</td>
                   </tr>
                 ))}
               </tbody>
@@ -242,7 +242,7 @@ export default function PricingPage() {
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────── */}
-      <section className="py-20 sm:py-28 bg-white/[0.02]">
+      <section className="py-20 sm:py-28 bg-muted/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12">
             Preguntas frecuentes
@@ -274,9 +274,9 @@ export default function PricingPage() {
                 a: "Sí. Ofrecemos integraciones nativas con Slack, DocuSign, y una API pública completa. El plan Enterprise incluye integraciones personalizadas a medida.",
               },
             ].map(({ q, a }) => (
-              <div key={q} className="bg-white/3 border border-white/5 rounded-xl p-5">
+              <div key={q} className="bg-card border border-border/50 rounded-xl p-5">
                 <h3 className="text-foreground font-semibold mb-2">{q}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{a}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{a}</p>
               </div>
             ))}
           </div>
@@ -287,7 +287,7 @@ export default function PricingPage() {
       <section className="py-20 text-center">
         <div className="max-w-2xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-4">¿Listo para empezar?</h2>
-          <p className="text-slate-400 text-lg mb-8">
+          <p className="text-muted-foreground text-lg mb-8">
             Comienza con el plan Gratuito y escala cuando lo necesites.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -303,9 +303,9 @@ export default function PricingPage() {
       </section>
 
       {/* ── FOOTER ───────────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 py-8">
+      <footer className="border-t border-border/50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-slate-600 text-sm">SuccessCore HR © 2026 · Todos los derechos reservados</p>
+          <p className="text-muted-foreground text-sm">SuccessCore HR © 2026 · Todos los derechos reservados</p>
         </div>
       </footer>
     </div>
