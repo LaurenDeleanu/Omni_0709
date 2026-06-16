@@ -16,6 +16,7 @@ async def get_or_create_session(
     user_id: str,
     agent_id: str,
     db: AsyncSession,
+    tenant_id: str = "acme_corp",
 ) -> AgentSession:
     cutoff = datetime.now(timezone.utc) - timedelta(hours=SESSION_MAX_AGE_HOURS)
 
@@ -42,6 +43,7 @@ async def get_or_create_session(
         id=uuid.uuid4().hex,
         user_id=user_id,
         agent_id=agent_id,
+        tenant_id=tenant_id,
         conversation_history=[],
         status="active",
         total_turns=0,

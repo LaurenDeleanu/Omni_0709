@@ -201,7 +201,7 @@ async def run_platform_copilot(
         agent = await _get_or_create_copilot_agent(db)
         agent_id = agent.id
 
-        session = await get_or_create_session(user_id, agent_id, db)
+        session = await get_or_create_session(user_id, agent_id, db, tenant_id=user_payload["tenant_id"])
         history_messages = await load_session_as_messages(session.id, 20, db)
 
         # Query platform knowledge based on the user's message
@@ -323,7 +323,7 @@ async def stream_platform_copilot(
         user_roles = user_payload["roles"]
 
         agent = await _get_or_create_copilot_agent(db)
-        session = await get_or_create_session(user_id, agent.id, db)
+        session = await get_or_create_session(user_id, agent.id, db, tenant_id=user_payload["tenant_id"])
         await save_conversation_turn(session.id, "user", body.message, db)
 
         # Detect delegation in streaming
