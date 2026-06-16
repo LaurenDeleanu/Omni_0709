@@ -114,17 +114,30 @@ async def check_agent_health(agent_id: str, db: AsyncSession) -> Dict[str, Any]:
             f"consecutive_fails={consecutive_failures}"
         )
 
-    return {
+    health_data = {
         "agent_id": agent_id,
         "agent_name": agent.name,
         "status": status,
         "response_time_ms": response_time_ms,
+        "success": success,
         "error_message": error_message,
         "recent_success_rate": success_rate,
         "consecutive_failures": consecutive_failures,
         "is_circuit_breaker_open": consecutive_failures >= 5,
         "checked_at": datetime.now(timezone.utc).isoformat(),
+        "total_runs_1h": total,
+        "success_count_1h": successes,
+        "fail_count_1h": fail_count,
     }
+
+    await set_agent_health_cache(agent_id, {
+        "healthy": status == "healthy",
+        "latency_ms": response_time_ms,
+        "consecutive_failures": consecutive_failures,
+        "status": status,
+    })
+
+    return health_data
 
 
 async def monitor_all_agents(db_session_factory):
@@ -176,128 +189,7 @@ async def set_agent_health_cache(agent_id: str, data: Dict[str, Any]):
         _health_cache[agent_id] = data
 
 
-async def check_agent_health(agent_id: str, db: AsyncSession) -> Dict[str, Any]:
-    import time as _time
 
-    agent_result = await db.execute(select(Agent).where(Agent.id == agent_id))
-    agent = agent_result.scalar_one_or_none()
-    if not agent:
-        return {"status": "not_found", "agent_id": agent_id}
-
-    start_ts = _time.monotonic()
-    success = False
-    error_message = None
-
-    run_stmt = (
-        select(
-            func.count(AgentExecutionRun.id).label("total"),
-            safunc.sum(
-                case(
-                    (AgentExecutionRun.status == "success", 1), else_=0
-                )
-            ).label("successes"),
-            safunc.sum(
-                case(
-                    (AgentExecutionRun.status == "failed", 1), else_=0
-                )
-            ).label("failures"),
-        )
-        .where(
-            AgentExecutionRun.agent_id == agent_id,
-            AgentExecutionRun.created_at >= func.now() - func.make_interval(0, 0, 0, 0, 1, 0, 0),
-        )
-    )
-    run_result = await db.execute(run_stmt)
-    row = run_result.one_or_none()
-
-    total = int(row.total or 0)
-    successes = int(row.successes or 0)
-    fail_count = int(row.failures or 0)
-    success_rate = round(successes / total, 4) if total > 0 else 1.0
-
-    consecutive_failures = 0
-    recent_runs_result = await db.execute(
-        select(AgentExecutionRun.status)
-        .where(AgentExecutionRun.agent_id == agent_id)
-        .order_by(AgentExecutionRun.created_at.desc())
-        .limit(10)
-    )
-    for status in recent_runs_result.scalars().all():
-        if status == "failed":
-            consecutive_failures += 1
-        else:
-            break
-
-    try:
-        from app.services.llm_router import get_llm_client, get_dynamic_models
-        test_message = "ping"
-        client, _ = await get_llm_client(agent.ai_model, agent, db)
-        response = await asyncio.wait_for(
-            client.chat.completions.create(
-                model=agent.ai_model,
-                messages=[{"role": "user", "content": test_message}],
-                max_tokens=5,
-                temperature=0,
-            ),
-            timeout=HEALTH_PING_TIMEOUT_SECONDS,
-        )
-        if response and response.choices:
-            success = True
-    except asyncio.TimeoutError:
-        error_message = "health_check_timeout"
-    except Exception as e:
-        error_message = str(e)[:200]
-
-    response_time_ms = int((_time.monotonic() - start_ts) * 1000)
-
-    is_free_model = ":free" in (agent.ai_model or "")
-    latency_threshold = HEALTH_FREE_MODEL_LATENCY_MS if is_free_model else DEGRADED_LATENCY_THRESHOLD_MS
-
-    status = "healthy"
-    if not success:
-        status = "unhealthy"
-    elif consecutive_failures >= 3:
-        status = "degraded"
-    elif success_rate < DEGRADED_SUCCESS_RATE_THRESHOLD:
-        status = "degraded"
-    elif response_time_ms > latency_threshold:
-        status = "degraded"
-
-    health_record = AgentHealthRecord(
-        id=uuid.uuid4().hex,
-        agent_id=agent_id,
-        status=status,
-        response_time_ms=response_time_ms,
-        error_message=error_message,
-        tenant_id=agent.tenant_id,
-    )
-    db.add(health_record)
-    await db.flush()
-
-    health_data = {
-        "agent_id": agent_id,
-        "agent_name": agent.name,
-        "status": status,
-        "response_time_ms": response_time_ms,
-        "success": success,
-        "error_message": error_message,
-        "recent_success_rate": success_rate,
-        "consecutive_failures": consecutive_failures,
-        "is_circuit_breaker_open": consecutive_failures >= 5,
-        "checked_at": datetime.now(timezone.utc).isoformat(),
-        "total_runs_1h": total,
-        "success_count_1h": successes,
-        "fail_count_1h": fail_count,
-    }
-
-    await set_agent_health_cache(agent_id, {
-        "healthy": status == "healthy",
-        "latency_ms": response_time_ms,
-        "consecutive_failures": consecutive_failures,
-        "status": status,
-    })
-
-    return health_data
 
 
 async def get_all_agents_health_summary(db: AsyncSession) -> Dict[str, Any]:
