@@ -558,6 +558,7 @@ export function AiChatWidget() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-950/30">
             {filteredMessages.map((msg, msgIndex) => {
               const isAssistant = msg.role === "assistant";
+              return (
                 <MessageBubble
                   key={msg.id}
                   msg={msg}
@@ -573,6 +574,7 @@ export function AiChatWidget() {
                   handleFeedbackComment={handleFeedbackComment}
                   submitFeedbackComment={submitFeedbackComment}
                 />
+              );
             })}
 
             {isStreaming && text && (

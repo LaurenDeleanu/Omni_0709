@@ -10,9 +10,11 @@ export function LocaleSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleLocaleChange = (newLocale: string) => {
+  const handleLocaleChange = (newLocale: string | null) => {
     // router.replace accepts the pathname and options with the new locale
-    router.replace(pathname, { locale: newLocale });
+    if (newLocale) {
+      router.replace(pathname, { locale: newLocale });
+    }
   };
 
   return (

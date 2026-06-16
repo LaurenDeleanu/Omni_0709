@@ -378,7 +378,7 @@ export function NodeEditorFields(props: NodeEditorProps) {
                 <>
                   <option value="llama-3.1-8b-instant">Groq Llama 3.1 8B</option>
                   <option value="google/gemini-1.5-flash">Gemini 1.5 Flash</option>
-                </<>
+                </>
               )}
             </select>
           </div>
@@ -420,7 +420,7 @@ export function NodeEditorFields(props: NodeEditorProps) {
                 <>
                   <option value="llama-3.1-8b-instant">Groq Llama 3.1 8B</option>
                   <option value="google/gemini-1.5-flash">Gemini 1.5 Flash</option>
-                </<>
+                </>
               )}
             </select>
           </div>
