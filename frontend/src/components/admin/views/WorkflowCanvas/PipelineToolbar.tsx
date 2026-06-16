@@ -33,7 +33,7 @@ export default function PipelineToolbar({
       <div className="flex flex-wrap items-center gap-3">
         {/* Shortcut to AI Lab (Open Question 3 Answer) */}
         <Link 
-          href="/admin/agent"
+          href="/dashboard/agents"
           className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5 border border-purple-500/30 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 rounded-xl transition-all"
         >
           <Bot className="w-3.5 h-3.5 animate-pulse" />
