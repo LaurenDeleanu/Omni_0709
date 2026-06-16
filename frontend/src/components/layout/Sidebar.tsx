@@ -10,6 +10,7 @@ import { useUser } from "@/hooks/use-user";
 import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import { NotificationAPI, type Notification } from "@/lib/api";
+import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 
 const NAV_ITEMS = [
   { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -263,7 +264,10 @@ export function Sidebar({ className, variant = "desktop" }: { className?: string
           </a>
         )}
         {!isMobile && (
-          <ThemeToggle />
+          <>
+            <ThemeToggle />
+            <LocaleSwitcher />
+          </>
         )}
       </div>
     </aside>

@@ -10,13 +10,30 @@ from app.core.config import settings
 from app.models.agent import Agent
 from app.models.workflow_step import WorkflowStep
 from app.models.workflow_trigger import WorkflowTrigger
+import hmac
+import hashlib
 
 
-def _verify_webhook_signature(request: Request):
+async def _verify_webhook_signature(request: Request):
     secret = os.getenv("WEBHOOK_SECRET", settings.SECRET_KEY)
-    token = request.headers.get("X-Webhook-Secret") or request.headers.get("X-Hub-Signature")
-    if not token or token != secret:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+    signature = request.headers.get("X-Hub-Signature")
+    
+    if not signature:
+        token = request.headers.get("X-Webhook-Secret")
+        if not token or token != secret:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+        return True
+
+    body = await request.body()
+    key = secret.encode("utf-8")
+    computed_hash = hmac.new(key, body, hashlib.sha256).hexdigest()
+    
+    expected_signature = signature
+    if signature.startswith("sha256="):
+        expected_signature = signature[7:]
+        
+    if not hmac.compare_digest(computed_hash, expected_signature):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid HMAC signature")
     return True
 from app.services.workflow_runtime import execute_workflow_run
 from app.services.workflow_export_import import export_workflow, import_workflow
@@ -328,7 +345,7 @@ async def webhook_trigger(
     request: Request,
     db: AsyncSession = Depends(get_tenant_db),
 ):
-    _verify_webhook_signature(request)
+    await _verify_webhook_signature(request)
     result = await db.execute(select(WorkflowTrigger).where(WorkflowTrigger.id == trigger_id))
     trigger = result.scalar_one_or_none()
     if not trigger:

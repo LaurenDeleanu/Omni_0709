@@ -9,55 +9,10 @@ import { toast } from "sonner";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { useSSE } from "@/hooks/use-sse";
 
-interface TraceStep {
-  step: number;
-  tool: string;
-  thought: string;
-  latencyMs?: number;
-}
-
-interface ToolTraceStep {
-  type: "tool_call";
-  tool: string;
-  args?: Record<string, unknown>;
-  status: "running" | "completed";
-  result?: string;
-}
-
-interface RunLog {
-  runId: string;
-  status: string;
-  latencyMs: number;
-  tokenUsage: number;
-  costUsd: number;
-  model?: string;
-  trace?: TraceStep[];
-  toolTrace?: ToolTraceStep[];
-}
-
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  mode: "copilot" | "omni";
-  trace?: TraceStep[];
-  toolTrace?: ToolTraceStep[];
-  tokensUsed?: number;
-  costUsd?: number;
-  feedbackMessageId?: string;
-  feedback?: "none" | "up" | "down";
-  feedbackComment?: string;
-  showFeedbackInput?: boolean;
-  approvalRequestId?: string;
-  approvalStatus?: "pending" | "approved" | "rejected";
-  runLog?: RunLog;
-}
-
-const MODEL_OPTIONS = [
-  { value: "gpt-4o-mini", label: "Fast (GPT-4o-mini)" },
-  { value: "gpt-4o", label: "Balanced (GPT-4o)" },
-  { value: "o1-mini", label: "Reasoning (o1-mini)" },
-];
+import { MessageBubble } from "./MessageBubble";
+import { ChatModelSelector, MODEL_OPTIONS } from "./ChatModelSelector";
+import { RunLogsModal } from "./RunLogsModal";
+import { Message, TraceStep, ToolTraceStep, RunLog } from "./types";
 
 function getModuleContextFromPath(pathname: string): string {
   const segments = pathname.split("/").filter(Boolean);
@@ -143,6 +98,10 @@ export function AiChatWidget() {
     }
   }, []);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modelSelectorRef.current && !modelSelectorRef.current.contains(e.target as Node)) {
@@ -152,10 +111,6 @@ export function AiChatWidget() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
     if (isOpen) scrollToBottom();
@@ -555,34 +510,10 @@ export function AiChatWidget() {
                     Session: ${sessionCost.toFixed(2)}
                   </span>
                 )}
-                <div ref={modelSelectorRef} className="relative">
-                  <button
-                    onClick={() => setShowModelSelector(!showModelSelector)}
-                    className="text-zinc-500 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors"
-                    title="Change model"
-                  >
-                    <Settings size={16} />
-                  </button>
-                  {showModelSelector && (
-                    <div className="absolute top-full right-0 mt-1 w-52 bg-slate-900 border border-zinc-700 rounded-xl shadow-lg z-50 overflow-hidden">
-                      {MODEL_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => handleModelChange(opt.value)}
-                          className={`w-full text-left px-3 py-2 text-xs hover:bg-white/5 transition-colors flex items-center justify-between ${
-                            selectedModel === opt.value ? "text-violet-400 font-semibold" : "text-zinc-300"
-                          }`}
-                        >
-                          {opt.label}
-                          {selectedModel === opt.value && <span className="text-violet-400">✓</span>}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <span className="text-[10px] text-zinc-600 bg-slate-900 border border-zinc-800 px-2 py-0.5 rounded-full">
-                  {MODEL_OPTIONS.find(m => m.value === selectedModel)?.label.split(" ")[0]}
-                </span>
+                <ChatModelSelector
+                  selectedModel={selectedModel}
+                  handleModelChange={handleModelChange}
+                />
                 <button onClick={() => setIsOpen(false)} className="text-zinc-500 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors">
                   <X size={18} />
                 </button>
@@ -627,186 +558,21 @@ export function AiChatWidget() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-950/30">
             {filteredMessages.map((msg, msgIndex) => {
               const isAssistant = msg.role === "assistant";
-              return (
-                <div key={msg.id} className={`flex ${isAssistant ? "justify-start" : "justify-end"} animate-fade-in`}>
-                  <div className="flex gap-2 max-w-[85%]">
-                    {isAssistant && (
-                      <div className="w-7 h-7 rounded-full bg-indigo-950 border border-violet-500/20 flex items-center justify-center text-xs shrink-0 self-start shadow-inner">
-                        {msg.mode === "copilot" ? "🤖" : "🌌"}
-                      </div>
-                    )}
-                    <div className={`p-3.5 rounded-2xl text-xs leading-relaxed border ${isAssistant ? "bg-slate-900 border-zinc-800 text-zinc-200 rounded-tl-none" : "bg-gradient-to-r from-violet-950/70 to-indigo-950/70 border-violet-500/30 text-white rounded-tr-none"}`}>
-                      <MarkdownRenderer content={msg.content} />
-
-                      {isAssistant && msg.id !== "welcome" && !msg.id.startsWith("welcome-omni") && (
-                        <button
-                          type="button"
-                          onClick={() => speakMessage(msg.id, msg.content)}
-                          className={`mt-1.5 p-1 rounded transition-all ${
-                            speakingMsgId === msg.id
-                              ? "text-violet-400 bg-violet-500/10"
-                              : "text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
-                          }`}
-                          title={speakingMsgId === msg.id ? "Stop speaking" : "Read aloud"}
-                        >
-                          {speakingMsgId === msg.id ? <VolumeX size={13} /> : <Volume2 size={13} />}
-                        </button>
-                      )}
-
-                      {msg.approvalRequestId && (
-                        <div className="mt-3.5 border-t border-zinc-800 pt-2.5">
-                          <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-2">
-                            ⚠️ Acción Destructiva Requiere Aprobación
-                          </div>
-                          {msg.approvalStatus === "pending" || !msg.approvalStatus ? (
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleApprovalAction(msg.id, msgIndex, "approve")}
-                                className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30 rounded text-xs font-semibold transition-colors shadow-sm"
-                              >
-                                Aprobar
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleApprovalAction(msg.id, msgIndex, "reject")}
-                                className="px-3 py-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 rounded text-xs font-semibold transition-colors shadow-sm"
-                              >
-                                Rechazar
-                              </button>
-                            </div>
-                          ) : (
-                            <div className={`text-xs font-semibold flex items-center gap-1 ${msg.approvalStatus === "approved" ? "text-emerald-400" : "text-red-400"}`}>
-                              {msg.approvalStatus === "approved" ? "✅ Aprobada" : "❌ Rechazada"}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {msg.toolTrace && msg.toolTrace.length > 0 && (
-                        <div className="mt-3.5 border-t border-zinc-800 pt-2.5">
-                          <button type="button" onClick={() => toggleTrace(msg.id)} className="flex items-center justify-between w-full text-[10px] text-violet-400 hover:text-violet-300 font-bold uppercase tracking-wider">
-                            <span>Tool Traces ({msg.toolTrace.length} steps)</span>
-                            {expandedTraces[msg.id] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                          </button>
-                          {expandedTraces[msg.id] && (
-                            <div className="space-y-2 mt-2">
-                              {msg.toolTrace.map((step, sIdx) => (
-                                <div key={sIdx} className="bg-slate-950/50 border border-zinc-800 rounded-lg p-2.5">
-                                  <div className="flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-full ${step.status === "completed" ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]" : "bg-amber-400 animate-pulse shadow-[0_0_6px_rgba(251,191,36,0.5)]"}`} />
-                                    <span className="text-xs font-semibold text-indigo-400">Used tool: {step.tool}</span>
-                                    <span className={`text-[10px] font-bold ${step.status === "completed" ? "text-emerald-400" : "text-amber-400"}`}>
-                                      {step.status === "completed" ? "✓" : <Loader2 size={10} className="animate-spin inline" />}
-                                    </span>
-                                  </div>
-                                  {step.args && Object.keys(step.args).length > 0 && (
-                                    <div className="mt-1.5 text-[10px] text-zinc-500">
-                                      <span className="text-zinc-600 text-[9px] uppercase tracking-wider">Arguments: </span>
-                                      <code className="text-zinc-400 font-mono">{JSON.stringify(step.args)}</code>
-                                    </div>
-                                  )}
-                                  {step.result && (
-                                    <div className="mt-1.5 text-[10px] text-zinc-500">
-                                      <span className="text-zinc-600 text-[9px] uppercase tracking-wider">Result: </span>
-                                      <code className="text-zinc-400 font-mono break-all">{step.result}</code>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {msg.trace && msg.trace.length > 0 && (
-                        <div className="mt-3.5 border-t border-zinc-800 pt-2.5">
-                          <button type="button" onClick={() => toggleTrace(msg.id)} className="flex items-center justify-between w-full text-[10px] text-violet-400 hover:text-violet-300 font-bold uppercase tracking-wider">
-                            <span>Trazas ({msg.trace.length} steps)</span>
-                            {expandedTraces[msg.id] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                          </button>
-                          {expandedTraces[msg.id] && (
-                            <div className="relative border-l border-zinc-800 ml-1.5 pl-3.5 mt-2 space-y-3">
-                              {msg.trace.map((step, sIdx) => (
-                                <div key={sIdx} className="relative text-[10px] leading-normal text-zinc-400">
-                                  <div className="absolute -left-[18.5px] top-1 w-1.5 h-1.5 rounded-full border border-violet-500 bg-zinc-950 shadow-[0_0_4px_rgba(139,92,246,0.6)]" />
-                                  <div className="font-semibold text-zinc-300 uppercase tracking-widest text-[9px] mb-0.5">Step {step.step}: {step.tool}</div>
-                                  <p className="text-zinc-500 italic bg-black/30 p-1.5 rounded border border-zinc-900 leading-normal">"{step.thought}"</p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {isAssistant && msg.id !== "welcome" && !msg.id.startsWith("welcome-omni") && (
-                        <>
-                          <div className="mt-3 flex items-center gap-2 border-t border-zinc-800 pt-2.5">
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                disabled={feedbackSubmitting[msg.id]}
-                                onClick={() => handleFeedback(msg.id, msgIndex, "up")}
-                                className={`p-1 rounded transition-all ${
-                                  msg.feedback === "up"
-                                    ? "text-emerald-400 bg-emerald-500/10"
-                                    : "text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
-                                }`}
-                              >
-                                <ThumbsUp size={12} />
-                              </button>
-                              <button
-                                type="button"
-                                disabled={feedbackSubmitting[msg.id]}
-                                onClick={() => handleFeedback(msg.id, msgIndex, "down")}
-                                className={`p-1 rounded transition-all ${
-                                  msg.feedback === "down"
-                                    ? "text-red-400 bg-red-500/10"
-                                    : "text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
-                                }`}
-                              >
-                                <ThumbsDown size={12} />
-                              </button>
-                            </div>
-                            {msg.runLog && (
-                              <button
-                                type="button"
-                                onClick={() => setLogsModalMsg(msg)}
-                                className="p-1 rounded text-zinc-600 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all flex items-center gap-1"
-                                title="Ver logs de ejecucion"
-                              >
-                                <ScrollText size={12} />
-                                <span className="text-[9px] uppercase tracking-wider hidden group-hover:inline">Logs</span>
-                              </button>
-                            )}
-                            {msg.costUsd !== undefined && msg.costUsd > 0 && (
-                              <span className="text-[9px] text-zinc-600 ml-auto">~${msg.costUsd.toFixed(4)}</span>
-                            )}
-                          </div>
-                          {msg.showFeedbackInput && msg.feedback === "down" && (
-                            <div className="mt-2 flex gap-1.5">
-                              <input
-                                type="text"
-                                placeholder="What went wrong?"
-                                value={msg.feedbackComment || ""}
-                                onChange={(e) => handleFeedbackComment(msgIndex, e.target.value)}
-                                className="flex-1 bg-slate-800 border border-zinc-700 rounded-md px-2 py-1 text-[10px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-violet-500/50"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => submitFeedbackComment(msg.id, msgIndex)}
-                                className="text-[10px] text-violet-400 hover:text-violet-300 bg-slate-800 border border-zinc-700 rounded-md px-2 py-1 font-semibold"
-                              >
-                                Send
-                              </button>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
+                <MessageBubble
+                  key={msg.id}
+                  msg={msg}
+                  msgIndex={msgIndex}
+                  expandedTraces={expandedTraces}
+                  speakingMsgId={speakingMsgId}
+                  feedbackSubmitting={feedbackSubmitting}
+                  speakMessage={speakMessage}
+                  handleApprovalAction={handleApprovalAction}
+                  toggleTrace={toggleTrace}
+                  handleFeedback={handleFeedback}
+                  setLogsModalMsg={setLogsModalMsg}
+                  handleFeedbackComment={handleFeedbackComment}
+                  submitFeedbackComment={submitFeedbackComment}
+                />
             })}
 
             {isStreaming && text && (
@@ -882,7 +648,7 @@ export function AiChatWidget() {
       )}
 
       {logsModalMsg && logsModalMsg.runLog && (
-        <LogsModal
+        <RunLogsModal
           msg={logsModalMsg}
           onClose={() => setLogsModalMsg(null)}
           onCopy={handleCopyLog}
@@ -890,121 +656,5 @@ export function AiChatWidget() {
         />
       )}
     </>
-  );
-}
-
-function LogsModal({ msg, onClose, onCopy, copiedField }: {
-  msg: Message;
-  onClose: () => void;
-  onCopy: (log: RunLog) => void;
-  copiedField: string | null;
-}) {
-  const log = msg.runLog!;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-slate-950 border border-cyan-500/20 rounded-2xl w-[520px] max-h-[80vh] overflow-hidden flex flex-col shadow-[0_0_40px_rgba(6,182,212,0.15)]">
-        <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-slate-900/50">
-          <div className="flex items-center gap-2">
-            <Terminal size={14} className="text-cyan-400" />
-            <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Execution Logs</span>
-            <span className="text-[9px] text-zinc-600 font-mono">{log.runId.slice(0, 16)}...</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => onCopy(log)}
-              className="p-1.5 rounded-lg text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
-              title="Copiar logs"
-            >
-              {copiedField === log.runId ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition-all"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-3 overflow-y-auto custom-scrollbar bg-slate-950/50">
-          {/* Metrics */}
-          <div className="grid grid-cols-2 gap-2">
-            <LogMetric label="Status" value={log.status} color={log.status === "completed" ? "text-emerald-400" : log.status === "failed" ? "text-red-400" : "text-amber-400"} />
-            <LogMetric label="Latency" value={`${log.latencyMs}ms`} />
-            <LogMetric label="Tokens" value={log.tokenUsage.toLocaleString()} />
-            <LogMetric label="Cost" value={`$${log.costUsd.toFixed(6)}`} />
-            {log.model && <LogMetric label="Model" value={log.model} mono />}
-          </div>
-
-          {/* Traces */}
-          {log.trace && log.trace.length > 0 && (
-            <div>
-              <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Traces ({log.trace.length} steps)</div>
-              <div className="space-y-1.5 max-h-[200px] overflow-y-auto custom-scrollbar bg-slate-900/50 rounded-lg p-2.5 border border-zinc-800">
-                {log.trace.map((step, sIdx) => (
-                  <div key={sIdx} className="flex gap-2 text-[10px]">
-                    <span className="text-violet-400 font-mono shrink-0">[{step.step}]</span>
-                    <span className="text-cyan-400 font-semibold shrink-0">{step.tool}</span>
-                    <span className="text-zinc-500 truncate">&mdash; &ldquo;{step.thought}&rdquo;</span>
-                    {step.latencyMs && <span className="text-zinc-600 ml-auto shrink-0">{step.latencyMs}ms</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Tool Calls */}
-          {log.toolTrace && log.toolTrace.length > 0 && (
-            <div>
-              <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Tool Calls ({log.toolTrace.length})</div>
-              <div className="space-y-1.5 max-h-[200px] overflow-y-auto custom-scrollbar bg-slate-900/50 rounded-lg p-2.5 border border-zinc-800">
-                {log.toolTrace.map((step, sIdx) => (
-                  <div key={sIdx} className="text-[10px]">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full ${step.status === "completed" ? "bg-emerald-400" : "bg-amber-400 animate-pulse"}`} />
-                      <span className="text-indigo-400 font-semibold">{step.tool}</span>
-                      <span className="text-zinc-600 text-[9px] ml-auto">{step.status}</span>
-                    </div>
-                    {step.args && Object.keys(step.args).length > 0 && (
-                      <div className="mt-0.5 pl-4 text-zinc-500 font-mono text-[9px] break-all">
-                        args: {JSON.stringify(step.args)}
-                      </div>
-                    )}
-                    {step.result && (
-                      <div className="mt-0.5 pl-4 text-zinc-400 font-mono text-[9px] break-all max-h-[60px] overflow-y-auto">
-                        &rarr; {step.result}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Run ID footer */}
-          <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[9px] text-zinc-600 font-mono">
-              <span className="text-zinc-700">ID:</span>
-              <span className="text-zinc-500">{log.runId}</span>
-            </div>
-            <div className="flex items-center gap-1 text-[9px] text-zinc-600">
-              <Clock size={10} />
-              <span>{log.latencyMs}ms</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LogMetric({ label, value, color = "text-zinc-300", mono }: { label: string; value: string; color?: string; mono?: boolean }) {
-  return (
-    <div className="bg-slate-900/80 border border-zinc-800 rounded-lg p-2">
-      <div className="text-[8px] uppercase tracking-wider text-zinc-600 mb-0.5">{label}</div>
-      <div className={`text-xs font-semibold ${color} ${mono ? "font-mono text-[11px]" : ""}`}>{value}</div>
-    </div>
   );
 }

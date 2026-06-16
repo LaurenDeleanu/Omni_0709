@@ -70,25 +70,16 @@ async def check_agent_health(agent_id: str, db: AsyncSession) -> Dict[str, Any]:
         else:
             break
 
-    try:
-        from app.services.llm_router import get_llm_client, get_dynamic_models
-        test_message = "ping"
-        client, _ = await get_llm_client(agent.ai_model, agent, db)
-        response = await asyncio.wait_for(
-            client.chat.completions.create(
-                model=agent.ai_model,
-                messages=[{"role": "user", "content": test_message}],
-                max_tokens=5,
-                temperature=0,
-            ),
-            timeout=HEALTH_PING_TIMEOUT_SECONDS,
-        )
-        if response and response.choices:
-            success = True
-    except asyncio.TimeoutError:
-        error_message = "health_check_timeout"
-    except Exception as e:
-        error_message = str(e)[:200]
+    # Passive health check: no active LLM pings to save API quota
+    if consecutive_failures >= 3:
+        success = False
+        error_message = f"{consecutive_failures} consecutive execution failures"
+    elif success_rate < DEGRADED_SUCCESS_RATE_THRESHOLD and total >= 5:
+        success = False
+        error_message = f"Success rate dropped to {success_rate*100}%"
+    else:
+        success = True
+        error_message = None
 
     response_time_ms = int((_time.monotonic() - start_ts) * 1000)
 

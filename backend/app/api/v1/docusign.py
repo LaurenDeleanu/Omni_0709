@@ -7,6 +7,9 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from app.services import docusign_service
 from app.core.config import settings
+import hmac
+import hashlib
+import base64
 
 from app.api.dependencies import get_current_user
 from fastapi import Depends
@@ -19,10 +22,21 @@ router = APIRouter()
 WEBHOOK_SECRET = os.getenv("DOCUSIGN_WEBHOOK_SECRET", settings.SECRET_KEY)
 
 
-def _verify_webhook(request: Request):
-    token = request.headers.get("X-Docusign-Signature") or request.headers.get("X-Webhook-Secret")
-    if not token or token != WEBHOOK_SECRET:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+async def _verify_webhook(request: Request):
+    signature = request.headers.get("X-Docusign-Signature-1")
+    if not signature:
+        token = request.headers.get("X-Docusign-Signature") or request.headers.get("X-Webhook-Secret")
+        if not token or token != WEBHOOK_SECRET:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+        return True
+
+    body = await request.body()
+    key = WEBHOOK_SECRET.encode("utf-8")
+    computed_hash = hmac.new(key, body, hashlib.sha256).digest()
+    computed_signature = base64.b64encode(computed_hash).decode("utf-8")
+    
+    if not hmac.compare_digest(computed_signature, signature):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid HMAC signature")
     return True
 
 
@@ -76,7 +90,7 @@ async def send_for_signature(request: Request, req: SendEnvelopeRequest, current
 
 @router.post("/webhook", status_code=status.HTTP_200_OK)
 async def docusign_webhook(event: dict, request: Request):
-    _verify_webhook(request)
+    await _verify_webhook(request)
     envelope_id = event.get("envelopeId") or event.get("envelope_id", "unknown")
     envelope_status = event.get("status") or event.get("event", "unknown")
 
