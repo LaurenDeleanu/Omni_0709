@@ -8,8 +8,6 @@ interface NodeEditorProps {
   handleFieldChange: (key: string, value: any) => void;
   handleConfigChange: (config: any) => void;
   steps: Step[];
-  products: any[];
-  schedules: any[];
   dynamicModels: any[];
   editingStepId: string;
 }
@@ -19,7 +17,7 @@ export function BranchLogicEditor({
   handleFieldChange,
   steps,
   editingStepId
-}: Omit<NodeEditorProps, "handleConfigChange" | "products" | "schedules" | "dynamicModels" | "stepType">) {
+}: Omit<NodeEditorProps, "handleConfigChange" | "dynamicModels" | "stepType">) {
   const branches = Array.isArray(config.branches) ? config.branches : [];
   
   const addRule = () => {

@@ -36,7 +36,7 @@ const nodeTypes = {
 
 export default function PipelineCanvas({
   steps,
-  botId,
+  workflowId,
   onEdit,
   fetchSteps,
   onSaveStep,
@@ -46,7 +46,7 @@ export default function PipelineCanvas({
   setCanvasEdges
 }: {
   steps: any[];
-  botId: string;
+  workflowId: string;
   onEdit: (step: any) => void;
   fetchSteps: () => void;
   onSaveStep: (stepId: string, updatedData: Partial<any>) => Promise<void>;

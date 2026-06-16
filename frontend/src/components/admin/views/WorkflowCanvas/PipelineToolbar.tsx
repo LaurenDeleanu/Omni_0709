@@ -4,7 +4,7 @@ import { Bot, Play, LayoutDashboard, GitFork, RefreshCw, Layout } from "lucide-r
 import { Link } from "@/i18n/routing";
 
 export default function PipelineToolbar({
-  botId,
+  workflowId,
   viewMode,
   setViewMode,
   onAutoLayout,
@@ -12,7 +12,7 @@ export default function PipelineToolbar({
   setShowSimulator,
   onAddStep
 }: {
-  botId: string;
+  workflowId: string;
   viewMode: "linear" | "canvas";
   setViewMode: (v: "linear" | "canvas") => void;
   onAutoLayout: () => void;

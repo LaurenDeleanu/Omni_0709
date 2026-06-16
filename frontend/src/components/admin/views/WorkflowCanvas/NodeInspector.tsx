@@ -10,8 +10,7 @@ export default function NodeInspector({
   editingStep,
   setEditingStep,
   steps,
-  products = [],
-  schedules = [],
+
   dynamicModels = [],
   onSave,
   onClose,
@@ -21,8 +20,7 @@ export default function NodeInspector({
   editingStep: Step;
   setEditingStep: (s: Step | null) => void;
   steps: Step[];
-  products: any[];
-  schedules: any[];
+
   dynamicModels: any[];
   onSave: (stepId: string, updatedData: Partial<Step>) => Promise<void>;
   onClose: () => void;
@@ -135,8 +133,6 @@ export default function NodeInspector({
           handleFieldChange={handleFieldChange}
           handleConfigChange={handleConfigChange}
           steps={steps}
-          products={products}
-          schedules={schedules}
           dynamicModels={dynamicModels}
           editingStepId={editingStep.id}
         />

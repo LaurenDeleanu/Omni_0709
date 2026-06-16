@@ -3,10 +3,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { X, Send, AlertCircle, RefreshCw } from "lucide-react";
 
 export default function SimulatorPanel({
-  botId,
+  workflowId,
   onClose
 }: {
-  botId: string;
+  workflowId: string;
   onClose: () => void;
 }) {
   const [messages, setMessages] = useState<{ sender: "user" | "bot" | "system", text: string, options?: string[] }[]>([]);
@@ -19,7 +19,7 @@ export default function SimulatorPanel({
     setMessages([
       { sender: "system", text: "¡Simulador activado! Escribe cualquier mensaje para simular y probar tu flujo conversacional interactivo." }
     ]);
-  }, [botId]);
+  }, [workflowId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -40,11 +40,11 @@ export default function SimulatorPanel({
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/chat/${botId}`, {
+      const res = await fetch(`/api/chat/${workflowId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId: "simulator_" + botId,
+          sessionId: "simulator_" + workflowId,
           message: textToSend
         })
       });
@@ -76,7 +76,7 @@ export default function SimulatorPanel({
   const handleResetSession = async () => {
     try {
       setLoading(true);
-      await fetch(`/api/chat/${botId}?sessionId=simulator_${botId}`, {
+      await fetch(`/api/chat/${workflowId}?sessionId=simulator_${workflowId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" }
       });

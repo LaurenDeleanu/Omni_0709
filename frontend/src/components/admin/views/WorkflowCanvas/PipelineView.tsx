@@ -20,12 +20,12 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL
   : "http://localhost:8080";
 
 export default function PipelineView({
-  botId,
+  workflowId,
   userTier = "FREE",
   onUpgradeClick,
   dynamicModels = []
 }: {
-  botId: string;
+  workflowId: string;
   userTier?: string;
   onUpgradeClick?: () => void;
   dynamicModels: any[];
@@ -41,7 +41,7 @@ export default function PipelineView({
     reorderSteps,
     getCollectedVariables,
     fetchSteps
-  } = usePipelineState(botId);
+  } = usePipelineState(workflowId);
 
   const [viewMode, setViewMode] = useState<"linear" | "canvas">("canvas");
   const [showSimulator, setShowSimulator] = useState(false);
@@ -53,38 +53,9 @@ export default function PipelineView({
   const [newStepConfig, setNewStepConfig] = useState<any>({});
   const [newStepPosition, setNewStepPosition] = useState<{ x: number; y: number } | undefined>(undefined);
 
-  const [products, setProducts] = useState<any[]>([]);
-  const [schedules, setSchedules] = useState<any[]>([]);
-
   // Canvas Nodes & Edges visual state
   const [canvasNodes, setCanvasNodes] = useState<Node[]>([]);
   const [canvasEdges, setCanvasEdges] = useState<Edge[]>([]);
-
-  // Load products & schedules on mounts
-  useEffect(() => {
-    async function loadResources() {
-      try {
-        const prodRes = await fetch(`${API_BASE}/api/bots/${botId}/products`, { credentials: "include" });
-        if (prodRes.ok) {
-          const d = await prodRes.json();
-          setProducts(d.products || []);
-        }
-      } catch (e) {
-        console.error("Failed loading products", e);
-      }
-
-      try {
-        const schRes = await fetch(`${API_BASE}/api/bots/schedules`, { credentials: "include" });
-        if (schRes.ok) {
-          const d = await schRes.json();
-          setSchedules(d.schedules || []);
-        }
-      } catch (e) {
-        console.error("Failed loading schedules", e);
-      }
-    }
-    loadResources();
-  }, [botId]);
 
   // Trigger opening step configuration modal before adding to canvas
   const triggerStepConfiguration = (type: string, label: string, position?: { x: number; y: number }) => {
@@ -166,7 +137,7 @@ export default function PipelineView({
     <div className="p-8 animate-fade-in flex flex-col h-[calc(100vh-100px)] relative overflow-hidden select-none">
       {/* 1. Header toolbar */}
       <PipelineToolbar 
-        botId={botId}
+        workflowId={workflowId}
         viewMode={viewMode}
         setViewMode={setViewMode}
         onAutoLayout={handleAutoLayout}
@@ -198,7 +169,7 @@ export default function PipelineView({
               {steps.length > 0 ? (
                 <PipelineCanvas 
                   steps={steps}
-                  botId={botId}
+                  workflowId={workflowId}
                   onEdit={setEditingStep}
                   fetchSteps={fetchSteps}
                   onSaveStep={updateStep}
@@ -227,7 +198,7 @@ export default function PipelineView({
               {showSimulator && (
                 <div className="absolute bottom-4 right-4 z-[99]">
                   <SimulatorPanel 
-                    botId={botId}
+                    workflowId={workflowId}
                     onClose={() => setShowSimulator(false)}
                   />
                 </div>
@@ -240,8 +211,7 @@ export default function PipelineView({
                 editingStep={editingStep}
                 setEditingStep={setEditingStep}
                 steps={steps}
-                products={products}
-                schedules={schedules}
+
                 dynamicModels={dynamicModels}
                 onSave={updateStep}
                 onClose={() => setEditingStep(null)}
@@ -646,10 +616,7 @@ export default function PipelineView({
                           value={newStepConfig.scheduleId || ""}
                           onChange={e => setNewStepConfig((prev: any) => ({ ...prev, scheduleId: e.target.value }))}
                         >
-                          <option value="">-- Google Calendar (Automático) --</option>
-                          {schedules.map(sch => (
-                            <option key={sch.id} value={sch.id}>{sch.name}</option>
-                          ))}
+                          <option value="">-- Calendario General (Automático) --</option>
                         </select>
                       </div>
                     </div>

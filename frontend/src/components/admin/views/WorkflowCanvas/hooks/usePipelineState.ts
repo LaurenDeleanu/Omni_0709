@@ -24,15 +24,16 @@ export interface VariableDescriptor {
   stepLabel: string;
 }
 
-export function usePipelineState(botId: string) {
+export function usePipelineState(workflowId: string) {
   const [steps, setSteps] = useState<Step[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchSteps = useCallback(async () => {
+    if (!workflowId) return;
     setIsLoading(true);
     try {
-      const d = await apiFetch(`/api/bots/${botId}/steps`);
+      const d = await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps`);
       setSteps(d.steps || []);
     } catch (e) {
       console.error(e);
@@ -40,7 +41,7 @@ export function usePipelineState(botId: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [botId]);
+  }, [workflowId]);
 
   useEffect(() => {
     fetchSteps();
@@ -54,7 +55,7 @@ export function usePipelineState(botId: string) {
       const parsedConfig = customConfig ? { ...customConfig } : JSON.parse(configStr);
       if (position) parsedConfig.position = position;
 
-      await apiFetch(`/api/bots/${botId}/steps`, {
+      await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps`, {
         method: "POST",
         body: JSON.stringify({ type, label: stepLabel, config: JSON.stringify(parsedConfig) }),
       });
@@ -72,7 +73,7 @@ export function usePipelineState(botId: string) {
     setIsSaving(true);
     setSteps(prev => prev.map(s => s.id === stepId ? { ...s, ...data } : s));
     try {
-      await apiFetch(`/api/bots/${botId}/steps/${stepId}`, { method: "PATCH", body: JSON.stringify(data) });
+      await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${stepId}`, { method: "PATCH", body: JSON.stringify(data) });
     } catch (e) {
       console.error(e);
       toast.error("Error al guardar el paso");
@@ -125,13 +126,13 @@ export function usePipelineState(botId: string) {
 
       // Perform cleanups sequentially
     for (const cleanup of stepsToCleanup) {
-      await apiFetch(`/api/bots/${botId}/steps/${cleanup.id}`, {
+      await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${cleanup.id}`, {
         method: "PATCH",
         body: JSON.stringify({ config: cleanup.config })
       });
     }
 
-    await apiFetch(`/api/bots/${botId}/steps/${stepId}`, { method: "DELETE" });
+    await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${stepId}`, { method: "DELETE" });
     toast.success("Paso eliminado con éxito");
     await fetchSteps();
     } catch (e) {
@@ -145,7 +146,7 @@ export function usePipelineState(botId: string) {
   const duplicateStep = async (stepId: string) => {
     setIsSaving(true);
     try {
-      const res = await apiFetch(`/api/bots/${botId}/steps/${stepId}/duplicate`, { method: "POST" });
+      const res = await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${stepId}/duplicate`, { method: "POST" });
       if (res.ok) {
         toast.success("Paso duplicado correctamente");
         await fetchSteps();
@@ -163,7 +164,7 @@ export function usePipelineState(botId: string) {
   const reorderSteps = async (newOrder: { id: string; order: number }[]) => {
     setIsSaving(true);
     try {
-      const res = await apiFetch(`/api/bots/${botId}/steps`, { method: "PUT", body: JSON.stringify({ steps: newOrder }) });
+      const res = await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps`, { method: "PUT", body: JSON.stringify({ steps: newOrder }) });
       if (res.ok) {
         await fetchSteps();
       } else {
