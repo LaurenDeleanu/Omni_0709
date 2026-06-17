@@ -376,7 +376,8 @@ async def _execute_agent_run_inner(
         token_usage=0,
         cost_usd=0.0,
         latency_ms=0,
-        execution_trace=""
+        execution_trace="",
+        tenant_id=input_payload.get("tenant_id", "unknown")
     )
     db.add(run_log)
     await db.flush()

@@ -305,6 +305,39 @@ async def export_all_agents(
     return {"agents": export_list, "total": len(export_list)}
 
 
+@router.get("/runtime-stats")
+async def get_runtime_stats_v2(db: AsyncSession = Depends(get_tenant_db)):
+    from app.services.runtime_monitor import executor_stats, heartbeat_tracker, get_task_supervisor
+    from sqlalchemy import func
+    import time
+    
+    total_agents = (await db.execute(select(func.count(Agent.id)))).scalar() or 0
+    active_agents = (await db.execute(select(func.count(Agent.id)).where(Agent.is_active == True))).scalar() or 0
+    
+    total_execs = max(executor_stats.total_executions, 1)
+    
+    supervisor = get_task_supervisor()
+    tasks_status = await supervisor.get_status()
+    
+    active_tasks = sum(1 for t in tasks_status.values() if t["status"] in ("starting", "running"))
+    completed_tasks = sum(1 for t in tasks_status.values() if t["status"] == "completed")
+    
+    return {
+        "runtime_stats": {
+            "healthy_agents": active_agents,
+            "total_agents": total_agents,
+            "active_executions": heartbeat_tracker.active_count,
+            "completed_executions": executor_stats.successful_executions,
+            "failed_executions": executor_stats.failed_executions,
+            "avg_response_ms": round(executor_stats.total_latency_ms / total_execs, 1),
+            "uptime_seconds": 0
+        },
+        "active_tasks": active_tasks,
+        "completed_tasks": completed_tasks,
+        "supervised_agents": list(tasks_status.keys())
+    }
+
+
 # ═══════════════════════════════════════════════════════════════════
 # Dynamic agent_id routes below — static routes must be above
 # ═══════════════════════════════════════════════════════════════════
@@ -1284,11 +1317,6 @@ async def get_model_catalog():
     from app.services.model_catalog import get_catalog_summary
     return {"models": get_catalog_summary()}
 
-
-@router.get("/runtime/stats", response_model=dict)
-async def get_runtime_stats():
-    from app.services.runtime_monitor import get_executor_health
-    return {"runtime_stats": get_executor_health()}
 
 
 @router.get("/runtime/tasks", response_model=dict)

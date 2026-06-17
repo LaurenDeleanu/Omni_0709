@@ -122,6 +122,9 @@ async def execute_agent_run_streaming(
     user_id = input_payload.get("user_id", "")
     tenant = input_payload.get("tenant_id", "unknown")
     run_log = None
+    trace_steps = []
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
 
     try:
         if idempotency_key and user_id:
@@ -162,7 +165,8 @@ async def execute_agent_run_streaming(
             token_usage=0,
             cost_usd=0.0,
             latency_ms=0,
-            execution_trace=""
+            execution_trace="",
+            tenant_id=tenant
         )
         db.add(run_log)
         await db.flush()
@@ -176,11 +180,8 @@ async def execute_agent_run_streaming(
         except Exception:
             pass
 
-        trace_steps = []
         messages = []
         final_text = ""
-        total_prompt_tokens = 0
-        total_completion_tokens = 0
 
         from app.services.concurrency_limiter import acquire_run_slot, release_run_slot
         if not await acquire_run_slot(tenant):
