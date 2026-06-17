@@ -53,6 +53,7 @@ async def get_kudos_feed(
     result = await db.execute(
         select(Kudos)
         .order_by(Kudos.created_at.desc())
+        .limit(50)
     )
     kudos_list = result.scalars().all()
     

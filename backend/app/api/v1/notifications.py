@@ -77,9 +77,9 @@ async def get_my_notifications(
         .order_by(Notification.created_at.desc())
     )
 
-    if page is not None:
-        result = await paginate_query(db, stmt, page=page, page_size=page_size)
-        return PaginatedResponse(**result)
+    limit = page_size if page_size else 50
+    offset = ((page or 1) - 1) * limit
+    stmt = stmt.limit(limit).offset(offset)
 
     exec_result = await db.execute(stmt)
     return exec_result.scalars().all()

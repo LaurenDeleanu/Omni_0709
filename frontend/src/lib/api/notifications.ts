@@ -13,7 +13,7 @@ export interface Notification {
 
 export const NotificationAPI = {
   getMyNotifications: async (): Promise<Notification[]> => {
-    const res = await fetchClient('/notifications');
+    const res = await fetchClient('/notifications?page=1&page_size=50');
     return res.items ?? res;
   },
   readAll: (): Promise<{ message: string }> => fetchClient('/notifications/read-all', { method: 'POST' }),
