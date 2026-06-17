@@ -278,9 +278,12 @@ async def get_dashboards(
 async def create_dashboard(
     data: DashboardCreate,
     db: AsyncSession = Depends(get_tenant_db),
-    _: dict = Depends(require_roles(["hr_admin"]))
+    current_user: dict = Depends(require_roles(["hr_admin"]))
 ):
-    db_dashboard = Dashboard(**data.model_dump())
+    tenant_id = current_user.get("tenant_id") or "default"
+    db_data = data.model_dump()
+    db_data["tenant_id"] = tenant_id
+    db_dashboard = Dashboard(**db_data)
     db.add(db_dashboard)
     await db.commit()
     await db.refresh(db_dashboard)
@@ -311,13 +314,16 @@ async def delete_dashboard(
 async def create_widget(
     data: DashboardWidgetCreate,
     db: AsyncSession = Depends(get_tenant_db),
-    _: dict = Depends(require_roles(["hr_admin"]))
+    current_user: dict = Depends(require_roles(["hr_admin"]))
 ):
     result = await db.execute(select(Dashboard).where(Dashboard.id == data.dashboard_id))
     if not result.scalars().first():
         raise HTTPException(status_code=404, detail="Dashboard not found")
 
-    db_widget = DashboardWidget(**data.model_dump())
+    tenant_id = current_user.get("tenant_id") or "default"
+    db_data = data.model_dump()
+    db_data["tenant_id"] = tenant_id
+    db_widget = DashboardWidget(**db_data)
     db.add(db_widget)
     await db.commit()
     await db.refresh(db_widget)
@@ -464,12 +470,14 @@ async def create_kpi_alert(
 ):
     sub = current_user.get("sub", "")
     user_id = sub.split("|")[-1] if "|" in sub else sub
+    tenant_id = current_user.get("tenant_id") or "default"
 
     alert = KpiAlert(
         widget_id=widget_id,
         user_id=user_id,
         condition=payload.condition,
-        threshold=payload.threshold
+        threshold=payload.threshold,
+        tenant_id=tenant_id
     )
     db.add(alert)
     await db.commit()

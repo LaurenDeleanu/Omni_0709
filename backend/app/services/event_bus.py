@@ -94,9 +94,11 @@ class EventBus:
         if self._redis_listener_task:
             self._redis_listener_task.cancel()
             try:
-                await self._redis_listener_task
+                await asyncio.wait_for(self._redis_listener_task, timeout=2.0)
             except asyncio.CancelledError:
                 pass
+            except Exception as e:
+                logger.warning(f"Error while stopping Redis listener: {e}")
 
 
 _event_bus = EventBus()
