@@ -142,10 +142,11 @@ async def get_dashboard_data(
             select(User.role, func.count(User.id)).group_by(User.role)
         )
         active_result = await db.execute(select(func.count()).select_from(User).where(User.is_active == True))
+        active_count = active_result.scalar() or 0
         data["headcount"] = {
             "total": total,
-            "active": active_result.scalar() or 0,
-            "inactive": total - (active_result.scalar() or 0),
+            "active": active_count,
+            "inactive": total - active_count,
             "by_department": [{"name": d or "Sin dept.", "count": c} for d, c in by_dept.all()],
             "by_role": [{"name": (r or "Sin rol").replace("_", " ").title(), "count": c} for r, c in by_role.all()],
         }
