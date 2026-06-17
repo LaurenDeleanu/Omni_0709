@@ -2,7 +2,7 @@
 
 import { usePathname } from "@/i18n/routing";
 import { Link } from "@/i18n/routing";
-import { LayoutDashboard, Users, Upload, Settings, PieChart, CalendarClock, Calendar, Laptop, CreditCard, GraduationCap, Shield, Briefcase, Presentation, TrendingUp, Target, Building, LineChart, User, Award, Sparkles, Network, Terminal, TestTube2, Activity, MessageCircle, Mail, Code, Server, Plug, FileText, GitCompare, Puzzle, Star, Clock, Globe, ChevronDown, Bell, HelpCircle, LogOut, DollarSign, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Users, Upload, Settings, PieChart, CalendarClock, Calendar, Laptop, CreditCard, GraduationCap, Shield, Briefcase, Presentation, TrendingUp, Target, Building, LineChart, User, Award, Sparkles, Network, Terminal, TestTube2, Activity, MessageCircle, Mail, Code, Server, Plug, FileText, GitCompare, Puzzle, Zap, Star, Clock, Globe, ChevronDown, Bell, HelpCircle, LogOut, DollarSign, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTenant } from "@/providers/tenant-provider";
@@ -113,6 +113,7 @@ export function Sidebar({ className, variant = "desktop" }: { className?: string
         { key: "document_templates", href: "/dashboard/admin/document-templates", icon: FileText },
         { key: "run_compare", href: "/dashboard/admin/runs/compare", icon: GitCompare },
         { key: "plugin_store", href: "/dashboard/admin/plugin-store", icon: Puzzle },
+        { key: "power_automate", href: "/dashboard/admin/power-automate", icon: Zap },
       ]
     : [];
 

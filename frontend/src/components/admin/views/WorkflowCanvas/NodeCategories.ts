@@ -42,6 +42,7 @@ export const NODE_CATEGORIES: NodeCategory[] = [
       { v: "DATA_TRANSFORM", l: "Data Transform", desc: "Filter, map, or format data structures between workflow nodes.", reqTier: "FREE", icon: "🔄" },
       { v: "COLLECT_FIELD", l: "Collect text input", desc: "Prompt the user for a field and store the response in a variable.", reqTier: "FREE", icon: "📝" },
       { v: "BOOKING", l: "Calendar Booking", desc: "Allows users to book an appointment based on a calendar schedule.", reqTier: "PRO", icon: "📅" },
+      { v: "POWER_AUTOMATE", l: "Power Automate", desc: "Trigger an external flow in Microsoft Power Automate.", reqTier: "PRO", icon: "⚡" },
     ]
   },
   {
@@ -82,5 +83,5 @@ export const nodeIcons: Record<string, string> = {
   CODE_GENERATE: "💻", GIT_COMMIT: "🐙",
   CONDITION: "🔀", PARALLEL_SPLIT: "⛓️", MERGE: "🤝", LOOP: "🔁", APPROVAL_GATE: "🛡️",
   CHOICE_LIST: "📋", NOTIFICATION: "📢", HUMAN_TAKEOVER: "🎧", COMPLETED: "✅",
-  BOOKING: "📅"
+  BOOKING: "📅", POWER_AUTOMATE: "⚡"
 };

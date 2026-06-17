@@ -23,6 +23,7 @@ import LogicNode from "./nodes/LogicNode";
 import AINode from "./nodes/AINode";
 import ActionNode from "./nodes/ActionNode";
 import CommerceNode from "./nodes/CommerceNode";
+import PowerAutomateNode from "./nodes/PowerAutomateNode";
 
 const nodeTypes = {
   welcome: StartNode,
@@ -32,6 +33,7 @@ const nodeTypes = {
   aiNode: AINode,
   actionNode: ActionNode,
   commerceNode: CommerceNode,
+  powerAutomateNode: PowerAutomateNode,
 };
 
 export default function PipelineCanvas({
@@ -87,6 +89,7 @@ export default function PipelineCanvas({
       else if (["CONDITION", "AB_TEST", "PARALLEL_SPLIT", "MERGE", "LOOP", "APPROVAL_GATE"].includes(s.type)) type = "logicNode";
       else if (["AI_RESPONDER", "AUTONOMOUS_AGENT", "AI_DECISION", "SUB_AGENT"].includes(s.type)) type = "aiNode";
       else if (["API_CALL", "CREATE_LEAD", "CALL_WORKFLOW", "HUMAN_TAKEOVER", "CRM_ACTION", "DATA_TRANSFORM", "CODE_GENERATE", "GIT_COMMIT", "NOTIFICATION"].includes(s.type)) type = "actionNode";
+      else if (s.type === "POWER_AUTOMATE") type = "powerAutomateNode";
       else if (["SHOW_PRODUCTS", "ADD_TO_CART", "CHECKOUT", "BOOKING", "PAYMENT"].includes(s.type)) type = "commerceNode";
 
       const depthX = branchDepth[s.id] || 0;

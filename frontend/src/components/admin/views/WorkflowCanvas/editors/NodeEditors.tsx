@@ -1,6 +1,6 @@
 import React from "react";
 import { Step } from "@/shared";
-import { GitMerge } from "lucide-react";
+import { GitMerge, Zap } from "lucide-react";
 
 interface NodeEditorProps {
   stepType: string;
@@ -540,6 +540,24 @@ export function NodeEditorFields(props: NodeEditorProps) {
           <div>
             <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Message Body</label>
             <textarea className="input text-xs" rows={3} placeholder="Alert message body..." value={config.notifyBody || ""} onChange={e => handleFieldChange("notifyBody", e.target.value)} />
+          </div>
+        </div>
+      )}
+
+      {stepType === "POWER_AUTOMATE" && (
+        <div className="glass p-4 border border-[#0078D4]/30 rounded-xl bg-[#0078D4]/5 space-y-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#0078D4] flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5" /> Power Automate Flow
+          </h4>
+          <div>
+            <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">HTTP Request URL (from Power Automate)</label>
+            <input className="input text-xs font-mono" placeholder="https://prod-1...logic.azure.com/workflows/..." value={config.flowUrl || ""} onChange={e => handleFieldChange("flowUrl", e.target.value.trim())} />
+            <p className="text-[9px] text-zinc-500 mt-1">Crea un flujo de Power Automate que inicie con "Cuando se recibe una solicitud HTTP" y pega la URL aquí.</p>
+          </div>
+          <div>
+            <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Variable Guardar Respuesta</label>
+            <input className="input text-xs font-mono" placeholder="pa_response" value={config.field || ""} onChange={e => handleFieldChange("field", e.target.value.trim())} />
+            <p className="text-[9px] text-zinc-500 mt-1">Opcional. Guarda el JSON que responda Power Automate.</p>
           </div>
         </div>
       )}
