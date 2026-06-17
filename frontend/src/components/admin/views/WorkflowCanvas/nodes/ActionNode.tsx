@@ -19,9 +19,9 @@ export default function ActionNode({ data }: { data: any }) {
 
   const getActionTheme = () => {
     switch (type) {
-      case "HUMAN_TAKEOVER": return "border-rose-500/30 hover:border-rose-500/60 shadow-[0_8px_30px_rgba(239,68,68,0.15)] bg-gradient-to-br from-rose-950/20 via-zinc-900/95 to-zinc-950/98";
-      case "API_CALL": return "border-orange-500/30 hover:border-orange-500/60 shadow-[0_8px_30px_rgba(249,115,22,0.15)] bg-gradient-to-br from-orange-950/20 via-zinc-900/95 to-zinc-950/98";
-      default: return "border-indigo-500/30 hover:border-indigo-500/60 shadow-[0_8px_30px_rgba(99,102,241,0.15)] bg-gradient-to-br from-indigo-950/20 via-zinc-900/95 to-zinc-950/98";
+      case "HUMAN_TAKEOVER": return "border-rose-500/20 hover:border-rose-400/60 hover:shadow-[0_0_25px_rgba(244,63,94,0.2)] bg-gradient-to-b from-rose-950/40 to-zinc-950/80";
+      case "API_CALL": return "border-orange-500/20 hover:border-orange-400/60 hover:shadow-[0_0_25px_rgba(249,115,22,0.2)] bg-gradient-to-b from-orange-950/40 to-zinc-950/80";
+      default: return "border-indigo-500/20 hover:border-indigo-400/60 hover:shadow-[0_0_25px_rgba(99,102,241,0.2)] bg-gradient-to-b from-indigo-950/40 to-zinc-950/80";
     }
   };
 
@@ -48,7 +48,9 @@ export default function ActionNode({ data }: { data: any }) {
   const themeColor = getActionThemeColor();
 
   return (
-    <div className={`glass-card min-w-[280px] max-w-[340px] rounded-2xl border transition-all duration-300 relative group overflow-hidden backdrop-blur-xl ${getActionTheme()}`}>
+    <div className={`glass-card min-w-[280px] max-w-[340px] rounded-[1.5rem] border transition-all duration-500 relative group overflow-hidden backdrop-blur-2xl ${getActionTheme()}`}>
+      {/* Animated Glow Background */}
+      <div className={`absolute inset-0 bg-gradient-to-tr from-${themeColor}-500/5 via-transparent to-${themeColor}-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
       {/* Target Input handle */}
       <Handle 
         type="target" 
@@ -62,33 +64,33 @@ export default function ActionNode({ data }: { data: any }) {
       </div>
 
       {/* Node Header */}
-      <div className={`p-3 border-b border-${themeColor}-500/10 bg-${themeColor}-500/5 flex items-center gap-2`}>
-        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm border ${getHeaderIconBgClass(themeColor)}`}>
+      <div className={`p-4 border-b border-white/5 bg-gradient-to-r from-${themeColor}-500/10 to-transparent flex items-center gap-3 relative z-10`}>
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm border shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-300 ${getHeaderIconBgClass(themeColor)}`}>
           {getActionIcon()}
         </div>
-        <div className="min-w-0">
-          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{type.replace("_", " ")}</p>
-          <h4 className="text-xs font-bold text-white truncate">{label}</h4>
+        <div className="min-w-0 flex-1">
+          <p className={`text-[9px] text-${themeColor}-300/80 font-black uppercase tracking-[0.2em] mb-0.5`}>{type.replace("_", " ")}</p>
+          <h4 className="text-[13px] font-bold text-white truncate drop-shadow-md">{label}</h4>
         </div>
       </div>
 
       {/* Node Content */}
       <div className="p-3 space-y-2.5">
         {type === "API_CALL" && (
-          <div className="bg-black/30 border border-white/5 rounded-xl p-2.5 space-y-1.5 text-[10px]">
+          <div className="bg-[#1e2330] border border-orange-500/20 shadow-inner rounded-xl p-3 space-y-2 text-[10px]">
             <div className="flex items-center gap-1.5">
-              <span className="bg-orange-500/20 text-orange-300 border border-orange-500/30 px-1 py-0.5 rounded font-mono text-[8px] font-bold uppercase">
+              <span className="bg-orange-500/20 text-orange-300 border border-orange-500/30 px-1.5 py-0.5 rounded-md font-mono text-[8px] font-bold uppercase shadow-[0_0_10px_rgba(249,115,22,0.2)]">
                 {config.apiMethod || "POST"}
               </span>
-              <span className="text-zinc-400 font-mono truncate select-all">
+              <span className="text-zinc-300 font-mono truncate select-all">
                 {config.apiUrl || "https://api.ejemplo.com/webhook"}
               </span>
             </div>
             
             {config.saveToField && (
-              <div className="border-t border-white/5 pt-1.5 flex justify-between text-zinc-500 font-mono text-[9px]">
-                <span>Guarda en:</span>
-                <span className="text-orange-400">{"{{" + config.saveToField + "}}"}</span>
+              <div className="border-t border-white/5 pt-2 flex justify-between items-center text-zinc-400 font-mono text-[9px]">
+                <span className="font-semibold uppercase tracking-wider text-[8px] text-orange-400/80">Guarda en:</span>
+                <span className="text-orange-400 font-bold">{"{{" + config.saveToField + "}}"}</span>
               </div>
             )}
           </div>
@@ -128,13 +130,16 @@ export default function ActionNode({ data }: { data: any }) {
           <div className="space-y-1.5 mt-2 pt-2 border-t border-white/5">
             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Rutas (Bifurcaciones):</span>
             {branches.map((b: any, idx: number) => (
-              <div key={idx} className="relative flex items-center justify-between p-2 rounded bg-black/40 border border-white/5 text-[10px] pr-8">
-                <span className="text-zinc-300 font-mono truncate max-w-[200px]">→ {b.match}</span>
+              <div key={idx} className="relative flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-white/5 text-[10px] pr-8 group/branch hover:border-amber-400/30 transition-colors">
+                <span className="text-zinc-300 font-mono truncate max-w-[200px]">
+                  <span className="text-amber-500/50 mr-1">→</span>
+                  {b.match}
+                </span>
                 <Handle 
                   type="source" 
                   position={Position.Right} 
                   id={`branch-${idx}`} 
-                  className="w-2.5 h-2.5 bg-amber-500 border border-zinc-950 rounded-full hover:scale-125 transition-transform" 
+                  className="w-2.5 h-2.5 bg-amber-500 border border-zinc-950 rounded-full group-hover/branch:scale-125 group-hover/branch:bg-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.5)]" 
                   style={{ right: "-4px" }} 
                 />
               </div>

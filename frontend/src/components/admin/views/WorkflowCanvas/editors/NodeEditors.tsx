@@ -8,6 +8,7 @@ interface NodeEditorProps {
   handleFieldChange: (key: string, value: any) => void;
   handleConfigChange: (config: any) => void;
   steps: Step[];
+  schedules: any[];
   dynamicModels: any[];
   editingStepId: string;
 }
@@ -111,7 +112,7 @@ export function BranchLogicEditor({
 }
 
 export function NodeEditorFields(props: NodeEditorProps) {
-  const { stepType, config, handleFieldChange, handleConfigChange, steps, products, schedules, dynamicModels, editingStepId } = props;
+  const { stepType, config, handleFieldChange, handleConfigChange, steps, schedules, dynamicModels, editingStepId } = props;
 
   return (
     <>
@@ -200,63 +201,6 @@ export function NodeEditorFields(props: NodeEditorProps) {
         </div>
       )}
 
-      {stepType === "SHOW_PRODUCTS" && (
-        <div className="glass p-4 border border-emerald-500/20 rounded-xl bg-emerald-500/5 space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">🛍️ Catálogo de Productos</h4>
-          <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1 block">Selecciona los productos a mostrar:</label>
-          {products.length === 0 ? (
-            <p className="text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg">No tienes productos registrados en tu catálogo. Ve a la sección de Productos.</p>
-          ) : (
-            <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-              {products.map(p => {
-                const currentIds = Array.isArray(config.productIds) ? config.productIds : [];
-                const isChecked = currentIds.includes(p.id);
-                return (
-                  <label key={p.id} className="flex items-center gap-2.5 text-[11px] text-zinc-300 cursor-pointer p-2 bg-black/20 rounded-xl border border-white/5 hover:bg-white/5 hover:border-white/10 transition-colors">
-                    <input type="checkbox" checked={isChecked} onChange={e => {
-                      const newIds = e.target.checked ? [...currentIds, p.id] : currentIds.filter((id: string) => id !== p.id);
-                      handleFieldChange("productIds", newIds);
-                    }} className="rounded bg-black border-zinc-700 text-indigo-500 focus:ring-indigo-500" />
-                    <span>{p.name} - <span className="text-emerald-400 font-semibold">${p.price} {p.currency}</span></span>
-                  </label>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {stepType === "ADD_TO_CART" && (
-        <div className="glass p-4 border border-emerald-500/20 rounded-xl bg-emerald-500/5 space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">🛒 Motor de Carrito IA</h4>
-          <div>
-            <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Variable Carrito Virtual</label>
-            <input className="input text-xs font-mono" value={config.cartField || "cart"} onChange={e => handleFieldChange("cartField", e.target.value.trim())} />
-          </div>
-          <div>
-            <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Variable con el pedido del usuario</label>
-            <input className="input text-xs font-mono" value={config.cartSourceField || "seleccion_productos"} onChange={e => handleFieldChange("cartSourceField", e.target.value.trim())} />
-          </div>
-        </div>
-      )}
-
-      {stepType === "CHECKOUT" && (
-        <div className="glass p-4 border border-emerald-500/20 rounded-xl bg-emerald-500/5 space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">💳 Checkout E-Commerce</h4>
-          <div>
-            <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Costo de Envío / Tasas Fijas (USD)</label>
-            <input type="number" className="input text-xs" value={config.shippingFee ?? 0} onChange={e => handleFieldChange("shippingFee", parseFloat(e.target.value) || 0)} />
-          </div>
-          <div>
-            <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Pasarela de Pagos</label>
-            <select className="input text-xs" value={config.gateway || "stripe"} onChange={e => handleFieldChange("gateway", e.target.value)}>
-              <option value="stripe">Stripe Gateway (Automático)</option>
-              <option value="mercadopago">MercadoPago Link (Manual)</option>
-            </select>
-          </div>
-        </div>
-      )}
-
       {stepType === "BOOKING" && (
         <div className="glass p-4 border border-emerald-500/20 rounded-xl bg-emerald-500/5 space-y-4">
           <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">📅 Reserva de Citas</h4>
@@ -276,37 +220,6 @@ export function NodeEditorFields(props: NodeEditorProps) {
           <div className="flex items-center justify-between border-t border-white/5 pt-3">
             <span className="text-xs text-zinc-300 font-semibold">Validación Automática de Disponibilidad</span>
             <input type="checkbox" checked={config.calendarSync !== false} onChange={e => handleFieldChange("calendarSync", e.target.checked)} className="rounded text-indigo-600 bg-black border-zinc-700 focus:ring-indigo-500" />
-          </div>
-        </div>
-      )}
-
-      {stepType === "PAYMENT" && (
-        <div className="glass p-4 border border-emerald-500/20 rounded-xl bg-emerald-500/5 space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">💵 Cobro Fijo Directo</h4>
-          <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
-            <span className="text-xs text-zinc-300 font-semibold">Monto Dinámico (Basado en total del carrito)</span>
-            <input type="checkbox" checked={config.dynamic || false} onChange={e => handleFieldChange("dynamic", e.target.checked)} className="rounded text-indigo-600 bg-black border-zinc-700 focus:ring-indigo-500" />
-          </div>
-          {!config.dynamic && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Monto Fijo</label>
-                <input type="number" className="input text-xs" value={config.amount || 0} onChange={e => handleFieldChange("amount", parseFloat(e.target.value) || 0)} />
-              </div>
-              <div>
-                <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Moneda</label>
-                <select className="input text-xs" value={config.currency || "USD"} onChange={e => handleFieldChange("currency", e.target.value)}>
-                  <option value="USD">USD ($)</option>
-                  <option value="MXN">MXN ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="COP">COP ($)</option>
-                </select>
-              </div>
-            </div>
-          )}
-          <div>
-            <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Variable Guardar Confirmación</label>
-            <input className="input text-xs font-mono" value={config.field || "pago_completado"} onChange={e => handleFieldChange("field", e.target.value.trim())} />
           </div>
         </div>
       )}

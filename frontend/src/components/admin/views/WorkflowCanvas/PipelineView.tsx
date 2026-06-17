@@ -53,9 +53,27 @@ export default function PipelineView({
   const [newStepConfig, setNewStepConfig] = useState<any>({});
   const [newStepPosition, setNewStepPosition] = useState<{ x: number; y: number } | undefined>(undefined);
 
+  const [schedules, setSchedules] = useState<any[]>([]);
+
   // Canvas Nodes & Edges visual state
   const [canvasNodes, setCanvasNodes] = useState<Node[]>([]);
   const [canvasEdges, setCanvasEdges] = useState<Edge[]>([]);
+
+  // Fetch schedules for BOOKING node support
+  useEffect(() => {
+    async function loadResources() {
+      try {
+        const schRes = await fetch(`${API_BASE}/api/v1/schedules`, { credentials: "include" });
+        if (schRes.ok) {
+          const d = await schRes.json();
+          setSchedules(d.schedules || d);
+        }
+      } catch (e) {
+        console.error("Failed loading schedules", e);
+      }
+    }
+    loadResources();
+  }, [workflowId]);
 
   // Trigger opening step configuration modal before adding to canvas
   const triggerStepConfiguration = (type: string, label: string, position?: { x: number; y: number }) => {
@@ -211,7 +229,7 @@ export default function PipelineView({
                 editingStep={editingStep}
                 setEditingStep={setEditingStep}
                 steps={steps}
-
+                schedules={schedules}
                 dynamicModels={dynamicModels}
                 onSave={updateStep}
                 onClose={() => setEditingStep(null)}
@@ -617,6 +635,9 @@ export default function PipelineView({
                           onChange={e => setNewStepConfig((prev: any) => ({ ...prev, scheduleId: e.target.value }))}
                         >
                           <option value="">-- Calendario General (Automático) --</option>
+                          {schedules.map(sch => (
+                            <option key={sch.id} value={sch.id}>{sch.name}</option>
+                          ))}
                         </select>
                       </div>
                     </div>

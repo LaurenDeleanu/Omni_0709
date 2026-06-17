@@ -9,7 +9,9 @@ export default function LogicNode({ data }: { data: any }) {
   const branches = Array.isArray(config.branches) ? config.branches : [];
 
   return (
-    <div className="glass-card min-w-[280px] max-w-[340px] rounded-2xl border border-amber-500/30 hover:border-amber-500/60 shadow-[0_8px_30px_rgba(245,158,11,0.15)] transition-all duration-300 relative group overflow-hidden bg-gradient-to-br from-amber-950/20 via-zinc-900/95 to-zinc-950/98 backdrop-blur-xl">
+    <div className="glass-card min-w-[280px] max-w-[340px] rounded-[1.5rem] border border-amber-500/20 hover:border-amber-400/60 hover:shadow-[0_0_25px_rgba(245,158,11,0.2)] transition-all duration-500 relative group overflow-hidden bg-gradient-to-b from-amber-950/40 to-zinc-950/80 backdrop-blur-2xl">
+      {/* Animated Gradient Glow Background */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 via-transparent to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       {/* Target input handle */}
       <Handle 
         type="target" 
@@ -23,13 +25,13 @@ export default function LogicNode({ data }: { data: any }) {
       </div>
 
       {/* Node Header */}
-      <div className="p-3 border-b border-amber-500/10 bg-amber-500/5 flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-sm">
-          {type === "CONDITION" ? <GitMerge className="w-3.5 h-3.5" /> : <Scale className="w-3.5 h-3.5" />}
+      <div className="p-4 border-b border-white/5 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center gap-3 relative z-10">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/30 to-amber-600/10 border border-amber-400/30 flex items-center justify-center text-amber-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+          {type === "CONDITION" ? <GitMerge className="w-4 h-4" /> : <Scale className="w-4 h-4" />}
         </div>
-        <div className="min-w-0">
-          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{type === "CONDITION" ? "CONDICIONAL" : "DIVISIÓN A/B"}</p>
-          <h4 className="text-xs font-bold text-white truncate">{label}</h4>
+        <div className="min-w-0 flex-1">
+          <p className="text-[9px] text-amber-300/80 font-black uppercase tracking-[0.2em] mb-0.5">{type === "CONDITION" ? "CONDICIONAL" : "DIVISIÓN A/B"}</p>
+          <h4 className="text-[13px] font-bold text-white truncate drop-shadow-md">{label}</h4>
         </div>
       </div>
 
@@ -37,21 +39,24 @@ export default function LogicNode({ data }: { data: any }) {
       <div className="p-3 space-y-3">
         {type === "CONDITION" && (
           <div className="space-y-2">
-            <div className="bg-black/30 border border-white/5 rounded-xl p-2.5 flex flex-col gap-1">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase">Evalúa variable:</span>
-              <span className="font-mono text-xs text-amber-400">{"conversation." + (config.checkField || "variable")}</span>
+            <div className="bg-[#1e2330] border border-amber-500/20 rounded-2xl rounded-tr-sm p-3.5 flex flex-col gap-1.5 shadow-inner">
+              <span className="text-[8px] font-black text-amber-400/80 uppercase tracking-[0.15em]">Evalúa variable:</span>
+              <span className="font-mono text-[11px] text-white">{"{{" + (config.checkField || "variable") + "}}"}</span>
             </div>
             
             <div className="space-y-1.5">
               <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block">Reglas de Salida:</span>
               {branches.map((b: any, idx: number) => (
-                <div key={idx} className="relative flex items-center justify-between p-2 rounded bg-black/40 border border-white/5 text-[10px] pr-8">
-                  <span className="text-zinc-300 font-mono truncate max-w-[200px]">si coincide "{b.match || ".*"}"</span>
+                <div key={idx} className="relative flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-white/5 text-[10px] pr-8 group/branch hover:border-amber-400/30 transition-colors">
+                  <span className="text-zinc-300 font-mono truncate max-w-[200px]">
+                    <span className="text-amber-500/50 mr-1">→</span>
+                    {b.match || ".*"}
+                  </span>
                   <Handle 
                     type="source" 
                     position={Position.Right} 
                     id={`branch-${idx}`} 
-                    className="w-2.5 h-2.5 bg-amber-500 border border-zinc-950 rounded-full hover:scale-125 transition-transform" 
+                    className="w-2.5 h-2.5 bg-amber-500 border border-zinc-950 rounded-full group-hover/branch:scale-125 group-hover/branch:bg-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.5)]" 
                     style={{ right: "-4px" }} 
                   />
                 </div>
