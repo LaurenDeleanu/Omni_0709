@@ -47,8 +47,8 @@ class Settings(BaseSettings):
 
     # ── Frontend / CORS ───────────────────────────────────────────────────────
     # Ej. producción: "https://app.successcore.com"
-    FRONTEND_URL: str = "http://localhost:3000"
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001"
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://omnius-six.vercel.app")
+    ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,https://omnius-six.vercel.app")
 
     # ── Slack Integration ─────────────────────────────────────────────────────
     SLACK_SIGNING_SECRET: str = ""
