@@ -549,6 +549,7 @@ export function NodeEditorFields(props: NodeEditorProps) {
           config={config}
           handleFieldChange={handleFieldChange}
           steps={steps}
+          schedules={schedules}
           editingStepId={editingStepId}
         />
       )}
