@@ -1,7 +1,0 @@
-- generic [active] [ref=e1]:
-  - generic [ref=e7]:
-    - paragraph [ref=e8]: SuccessCore HR
-    - paragraph [ref=e9]: Verificando sesión…
-  - region "Notifications alt+T"
-  - button "Open Next.js Dev Tools" [ref=e15] [cursor=pointer]:
-    - img [ref=e16]
