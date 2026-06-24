@@ -62,6 +62,9 @@ build/
 deploy_log.txt
 login.json
 
+# User uploads (use object storage in production)
+backend/uploads/
+
 # Scratch / throwaway scripts
 scratch/
 cosas/

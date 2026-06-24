@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, WebSocket, WebSocketDisconnect
+import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from app.api.dependencies import get_tenant_db, get_current_user, require_roles
@@ -12,6 +13,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.websocket("/ws")
@@ -189,6 +191,6 @@ async def send_web_push(db: AsyncSession, user_id: str, payload: dict):
             # If expired, we could delete the subscription
             if e.response and e.response.status_code in [404, 410]:
                 await db.delete(sub)
-            print(f"Web Push Error: {e}")
+            logger.warning("Web Push failed for user %s: %s", user_id, e)
             
     await db.commit()

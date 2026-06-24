@@ -1,4 +1,5 @@
 import smtplib
+import logging
 from email.message import EmailMessage
 import os
 from app.core.config import settings
@@ -9,6 +10,8 @@ from app.models.scheduled_report import ScheduledReport
 from app.core.database import engine, AsyncSessionGlobal
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 async def _get_report_data(tenant_id=None):
     if not tenant_id:
@@ -39,7 +42,7 @@ async def _get_report_data(tenant_id=None):
 
 def send_email_with_pdf(to_email: str, pdf_bytes: bytes, tenant_name: str):
     if not settings.SMTP_HOST or not settings.SMTP_USER:
-        print(f"[{datetime.now()}] SIMULACIÓN: Enviando reporte a {to_email} para {tenant_name}")
+        logger.info("SMTP not configured — skipping email to %s for tenant %s", to_email, tenant_name)
         return
 
     msg = EmailMessage()
@@ -55,12 +58,12 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, tenant_name: str):
             server.starttls()
             server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.send_message(msg)
-        print(f"[{datetime.now()}] Email enviado correctamente a {to_email}")
+        logger.info("Scheduled report email sent to %s", to_email)
     except Exception as e:
-        print(f"[{datetime.now()}] Error enviando email a {to_email}: {e}")
+        logger.error("Failed to send scheduled report email to %s: %s", to_email, e)
 
 async def send_scheduled_report(email_to: str, tenant_id: str):
-    print(f"Iniciando generación de reporte para {email_to}")
+    logger.info("Generating scheduled report for %s (tenant: %s)", email_to, tenant_id)
     
     stats = await _get_report_data(tenant_id)
     

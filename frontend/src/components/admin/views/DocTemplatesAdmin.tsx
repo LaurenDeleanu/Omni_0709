@@ -19,10 +19,10 @@ export default function DocTemplatesAdmin() {
 
   const generate = async () => {
     try {
-      const resp = await fetch(`http://127.0.0.1:8080/api/v1/admin/document-templates/${selected}/generate`, {
-        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify(data),
-      });
+      const resp = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1"}/admin/document-templates/${selected}/generate`,
+        { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(data) }
+      );
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
