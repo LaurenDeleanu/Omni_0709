@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from typing import List
 
-from app.api.dependencies import get_tenant_db, get_current_user
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles
 from app.models.work import Project, Task, KanbanBoard, BoardColumn, WikiPage, Sprint
 from app.schemas.work import (
     ProjectCreate, ProjectResponse, ProjectUpdate,
@@ -38,7 +38,11 @@ async def get_projects(db: AsyncSession = Depends(get_tenant_db)):
     return result.scalars().all()
 
 @router.post("/projects", response_model=ProjectResponse)
-async def create_project(data: ProjectCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def create_project(
+    data: ProjectCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
+):
     db_proj = Project(**data.model_dump())
     db.add(db_proj)
     await db.commit()
@@ -53,7 +57,11 @@ async def get_project_tasks(project_id: str, db: AsyncSession = Depends(get_tena
     return result.scalars().all()
 
 @router.post("/tasks", response_model=TaskResponse)
-async def create_task(data: TaskCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def create_task(
+    data: TaskCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     db_task = Task(**data.model_dump())
     db.add(db_task)
     await db.commit()
@@ -61,7 +69,12 @@ async def create_task(data: TaskCreate, db: AsyncSession = Depends(get_tenant_db
     return db_task
 
 @router.put("/tasks/{task_id}/move")
-async def move_task(task_id: str, payload: TaskMoveUpdate, db: AsyncSession = Depends(get_tenant_db)):
+async def move_task(
+    task_id: str,
+    payload: TaskMoveUpdate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(Task).where(Task.id == task_id))
     task = result.scalars().first()
     if not task:
@@ -85,7 +98,11 @@ async def get_project_boards(project_id: str, db: AsyncSession = Depends(get_ten
     return result.scalars().all()
 
 @router.post("/boards", response_model=KanbanBoardResponse)
-async def create_board(data: KanbanBoardCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def create_board(
+    data: KanbanBoardCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     db_board = KanbanBoard(**data.model_dump())
     db.add(db_board)
     await db.commit()
@@ -96,7 +113,12 @@ async def create_board(data: KanbanBoardCreate, db: AsyncSession = Depends(get_t
     return result.scalars().first()
 
 @router.post("/boards/{board_id}/columns", response_model=BoardColumnResponse)
-async def create_board_column(board_id: str, data: BoardColumnCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def create_board_column(
+    board_id: str,
+    data: BoardColumnCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     db_col = BoardColumn(board_id=board_id, **data.model_dump())
     db.add(db_col)
     await db.commit()
@@ -114,15 +136,24 @@ async def get_wiki_pages(project_id: str = None, db: AsyncSession = Depends(get_
     return result.scalars().all()
 
 @router.post("/wiki", response_model=WikiPageResponse)
-async def create_wiki_page(data: WikiPageCreate, db: AsyncSession = Depends(get_tenant_db), current_user = Depends(get_current_user)):
-    db_page = WikiPage(**data.model_dump(), author_id=current_user.get("id"))
+async def create_wiki_page(
+    data: WikiPageCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
+    db_page = WikiPage(**data.model_dump(), author_id=current_user.get("sub", "").split("|")[-1] or current_user.get("id"))
     db.add(db_page)
     await db.commit()
     await db.refresh(db_page)
     return db_page
 
 @router.put("/wiki/{page_id}", response_model=WikiPageResponse)
-async def update_wiki_page(page_id: str, data: WikiPageCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def update_wiki_page(
+    page_id: str,
+    data: WikiPageCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(WikiPage).where(WikiPage.id == page_id))
     page = result.scalars().first()
     if not page:
@@ -135,7 +166,12 @@ async def update_wiki_page(page_id: str, data: WikiPageCreate, db: AsyncSession 
     return page
 
 @router.put("/projects/{project_id}", response_model=ProjectResponse)
-async def update_project(project_id: str, data: ProjectUpdate, db: AsyncSession = Depends(get_tenant_db)):
+async def update_project(
+    project_id: str,
+    data: ProjectUpdate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalars().first()
     if not project:
@@ -150,7 +186,11 @@ async def update_project(project_id: str, data: ProjectUpdate, db: AsyncSession 
     return project
 
 @router.delete("/projects/{project_id}")
-async def delete_project(project_id: str, db: AsyncSession = Depends(get_tenant_db)):
+async def delete_project(
+    project_id: str,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalars().first()
     if not project:
@@ -161,7 +201,12 @@ async def delete_project(project_id: str, db: AsyncSession = Depends(get_tenant_
     return {"message": "Project deleted successfully"}
 
 @router.put("/tasks/{task_id}", response_model=TaskResponse)
-async def update_task(task_id: str, data: TaskUpdate, db: AsyncSession = Depends(get_tenant_db)):
+async def update_task(
+    task_id: str,
+    data: TaskUpdate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(Task).where(Task.id == task_id))
     task = result.scalars().first()
     if not task:
@@ -176,7 +221,11 @@ async def update_task(task_id: str, data: TaskUpdate, db: AsyncSession = Depends
     return task
 
 @router.delete("/tasks/{task_id}")
-async def delete_task(task_id: str, db: AsyncSession = Depends(get_tenant_db)):
+async def delete_task(
+    task_id: str,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(Task).where(Task.id == task_id))
     task = result.scalars().first()
     if not task:
@@ -187,7 +236,11 @@ async def delete_task(task_id: str, db: AsyncSession = Depends(get_tenant_db)):
     return {"message": "Task deleted successfully"}
 
 @router.delete("/wiki/{page_id}")
-async def delete_wiki_page(page_id: str, db: AsyncSession = Depends(get_tenant_db)):
+async def delete_wiki_page(
+    page_id: str,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(WikiPage).where(WikiPage.id == page_id))
     page = result.scalars().first()
     if not page:

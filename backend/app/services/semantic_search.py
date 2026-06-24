@@ -2,52 +2,80 @@ import logging
 from typing import List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.user import User
-from app.models.hire import JobPosting
+from app.models.base import is_sqlite
+from app.models.search_index import SearchIndexEntry
+from app.services.embedding_providers import generate_embedding
 
 logger = logging.getLogger(__name__)
 
+# Check if pgvector is available
+try:
+    from pgvector.sqlalchemy import Vector
+    _pgvector_available = True
+except ImportError:
+    _pgvector_available = False
+
 async def perform_semantic_search(query: str, db: AsyncSession, limit: int = 10) -> List[Dict[str, Any]]:
     """
-    Mock implementation of semantic search.
-    In a real scenario, this would:
-    1. Embed the query using an LLM.
-    2. Query a vector database (e.g., Redis vector similarity, pgvector, Pinecone).
-    3. Return the semantically closest matches.
+    Performs semantic search using pgvector when available.
+    Falls back to text-based search (ILIKE) on SQLite or if embedding generation fails.
     """
-    logger.info(f"Performing mock semantic search for query: {query}")
+    logger.info("Performing semantic search for query: %s", query)
     results = []
     
-    # Mocking semantic search behavior by just searching keywords broadly
-    # and returning "semantic" looking results
+    use_vector = _pgvector_available and not is_sqlite
     
-    # Fallback to ILIKE for demonstration if we have no actual embeddings
-    users_res = await db.execute(
-        select(User).where(User.full_name.ilike(f"%{query}%")).limit(limit)
+    if use_vector:
+        try:
+            # 1. Embed the search query
+            query_embedding = await generate_embedding(query)
+            
+            # 2. Query SearchIndexEntry by cosine distance
+            distance_expr = SearchIndexEntry.embedding.cosine_distance(query_embedding)
+            stmt = (
+                select(SearchIndexEntry, distance_expr.label("distance"))
+                .order_by("distance")
+                .limit(limit)
+            )
+            res = await db.execute(stmt)
+            for row in res.all():
+                entry = row[0]
+                dist = row[1]
+                score = max(0.0, 1.0 - float(dist)) if dist is not None else 0.5
+                results.append({
+                    "id": entry.entity_id,
+                    "type": entry.entity_type,
+                    "title": entry.title,
+                    "subtitle": entry.subtitle or "",
+                    "route": entry.route,
+                    "score": round(score, 4)
+                })
+            return results
+        except Exception as e:
+            logger.error("Vector semantic search failed, falling back to keyword: %s", e, exc_info=True)
+            await db.rollback()
+            
+    # Fallback to ILIKE keyword search on search_index_entries (SQLite or fallback)
+    logger.info("Falling back to text-based keyword search on search_index_entries")
+    stmt = (
+        select(SearchIndexEntry)
+        .where(
+            (SearchIndexEntry.title.ilike(f"%{query}%")) |
+            (SearchIndexEntry.subtitle.ilike(f"%{query}%")) |
+            (SearchIndexEntry.content.ilike(f"%{query}%"))
+        )
+        .limit(limit)
     )
-    for u in users_res.scalars().all():
+    res = await db.execute(stmt)
+    entries = res.scalars().all()
+    for entry in entries:
         results.append({
-            "id": u.id,
-            "type": "employee",
-            "title": u.full_name or u.email,
-            "subtitle": u.department or "",
-            "route": f"/dashboard/employees/{u.id}",
-            "score": 0.95  # Mock similarity score
+            "id": entry.entity_id,
+            "type": entry.entity_type,
+            "title": entry.title,
+            "subtitle": entry.subtitle or "",
+            "route": entry.route,
+            "score": 0.5  # Fixed fallback score
         })
         
-    jobs_res = await db.execute(
-        select(JobPosting).where(JobPosting.title.ilike(f"%{query}%")).limit(limit)
-    )
-    for j in jobs_res.scalars().all():
-        results.append({
-            "id": j.id,
-            "type": "job",
-            "title": j.title,
-            "subtitle": j.department or "",
-            "route": f"/dashboard/hire/{j.id}",
-            "score": 0.88  # Mock similarity score
-        })
-        
-    # Sort by score descending (mocking vector similarity ordering)
-    results.sort(key=lambda x: x["score"], reverse=True)
-    return results[:limit]
+    return results

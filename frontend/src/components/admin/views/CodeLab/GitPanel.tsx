@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FileItem } from "@/lib/git/types";
 import { fetchClient } from "@/lib/api/client";
+import { toast } from "sonner";
 
 interface RepoItem {
   id: string;
@@ -114,7 +115,7 @@ export default function GitPanel({ botId, files: propFiles, onProposalSuccess }:
       setShowConnectForm(false);
       await loadData();
     } catch (err: any) {
-      alert(`Error al conectar: ${err.message || "Error desconocido"}`);
+      toast.error(`Error al conectar: ${err.message || "Error desconocido"}`);
     } finally {
       setIsRegistering(false);
     }

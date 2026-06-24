@@ -5,6 +5,7 @@ import DiffViewer from "./DiffViewer";
 import GitPanel from "./GitPanel";
 import AIAssistantPanel from "./AIAssistantPanel";
 import { FileItem } from "@/lib/git/types";
+import { toast } from "sonner";
 
 interface CodeLabViewProps {
   botId: string;
@@ -91,7 +92,7 @@ export default function CodeLabView({ botId }: CodeLabViewProps) {
   ) => {
     // Reset original files to match current files after a successful PR proposal
     setOriginalFiles(files.map((f) => ({ ...f })));
-    alert(`🎉 ¡Propuesta enviada con éxito!\n\nAuditoría de IA: ${score}/100\nRama: ${branchName}${prUrl ? `\nPR: ${prUrl}` : ""}`);
+    toast.success(`🎉 ¡Propuesta enviada con éxito! Auditoría de IA: ${score}/100 — Rama: ${branchName}${prUrl ? ` — PR: ${prUrl}` : ""}`);
   };
 
   return (

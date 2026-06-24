@@ -63,7 +63,7 @@ export default function PipelineView({
   useEffect(() => {
     async function loadResources() {
       try {
-        const schRes = await fetch(`${API_BASE}/api/v1/schedules`, { credentials: "include" });
+        const schRes = await fetch(`${API_BASE}/schedules`, { credentials: "include" });
         if (schRes.ok) {
           const d = await schRes.json();
           setSchedules(d.schedules || d);

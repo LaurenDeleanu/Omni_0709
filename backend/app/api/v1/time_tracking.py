@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 from typing import Optional
 
-from app.api.dependencies import get_tenant_db, get_current_user
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ class ClockOutRequest(BaseModel):
 async def clock_in_endpoint(
     body: ClockInRequest,
     db: AsyncSession = Depends(get_tenant_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"])),
 ):
     from app.services.time_tracking_service import clock_in
     user_id = current_user.get("sub", "").split("|")[-1]
@@ -36,7 +36,7 @@ async def clock_in_endpoint(
 async def clock_out_endpoint(
     body: ClockOutRequest,
     db: AsyncSession = Depends(get_tenant_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"])),
 ):
     from app.services.time_tracking_service import clock_out
     user_id = current_user.get("sub", "").split("|")[-1]

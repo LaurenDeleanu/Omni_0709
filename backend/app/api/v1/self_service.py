@@ -9,7 +9,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime, timezone, timedelta
 
-from app.api.dependencies import get_tenant_db, get_current_user
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles
 from app.models.user import User
 from app.models.calendar import VacationRequest
 
@@ -66,7 +66,7 @@ async def get_my_profile(
 async def update_my_profile(
     body: ProfileUpdate,
     db: AsyncSession = Depends(get_tenant_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"])),
 ):
     """Update current employee's personal information."""
     user_id = current_user.get("sub", "")
@@ -132,7 +132,7 @@ async def get_my_time_off(
 async def request_time_off(
     body: TimeOffRequest,
     db: AsyncSession = Depends(get_tenant_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"])),
 ):
     """Submit a new time-off request."""
     user_id = current_user.get("sub", "")

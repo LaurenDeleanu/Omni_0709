@@ -30,3 +30,16 @@ export { type Permission, type RolePermission, type Role, RBACAPI } from './rbac
 export { type KeyResult, type Objective, type PerformanceReview, GrowAPI } from './grow';
 export { OmniAPI, type OmniFileItem, type OmniGitStatusFile, type OmniGitStatus, type OmniBranch, type OmniAgentSettings, type OmniRunResult, type OmniTraceStep } from './omni';
 export { HRPanelAPI, type HROverview, type HRTicket, type HREmployeeRequest, type RecruitingOverview, type ComplianceOverview } from './hr_panel';
+
+// Added during codebase audit:
+export { type Agent, AgentsAPI } from './agents';
+export { type BillingSettings, BillingAPI } from './billing';
+export { type ChecklistTemplate, ChecklistsAPI } from './checklists';
+export { type Scorecard, InterviewsAPI } from './interviews';
+export { MarketplaceAPI } from './marketplace';
+export { type ProfileData, SelfServiceAPI } from './self_service';
+export { SurveysAPI } from './surveys';
+export { TimeTrackingAPI } from './time_tracking';
+export { DocumentsAPI } from './documents';
+export { DevPortalAPI } from './dev_portal';
+

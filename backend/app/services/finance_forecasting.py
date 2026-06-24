@@ -7,7 +7,8 @@ import statistics
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, extract
+from sqlalchemy import select, func
+from sqlalchemy.orm import joinedload
 from pydantic import BaseModel
 
 logger = logging.getLogger("successcore.forecasting")
@@ -46,22 +47,26 @@ async def forecast_cash_flow(
     Project cash flow using linear regression on historical data.
     Uses last 12 months of income/expenses to predict future.
     """
-    from app.models.finance import JournalLine
+    from app.models.finance import JournalEntry, JournalLine
     cutoff = datetime.now(timezone.utc) - timedelta(days=365)
 
     result = await db.execute(
-        select(JournalEntry).where(JournalLine.created_at >= cutoff)
+        select(JournalLine)
+        .options(joinedload(JournalLine.entry))
+        .join(JournalEntry)
+        .where(JournalEntry.created_at >= cutoff)
     )
-    entries = result.scalars().all()
+    lines = result.scalars().all()
 
     monthly_income = {}
     monthly_expenses = {}
-    for entry in entries:
-        month_key = entry.created_at.strftime("%Y-%m")
-        if entry.amount > 0:
-            monthly_income[month_key] = monthly_income.get(month_key, 0) + abs(entry.amount)
+    for line in lines:
+        month_key = line.entry.created_at.strftime("%Y-%m")
+        amount = float(line.debit - line.credit)
+        if amount > 0:
+            monthly_income[month_key] = monthly_income.get(month_key, 0) + abs(amount)
         else:
-            monthly_expenses[month_key] = monthly_expenses.get(month_key, 0) + abs(entry.amount)
+            monthly_expenses[month_key] = monthly_expenses.get(month_key, 0) + abs(amount)
 
     income_values = list(monthly_income.values()) or [0]
     expense_values = list(monthly_expenses.values()) or [0]
@@ -99,7 +104,7 @@ async def analyze_budget_variance(
     period_end: Optional[str] = None,
 ) -> list[BudgetVariance]:
     """Compare actual spending vs budget by category."""
-    from app.models.finance import JournalLine, JournalLine, Budget, BudgetLine, Invoice
+    from app.models.finance import JournalEntry, JournalLine, Budget, BudgetLine
 
     if not period_start:
         period_start = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
@@ -116,12 +121,14 @@ async def analyze_budget_variance(
         )
         for line in lines_result.scalars().all():
             actual_result = await db.execute(
-                select(func.coalesce(func.sum(JournalLine.debit), 0)).where(
-                    JournalLine.created_at >= period_start,
-                    JournalLine.created_at <= period_end,
+                select(func.coalesce(func.sum(JournalLine.debit), 0))
+                .join(JournalEntry)
+                .where(
+                    JournalEntry.created_at >= period_start,
+                    JournalEntry.created_at <= period_end,
                 )
             )
-            actual = abs(actual_result.scalar() or 0)
+            actual = float(actual_result.scalar() or 0)
             budgeted = line.planned_amount or 0
             variance = round(actual - budgeted, 2)
             variance_pct = round((variance / budgeted * 100), 1) if budgeted else 0
@@ -142,18 +149,21 @@ async def detect_anomalies(
     lookback_days: int = 90,
 ) -> list[Anomaly]:
     """Detect anomalies — transactions more than 2 standard deviations from mean."""
-    from app.models.finance import JournalLine
+    from app.models.finance import JournalEntry, JournalLine
     cutoff = datetime.now(timezone.utc) - timedelta(days=lookback_days)
 
     result = await db.execute(
-        select(JournalEntry).where(JournalLine.created_at >= cutoff)
+        select(JournalLine)
+        .options(joinedload(JournalLine.entry))
+        .join(JournalEntry)
+        .where(JournalEntry.created_at >= cutoff)
     )
-    entries = result.scalars().all()
+    lines = result.scalars().all()
 
-    if len(entries) < 10:
+    if len(lines) < 10:
         return []
 
-    amounts = [abs(e.amount) for e in entries]
+    amounts = [abs(float(line.debit - line.credit)) for line in lines]
     mean = statistics.mean(amounts)
     stdev = statistics.stdev(amounts) if len(amounts) > 1 else 0
 
@@ -161,14 +171,15 @@ async def detect_anomalies(
         return []
 
     anomalies = []
-    for e in entries:
-        z = (abs(e.amount) - mean) / stdev if stdev > 0 else 0
+    for line in lines:
+        amount = float(line.debit - line.credit)
+        z = (abs(amount) - mean) / stdev if stdev > 0 else 0
         if abs(z) > 2.0:
             anomalies.append(Anomaly(
-                id=e.id,
-                date=e.created_at.isoformat(),
-                description=e.description or f"Transaction {e.id[:8]}",
-                amount=round(e.amount, 2),
+                id=line.id,
+                date=line.entry.created_at.isoformat(),
+                description=line.entry.description or f"Transaction {line.id[:8]}",
+                amount=round(amount, 2),
                 z_score=round(z, 2),
             ))
 
@@ -181,19 +192,23 @@ async def generate_financial_report(
     report_type: str = "summary",
 ) -> dict:
     """Generate structured financial summary."""
-    from app.models.finance import JournalLine, Invoice
+    from app.models.finance import JournalEntry, JournalLine, Invoice
     cutoff = datetime.now(timezone.utc) - timedelta(days=30)
 
     income_result = await db.execute(
-        select(func.coalesce(func.sum(JournalLine.debit), 0)).where(
+        select(func.coalesce(func.sum(JournalLine.debit), 0))
+        .join(JournalEntry)
+        .where(
             JournalLine.debit > 0,
-            JournalLine.created_at >= cutoff,
+            JournalEntry.created_at >= cutoff,
         )
     )
     expense_result = await db.execute(
-        select(func.coalesce(func.sum(JournalLine.debit), 0)).where(
+        select(func.coalesce(func.sum(JournalLine.debit), 0))
+        .join(JournalEntry)
+        .where(
             JournalLine.debit < 0,
-            JournalLine.created_at >= cutoff,
+            JournalEntry.created_at >= cutoff,
         )
     )
     pending_invoices = await db.execute(

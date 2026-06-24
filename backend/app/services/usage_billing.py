@@ -136,8 +136,10 @@ async def generate_monthly_bill(
 
     # Base plan fee
     from app.models.tenant import Tenant
-    tenant_result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
-    tenant = tenant_result.scalar_one_or_none()
+    from app.core.database import AsyncSessionGlobal
+    async with AsyncSessionGlobal() as global_db:
+        tenant_result = await global_db.execute(select(Tenant).where(Tenant.id == tenant_id))
+        tenant = tenant_result.scalar_one_or_none()
     tier = tenant.tier if tenant else "FREE"
     base_prices = {"FREE": 0, "PRO": 99.00, "ENTERPRISE": 499.00}
     base_fee = base_prices.get(tier, 0)

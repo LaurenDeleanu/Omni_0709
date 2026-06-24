@@ -4,6 +4,7 @@ from sqlalchemy import select
 from app.api.dependencies import get_global_db, require_roles, get_current_user, get_current_user_optional
 from app.models.tenant import Tenant
 from app.services.feature_flags import get_flags, set_flag
+from app.core.config import settings as app_settings
 import os
 import uuid
 import shutil
@@ -113,7 +114,7 @@ async def upload_tenant_logo(
     result = await db.execute(select(Tenant).where(Tenant.schema_name == tenant_id))
     tenant = result.scalar_one_or_none()
     if tenant:
-        tenant.logo_url = f"http://localhost:8000/uploads/{filename}"
+        tenant.logo_url = f"{app_settings.FRONTEND_URL.rstrip('/')}/uploads/{filename}"
         await db.commit()
         return {"logo_url": tenant.logo_url}
 
@@ -136,4 +137,3 @@ async def update_feature_flag(
     tenant_id = current_user.get("https://successcore.com/app_metadata", {}).get("tenant_id", "")
     enabled = body.get("enabled", False)
     return set_flag(tenant_id, flag, enabled)
-    raise HTTPException(status_code=404, detail="Tenant no encontrado")

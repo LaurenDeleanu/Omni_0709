@@ -36,4 +36,5 @@ from app.models.branch_edit import BranchSession, FileProposal
 from app.models.chat import Team, TeamMember, ChatRoom, ChatRoomMember, ChatMessage
 from app.models.invoice import CustomerInvoice
 from app.models.tax_bracket import TaxBracket
+from app.models.search_index import SearchIndexEntry
 

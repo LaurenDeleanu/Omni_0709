@@ -1,5 +1,6 @@
 import logging
 from typing import Dict, Any
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -8,8 +9,8 @@ class GoogleWorkspaceIntegration:
     
     @staticmethod
     async def get_auth_url() -> str:
-        # Mock auth URL
-        return "https://accounts.google.com/o/oauth2/v2/auth?client_id=mock_client_id&response_type=code&scope=openid%20email%20profile%20https://www.googleapis.com/auth/calendar.readonly&redirect_uri=http://localhost:8000/api/v1/auth/google/callback"
+        redirect_uri = f"{settings.FRONTEND_URL.rstrip('/')}/api/v1/auth/google/callback"
+        return f"https://accounts.google.com/o/oauth2/v2/auth?client_id=mock_client_id&response_type=code&scope=openid%20email%20profile%20https://www.googleapis.com/auth/calendar.readonly&redirect_uri={redirect_uri}"
         
     @staticmethod
     async def exchange_code(code: str) -> Dict[str, Any]:
