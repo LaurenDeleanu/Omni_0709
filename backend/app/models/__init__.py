@@ -36,5 +36,18 @@ from app.models.branch_edit import BranchSession, FileProposal
 from app.models.chat import Team, TeamMember, ChatRoom, ChatRoomMember, ChatMessage
 from app.models.invoice import CustomerInvoice
 from app.models.tax_bracket import TaxBracket
+<<<<<<< Updated upstream
 from app.models.search_index import SearchIndexEntry
+=======
+from app.models.plugin import Plugin, PluginInstall, PluginReview
+from app.models.push import PushSubscription
+from app.models.notification_prefs import NotificationPreference
+from app.models.checklist import Checklist, ChecklistItem
+from app.models.comment import Comment
+from app.models.email_template import EmailTemplate
+from app.models.integration import IntegrationConfig
+from app.models.interview import InterviewQuestion
+from app.models.oauth import OAuth2Client
+from app.models.review_360 import Review360
+>>>>>>> Stashed changes
 
