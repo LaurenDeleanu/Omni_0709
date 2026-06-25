@@ -40,7 +40,7 @@ from app.models.search_index import SearchIndexEntry
 from app.models.plugin import Plugin, PluginInstall, PluginReview
 from app.models.push import PushSubscription
 from app.models.notification_prefs import NotificationPrefs
-from app.models.checklist import Checklist, ChecklistItem
+from app.models.checklist import ChecklistTemplate, ChecklistTemplateTask, ActiveChecklist, ChecklistTask
 from app.models.comment import Comment
 from app.models.email_template import EmailTemplate
 from app.models.integration import IntegrationConfig
