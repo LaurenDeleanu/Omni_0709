@@ -313,6 +313,10 @@ async def synthetic_history(limit: int = 20):
 
 
 
+@app.get("/", tags=["System"])
+async def root():
+    return {"status": "ok", "service": "SuccessCore API"}
+
 @app.get("/openapi.json", tags=["System"], include_in_schema=False)
 async def get_openapi_spec():
     from fastapi.openapi.utils import get_openapi

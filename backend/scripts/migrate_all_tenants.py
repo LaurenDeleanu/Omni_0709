@@ -52,7 +52,6 @@ def run_migrations_global():
     except Exception as e:
         logger.error(f"Migration failed: {e}")
 
-    asyncio.run(engine.dispose())
     logger.info("Database ready")
 
 if __name__ == "__main__":
