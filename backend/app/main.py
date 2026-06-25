@@ -313,7 +313,7 @@ async def synthetic_history(limit: int = 20):
 
 
 
-@app.get("/", tags=["System"])
+@app.api_route("/", methods=["GET", "HEAD"], tags=["System"])
 async def root():
     return {"status": "ok", "service": "SuccessCore API"}
 
