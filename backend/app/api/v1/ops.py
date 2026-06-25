@@ -4,7 +4,7 @@ from sqlalchemy import select, or_, and_, func
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 
-from app.api.dependencies import get_tenant_db, get_current_user
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles
 from app.models.ops import FacilityAsset, AssetBooking, VisitorLog, MaintenanceRequest
 from app.schemas.ops import (
     FacilityAssetCreate, FacilityAssetResponse,
@@ -28,7 +28,11 @@ async def get_assets(type: str = None, db: AsyncSession = Depends(get_tenant_db)
     return result.scalars().all()
 
 @router.post("/assets", response_model=FacilityAssetResponse)
-async def create_asset(data: FacilityAssetCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def create_asset(
+    data: FacilityAssetCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
+):
     db_asset = FacilityAsset(**data.model_dump())
     db.add(db_asset)
     await db.commit()
@@ -46,7 +50,11 @@ async def get_bookings(employee_id: str = None, db: AsyncSession = Depends(get_t
     return result.scalars().all()
 
 @router.post("/bookings", response_model=AssetBookingResponse)
-async def create_booking(data: AssetBookingCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def create_booking(
+    data: AssetBookingCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     # Check for overlapping bookings
     overlapping = await db.execute(
         select(AssetBooking).where(
@@ -96,7 +104,11 @@ async def get_visitors(host_id: str = None, db: AsyncSession = Depends(get_tenan
     return result.scalars().all()
 
 @router.post("/visitors", response_model=VisitorLogResponse)
-async def create_visitor(data: VisitorLogCreate, db: AsyncSession = Depends(get_tenant_db)):
+async def create_visitor(
+    data: VisitorLogCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     db_visitor = VisitorLog(**data.model_dump())
     db.add(db_visitor)
     await db.commit()
@@ -104,7 +116,12 @@ async def create_visitor(data: VisitorLogCreate, db: AsyncSession = Depends(get_
     return db_visitor
 
 @router.put("/visitors/{visitor_id}", response_model=VisitorLogResponse)
-async def update_visitor(visitor_id: str, data: VisitorLogUpdate, db: AsyncSession = Depends(get_tenant_db)):
+async def update_visitor(
+    visitor_id: str,
+    data: VisitorLogUpdate,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(VisitorLog).where(VisitorLog.id == visitor_id))
     visitor = result.scalars().first()
     if not visitor:
@@ -142,7 +159,11 @@ async def update_visitor(visitor_id: str, data: VisitorLogUpdate, db: AsyncSessi
     return visitor
 
 @router.put("/visitors/{visitor_id}/check-out", response_model=VisitorLogResponse)
-async def check_out_visitor(visitor_id: str, db: AsyncSession = Depends(get_tenant_db), current_user=Depends(get_current_user)):
+async def check_out_visitor(
+    visitor_id: str,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
+):
     result = await db.execute(select(VisitorLog).where(VisitorLog.id == visitor_id))
     visitor = result.scalars().first()
     if not visitor:
@@ -222,7 +243,7 @@ async def get_maintenance_requests(
 async def create_maintenance_request(
     data: MaintenanceRequestCreate,
     db: AsyncSession = Depends(get_tenant_db),
-    current_user=Depends(get_current_user)
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
 ):
     db_request = MaintenanceRequest(**data.model_dump())
     db.add(db_request)
@@ -254,7 +275,7 @@ async def update_maintenance_request(
     request_id: str,
     data: MaintenanceRequestUpdate,
     db: AsyncSession = Depends(get_tenant_db),
-    current_user=Depends(get_current_user)
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
 ):
     result = await db.execute(select(MaintenanceRequest).where(MaintenanceRequest.id == request_id))
     request = result.scalars().first()

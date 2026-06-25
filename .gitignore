@@ -53,4 +53,19 @@ build/
 *.pem
 !backend/public_key.pem
 
+# Local databases (never commit SQLite files)
+*.db
+*.sqlite
+*.sqlite3
 
+# Dev logs & credentials
+deploy_log.txt
+login.json
+
+# User uploads (use object storage in production)
+backend/uploads/
+
+# Scratch / throwaway scripts
+scratch/
+cosas/
+.playwright-mcp/

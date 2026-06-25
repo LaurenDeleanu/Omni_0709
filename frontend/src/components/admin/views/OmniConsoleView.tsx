@@ -5,6 +5,7 @@ import MonacoEditor from "./CodeLab/MonacoEditor";
 import DiffViewer from "./CodeLab/DiffViewer";
 import GitPanel from "./CodeLab/GitPanel";
 import { fetchClient } from "@/lib/api/client";
+import { toast } from "sonner";
 
 interface FileItem {
   path: string;
@@ -92,16 +93,16 @@ export default function OmniConsoleView({ botId }: OmniConsoleViewProps) {
           content: activeFileContent
         })
       });
-      alert("¡Archivo guardado con éxito!");
+      toast.success("¡Archivo guardado con éxito!");
     } catch (e: any) {
-      alert(`Error al guardar: ${e.message}`);
+      toast.error(`Error al guardar: ${e.message}`);
     } finally {
       setIsSavingFile(false);
     }
   };
 
   const handleProposalSuccess = (branchName: string, prUrl?: string, score?: number, feedback?: string) => {
-    alert(`🎉 ¡Propuesta enviada con éxito!\n\nAuditoría de IA: ${score}/100\nRama: ${branchName}${prUrl ? `\nPR: ${prUrl}` : ""}`);
+    toast.success(`🎉 ¡Propuesta enviada con éxito! Auditoría de IA: ${score}/100 — Rama: ${branchName}${prUrl ? ` — PR: ${prUrl}` : ""}`);
   };
 
   // Fetch files in the current workspace path
@@ -198,10 +199,10 @@ export default function OmniConsoleView({ botId }: OmniConsoleViewProps) {
           maxLoops: agentMaxLoops
         })
       });
-      alert("¡Configuración del Omni Agent guardada con éxito!");
+      toast.success("¡Configuración del Omni Agent guardada con éxito!");
       fetchRuns();
     } catch (err: any) {
-      alert(`Error al guardar: ${err.message}`);
+      toast.error(`Error al guardar: ${err.message}`);
     } finally {
       setIsSavingSettings(false);
     }
@@ -264,7 +265,7 @@ export default function OmniConsoleView({ botId }: OmniConsoleViewProps) {
         // Refresh codebase file view
         fetchFiles(currentPath);
       } else {
-        alert(`Error al ejecutar directiva: ${data.response || data.error}`);
+        toast.error(`Error al ejecutar directiva: ${data.response || data.error}`);
         setCompilerLogs(`Error de Compilación/Ejecución:\n${data.response || data.error}`);
       }
     } catch (err: any) {
@@ -401,7 +402,7 @@ export default function OmniConsoleView({ botId }: OmniConsoleViewProps) {
                   setShowNewFileInput(false);
                   fetchFiles(currentPath);
                 } catch (err: any) {
-                  alert(`Error al crear archivo: ${err.message}`);
+                  toast.error(`Error al crear archivo: ${err.message}`);
                 }
               }}
               className="mb-3 flex gap-2"
@@ -473,7 +474,7 @@ export default function OmniConsoleView({ botId }: OmniConsoleViewProps) {
                               }
                               fetchFiles(currentPath);
                             } catch (err: any) {
-                              alert(`Error al eliminar archivo: ${err.message}`);
+                              toast.error(`Error al eliminar archivo: ${err.message}`);
                             }
                           }
                         }}

@@ -132,9 +132,9 @@ export default function DeveloperPortal() {
           <p className="text-sm text-muted-foreground">Full OpenAPI 3.1 specification available at:</p>
           <code className="text-sm bg-background px-3 py-2 rounded block font-mono">GET /openapi.json</code>
           <div className="flex gap-3 mt-2">
-            <a href="http://127.0.0.1:8080/docs" target="_blank" className="flex items-center gap-1 text-sm text-primary hover:underline"><ExternalLink size={14} /> Swagger UI</a>
-            <a href="http://127.0.0.1:8080/postman.json" target="_blank" className="flex items-center gap-1 text-sm text-primary hover:underline"><ExternalLink size={14} /> Postman Collection</a>
-            <a href="http://127.0.0.1:8080/sdk.tgz" className="flex items-center gap-1 text-sm text-primary hover:underline"><ExternalLink size={14} /> TypeScript SDK (.tgz)</a>
+            <a href={`${process.env.NEXT_PUBLIC_API_URL?.replace("/api/v1", "") ?? ""}/docs`} target="_blank" className="flex items-center gap-1 text-sm text-primary hover:underline"><ExternalLink size={14} /> Swagger UI</a>
+            <a href={`${process.env.NEXT_PUBLIC_API_URL?.replace("/api/v1", "") ?? ""}/postman.json`} target="_blank" className="flex items-center gap-1 text-sm text-primary hover:underline"><ExternalLink size={14} /> Postman Collection</a>
+            <a href={`${process.env.NEXT_PUBLIC_API_URL?.replace("/api/v1", "") ?? ""}/sdk.tgz`} className="flex items-center gap-1 text-sm text-primary hover:underline"><ExternalLink size={14} /> TypeScript SDK (.tgz)</a>
           </div>
         </div>
       )}

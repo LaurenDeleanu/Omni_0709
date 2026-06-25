@@ -15,7 +15,8 @@ def backup_database(db_url: str = "", backup_dir: str = DEFAULT_BACKUP_DIR) -> s
     filename = f"successcore_backup_{timestamp}.sql"
     filepath = os.path.join(backup_dir, filename)
 
-    target_url = db_url or "postgresql://postgres:password@localhost:5432/successcore"
+    from app.core.config import settings
+    target_url = db_url or settings.SYNC_DATABASE_URI
 
     try:
         parsed = target_url.replace("postgresql://", "").replace("postgres://", "").replace("+asyncpg", "")

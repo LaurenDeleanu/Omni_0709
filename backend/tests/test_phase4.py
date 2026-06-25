@@ -206,10 +206,58 @@ async def test_streaming_react_loop(mock_release_slot, mock_acquire_slot, mock_c
         assert events[2]["event"] == "react_observation"
         assert events[2]["data"] == "Employee is Alice"
         assert events[3]["event"] == "token"
-        assert events[3]["data"] == "Here is the result: Alice works in HR."
+        assert events[3]["data"] == {"text": "Here is the result: Alice works in HR."}
         
         # Last event must be "done" containing final payload metrics
         assert events[-1]["event"] == "done"
         assert "run_id" in events[-1]["data"]
         assert events[-1]["data"]["status"] == "success"
         assert events[-1]["data"]["token_usage"] == 100
+
+
+@pytest.mark.asyncio
+async def test_perform_semantic_search_sqlite_fallback(db):
+    """
+    Verify perform_semantic_search falls back to keyword-based search on SQLite
+    and returns matches from SearchIndexEntry.
+    """
+    from app.models.search_index import SearchIndexEntry
+    from app.services.semantic_search import perform_semantic_search
+
+    # Create dummy entries in search index
+    entry1 = SearchIndexEntry(
+        entity_id="emp_999",
+        entity_type="employee",
+        title="John Oliver Doe",
+        subtitle="Staff Writer",
+        content="Writes scripts and performs talk show hosting.",
+        route="/dashboard/employees/emp_999",
+        embedding=None
+    )
+    entry2 = SearchIndexEntry(
+        entity_id="job_777",
+        entity_type="job",
+        title="Lead Comedy Writer",
+        subtitle="Writing",
+        content="Looking for a writer with experience in humor and political satire.",
+        route="/dashboard/hire/job_777",
+        embedding=None
+    )
+    db.add(entry1)
+    db.add(entry2)
+    await db.commit()
+
+    # Query matching John
+    results = await perform_semantic_search("John", db, limit=5)
+    assert len(results) == 1
+    assert results[0]["id"] == "emp_999"
+    assert results[0]["title"] == "John Oliver Doe"
+    assert results[0]["type"] == "employee"
+
+    # Query matching writer
+    results2 = await perform_semantic_search("writer", db, limit=5)
+    assert len(results2) == 2
+    ids = [r["id"] for r in results2]
+    assert "emp_999" in ids
+    assert "job_777" in ids
+

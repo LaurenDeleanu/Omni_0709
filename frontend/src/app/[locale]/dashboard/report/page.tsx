@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { LegalAPI } from "@/lib/api";
 import { Shield, ShieldAlert, Lock, Info, CheckCircle2, Copy } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +36,7 @@ export default function WhistleblowerReportPortal() {
   const copyToClipboard = () => {
     if (submittedCode) {
       navigator.clipboard.writeText(submittedCode);
-      alert("Código copiado al portapapeles.");
+      toast.success("Código copiado al portapapeles.");
     }
   };
 

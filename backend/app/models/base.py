@@ -16,7 +16,8 @@ from sqlalchemy.orm import declared_attr
 class Base(DeclarativeBase):
     @declared_attr
     def tenant_id(cls):
-        return Column(String(50), nullable=False, index=True)
+        default_val = "default" if is_sqlite else None
+        return Column(String(50), nullable=False, index=True, default=default_val)
 
 class GlobalBase(DeclarativeBase):
     metadata = MetaData(schema=global_schema)

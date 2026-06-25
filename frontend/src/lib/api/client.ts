@@ -72,7 +72,7 @@ export async function fetchClient(endpoint: string, options: RequestInit = {}) {
     if (typeof window !== "undefined" && !window.location.pathname.endsWith("/login")) {
       window.location.href = "/login";
     }
-    throw new APIError("Sesion expirada. Por favor inicia sesion de nuevo.", 401);
+    throw new APIError("Session expired. Please log in again.", 401);
   }
 
   if (!response.ok) {
@@ -81,7 +81,7 @@ export async function fetchClient(endpoint: string, options: RequestInit = {}) {
     if (Array.isArray(detail)) {
       detail = detail.map((d: any) => d.msg || JSON.stringify(d)).join("; ");
     }
-    throw new APIError(detail || "Error en la peticion al servidor", response.status);
+    throw new APIError(detail || "Server request failed", response.status);
   }
 
   const contentType = response.headers.get("content-type");
@@ -115,11 +115,11 @@ export async function downloadBlob(endpoint: string, filename: string, method: s
     if (typeof window !== "undefined" && !window.location.pathname.endsWith("/login")) {
       window.location.href = "/login";
     }
-    throw new APIError("Sesion expirada. Por favor inicia sesion de nuevo.", 401);
+    throw new APIError("Session expired. Please log in again.", 401);
   }
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
-    throw new APIError(errData.detail || "Error descargando archivo", res.status);
+    throw new APIError(errData.detail || "Error downloading file", res.status);
   }
   const blob = await res.blob();
   const url = window.URL.createObjectURL(blob);

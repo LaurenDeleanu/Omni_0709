@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.api.dependencies import get_tenant_db, get_current_user
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles
 from app.models.kudos import Kudos
 from app.models.user import User
 from app.models.notification import Notification
@@ -84,7 +84,7 @@ async def get_kudos_feed(
 async def create_kudos(
     kudos_in: KudosCreate,
     db: AsyncSession = Depends(get_tenant_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_roles(["employee", "hr_admin", "sys_admin"]))
 ):
     """Enviar un Kudos de reconocimiento a un compañero."""
     sender_id = get_user_id(current_user)
