@@ -43,8 +43,8 @@ from app.models.notification_prefs import NotificationPrefs
 from app.models.checklist import ChecklistTemplate, ChecklistTemplateTask, ActiveChecklist, ChecklistTask
 from app.models.comment import Comment
 from app.models.email_template import EmailTemplate
-from app.models.integration import IntegrationConfig
-from app.models.interview import InterviewQuestion
-from app.models.oauth import OAuth2Client
-from app.models.review_360 import Review360
+from app.models.integration import UserIntegration
+from app.models.interview import InterviewScorecard, ScorecardCriterion, InterviewKit, InterviewStage, CandidateEvaluation, CriterionScore
+from app.models.oauth import OAuthClient, OAuthToken
+from app.models.review_360 import ReviewCycle, Review, ReviewRating
 
