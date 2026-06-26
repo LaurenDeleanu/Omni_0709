@@ -148,7 +148,7 @@ def keyword_prefilter(user_message: str) -> Optional[dict]:
         )
         return {
             "should_delegate": True,
-            "agent_type": best_match,
+            "agent_type": best_match.lower(),
             "reason": f"Keyword match: {best_score:.1f} score with {best_confidence:.0%} confidence",
             "confidence": best_confidence,
         }

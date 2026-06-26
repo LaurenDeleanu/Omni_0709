@@ -3,19 +3,7 @@ import { Step } from "@/shared";
 import { getDefaultConfig } from "../utils/configDefaults";
 import { toast } from "sonner";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL
-  ? process.env.NEXT_PUBLIC_API_URL.replace("/api/v1", "")
-  : "http://localhost:8080";
-
-async function apiFetch(path: string, opts: RequestInit = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...opts,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...opts.headers },
-  });
-  if (res.ok) return res.json();
-  throw new Error(`API error ${res.status}`);
-}
+import { fetchClient } from "@/lib/api/client";
 
 export interface VariableDescriptor {
   name: string;
@@ -33,7 +21,7 @@ export function usePipelineState(workflowId: string) {
     if (!workflowId) return;
     setIsLoading(true);
     try {
-      const d = await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps`);
+      const d = await fetchClient(`/visual-workflows/${workflowId}/steps`);
       setSteps(d.steps || []);
     } catch (e) {
       console.error(e);
@@ -55,7 +43,7 @@ export function usePipelineState(workflowId: string) {
       const parsedConfig = customConfig ? { ...customConfig } : JSON.parse(configStr);
       if (position) parsedConfig.position = position;
 
-      await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps`, {
+      await fetchClient(`/visual-workflows/${workflowId}/steps`, {
         method: "POST",
         body: JSON.stringify({ type, label: stepLabel, config: JSON.stringify(parsedConfig) }),
       });
@@ -73,7 +61,7 @@ export function usePipelineState(workflowId: string) {
     setIsSaving(true);
     setSteps(prev => prev.map(s => s.id === stepId ? { ...s, ...data } : s));
     try {
-      await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${stepId}`, { method: "PATCH", body: JSON.stringify(data) });
+      await fetchClient(`/visual-workflows/${workflowId}/steps/${stepId}`, { method: "PATCH", body: JSON.stringify(data) });
     } catch (e) {
       console.error(e);
       toast.error("Error al guardar el paso");
@@ -126,13 +114,13 @@ export function usePipelineState(workflowId: string) {
 
       // Perform cleanups sequentially
     for (const cleanup of stepsToCleanup) {
-      await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${cleanup.id}`, {
+      await fetchClient(`/visual-workflows/${workflowId}/steps/${cleanup.id}`, {
         method: "PATCH",
         body: JSON.stringify({ config: cleanup.config })
       });
     }
 
-    await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${stepId}`, { method: "DELETE" });
+    await fetchClient(`/visual-workflows/${workflowId}/steps/${stepId}`, { method: "DELETE" });
     toast.success("Paso eliminado con éxito");
     await fetchSteps();
     } catch (e) {
@@ -146,13 +134,9 @@ export function usePipelineState(workflowId: string) {
   const duplicateStep = async (stepId: string) => {
     setIsSaving(true);
     try {
-      const res = await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps/${stepId}/duplicate`, { method: "POST" });
-      if (res.ok) {
-        toast.success("Paso duplicado correctamente");
-        await fetchSteps();
-      } else {
-        toast.error("Error al duplicar el paso");
-      }
+      await fetchClient(`/visual-workflows/${workflowId}/steps/${stepId}/duplicate`, { method: "POST" });
+      toast.success("Paso duplicado correctamente");
+      await fetchSteps();
     } catch (e) {
       console.error(e);
       toast.error("Error al duplicar el paso");
@@ -164,12 +148,8 @@ export function usePipelineState(workflowId: string) {
   const reorderSteps = async (newOrder: { id: string; order: number }[]) => {
     setIsSaving(true);
     try {
-      const res = await apiFetch(`/api/v1/visual-workflows/${workflowId}/steps`, { method: "PUT", body: JSON.stringify({ steps: newOrder }) });
-      if (res.ok) {
-        await fetchSteps();
-      } else {
-        toast.error("Error al reordenar pasos");
-      }
+      await fetchClient(`/visual-workflows/${workflowId}/steps`, { method: "PUT", body: JSON.stringify({ steps: newOrder }) });
+      await fetchSteps();
     } catch (e) {
       console.error(e);
       toast.error("Error al reordenar pasos");

@@ -4,8 +4,19 @@ from app.core.config import settings
 import asyncio
 import logging
 import os
+from sqlalchemy import event
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger("successcore.database")
+
+@event.listens_for(Session, "before_flush")
+def receive_before_flush(session, flush_context, instances):
+    tenant_id = session.info.get("tenant_id")
+    if not tenant_id:
+        return
+    for obj in session.new:
+        if hasattr(obj, "tenant_id") and getattr(obj, "tenant_id") is None:
+            obj.tenant_id = tenant_id
 
 connect_args = {}
 if "sqlite" in settings.SQLALCHEMY_DATABASE_URI:

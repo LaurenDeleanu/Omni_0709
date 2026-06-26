@@ -121,6 +121,7 @@ async def get_tenant_db(
         AsyncSessionTenant = _get_sessionmaker()
 
     async with AsyncSessionTenant() as db:
+        db.info["tenant_id"] = tenant_id
         # Set tenant context for RLS policies (defense-in-depth)
         try:
             from app.core.tenant_context import set_tenant_context

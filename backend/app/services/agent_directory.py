@@ -1,7 +1,7 @@
 import logging
 from typing import List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, case
 from datetime import datetime, timezone
 
 from app.models.agent import Agent, AgentExecutionRun
@@ -23,7 +23,7 @@ async def discover_agents(db: AsyncSession) -> List[Dict[str, Any]]:
                 func.avg(AgentExecutionRun.latency_ms).label("avg_latency"),
                 func.avg(AgentExecutionRun.cost_usd).label("avg_cost"),
                 func.sum(
-                    func.case(
+                    case(
                         (AgentExecutionRun.status == "success", 1),
                         else_=0,
                     )

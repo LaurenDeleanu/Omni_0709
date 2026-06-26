@@ -195,9 +195,11 @@ async def provision_tenant(
             expire_on_commit=False,
         )
         async with AsyncSessionTenant() as tenant_db:
+            tenant_db.info["tenant_id"] = schema_name
             admin_info = await seed_tenant_data(tenant_db, admin_email, admin_password, admin_name)
     else:
         async with AsyncSessionGlobal() as tenant_db:
+            tenant_db.info["tenant_id"] = schema_name
             admin_info = await seed_tenant_data(tenant_db, admin_email, admin_password, admin_name)
 
     await _fire_tenant_event("tenant.provisioned", {

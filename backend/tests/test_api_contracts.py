@@ -23,12 +23,12 @@ class TestHealthEndpoints:
         assert data["status"] in ("healthy", "degraded")
 
     def test_ready_check(self):
-        response = client.get("/ready")
+        response = client.get("/health/ready")
         assert response.status_code == 200
         assert response.json()["status"] == "ready"
 
     def test_liveness_probe(self):
-        response = client.get("/live")
+        response = client.get("/health/live")
         assert response.status_code == 200
 
     def test_metrics_endpoint(self):

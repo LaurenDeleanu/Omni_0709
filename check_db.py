@@ -12,20 +12,15 @@ async def check_db():
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
-        print("Checking failed agent run trace...")
-        result = await session.execute(text("SELECT execution_trace, output_result FROM agent_execution_runs WHERE id = '5acc0c9f59bc448088f53059f90f462b'"))
-        row = result.fetchone()
-        if row:
-            print(f"Failed Run Trace: {row[0]}")
-            print(f"Output Result: {row[1]}")
-            
-        print("\nChecking audit_logs for errors...")
-        result = await session.execute(text("SELECT id, action, details, created_at FROM audit_logs WHERE details::text ILIKE '%error%' OR details::text ILIKE '%failed%' ORDER BY created_at DESC LIMIT 5"))
-        audit_rows = result.fetchall()
-        for r in audit_rows:
-            print(f"Audit Error: {r.action} - {r.details}")
+        print("Checking tables in tenant_acme_corp...")
+        result = await session.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'tenant_acme_corp'"))
+        tables = result.fetchall()
+        print(f"Tables in tenant_acme_corp: {[t[0] for t in tables]}")
         
-    await engine.dispose()
+        print("\nChecking tables in public...")
+        result = await session.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"))
+        pub_tables = result.fetchall()
+        print(f"Tables in public: {[t[0] for t in pub_tables]}")
 
 if __name__ == '__main__':
     asyncio.run(check_db())

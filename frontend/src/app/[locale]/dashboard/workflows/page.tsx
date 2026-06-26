@@ -19,7 +19,7 @@ export default function WorkflowsPage() {
     queryKey: ["workflowsList"],
     queryFn: async () => { 
       const res = await fetchClient("/visual-workflows"); 
-      return Array.isArray(res) ? res : res.items ?? []; 
+      return Array.isArray(res) ? res : (res.workflows || res.items || []); 
     },
   });
 

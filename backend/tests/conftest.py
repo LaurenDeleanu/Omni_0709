@@ -32,6 +32,13 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 def pytest_configure(config):
     config.inicfg["asyncio_mode"] = "auto"
 
+@pytest.fixture(scope="session")
+def event_loop():
+    import asyncio
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
 
 import slowapi
 
@@ -112,6 +119,7 @@ async def _override_get_global_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def _override_get_tenant_db() -> AsyncGenerator[AsyncSession, None]:
     async with TestSessionLocal() as session:
+        session.info["tenant_id"] = "test_tenant"
         yield session
 
 
@@ -167,6 +175,7 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture
 async def test_db() -> AsyncGenerator[AsyncSession, None]:
     async with TestSessionLocal() as session:
+        session.info["tenant_id"] = "test_tenant"
         yield session
 
 

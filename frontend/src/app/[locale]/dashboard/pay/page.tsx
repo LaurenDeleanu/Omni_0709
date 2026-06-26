@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PayAPI, PayrollCycle, TaxRule, EmployeeCompensation, Bonus } from "@/lib/api";
-import { API_BASE } from "@/lib/api/client";
+import { API_BASE, fetchClient } from "@/lib/api/client";
 import { Plus, DollarSign, Users, ChevronRight, FileText, CheckCircle2, CircleDashed, Server, Briefcase, MapPin, Percent, Edit, Award, Trash2 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useState } from "react";
@@ -40,16 +40,9 @@ export default function PayrollHub() {
 
   const seedTaxesMutation = useMutation({
     mutationFn: async () => {
-      const token = localStorage.getItem("local_access_token");
-      const res = await fetch(`${API_BASE}/pay/cycles/seed_taxes`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+      return await fetchClient("/pay/cycles/seed_taxes", {
+        method: "POST"
       });
-      if (!res.ok) throw new Error("Failed to seed taxes");
-      return res.json();
     },
     onSuccess: (data) => {
       toast.success(data.message || "Impuestos configurados correctamente.");

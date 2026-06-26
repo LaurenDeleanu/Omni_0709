@@ -3,7 +3,7 @@
 // downloadBlob() handles authenticated file downloads via the same cookie mechanism.
 // No tokens are ever stored in localStorage — that was an XSS risk (fixed).
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1";
 
 let _csrfToken: string | null = null;
 let _csrfFetchedAt = 0;

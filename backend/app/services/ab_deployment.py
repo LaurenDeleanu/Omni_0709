@@ -6,7 +6,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, case
 
 from app.models.agent import Agent, AgentConfig, AgentExecutionRun, AgentReputationScore
 from app.core.redis import get_redis
@@ -155,7 +155,7 @@ class ABDeployment:
                 func.avg(AgentExecutionRun.latency_ms).label("avg_latency"),
                 func.avg(AgentExecutionRun.cost_usd).label("avg_cost"),
                 func.sum(
-                    func.case(
+                    case(
                         (AgentExecutionRun.status == "success", 1),
                         else_=0,
                     )
@@ -353,7 +353,7 @@ class ABDeployment:
         base_query = select(
             func.count(AgentExecutionRun.id).label("total"),
             func.sum(
-                func.case(
+                case(
                     (AgentExecutionRun.status == "failed", 1),
                     else_=0,
                 )
@@ -390,7 +390,7 @@ class ABDeployment:
             var_query = select(
                 func.count(AgentExecutionRun.id).label("total"),
                 func.sum(
-                    func.case(
+                    case(
                         (AgentExecutionRun.status == "failed", 1),
                         else_=0,
                     )
