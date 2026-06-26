@@ -56,7 +56,6 @@ async def create_workflow(
 ):
     workflow = VisualWorkflow(
         id=uuid.uuid4().hex,
-        tenant_id=current_user.get("tenant_id", "default"),
         name=body.name,
         description=body.description,
         agent_id=body.agent_id
@@ -71,7 +70,8 @@ async def list_workflows(
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin", "employee"]))
 ):
-    tenant_id = current_user.get("tenant_id", "default")
+    tenant_id = db.info.get("tenant_id")
+    # db.info["tenant_id"] correctly has the context
     result = await db.execute(select(VisualWorkflow).where(VisualWorkflow.tenant_id == tenant_id))
     return {"workflows": result.scalars().all()}
 
