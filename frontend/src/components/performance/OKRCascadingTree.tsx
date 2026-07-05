@@ -206,7 +206,7 @@ export function OKRCascadingTree() {
 
   const { data: objectives, isLoading, error } = useQuery<Objective[]>({
     queryKey: ["all-objectives"],
-    queryFn: () => fetchClient("/goals?limit=100").then(r => r),
+    queryFn: () => fetchClient("/grow/okrs").then(r => r),
   });
 
   const tree = useMemo(() => buildOKRTree(objectives || []), [objectives]);
