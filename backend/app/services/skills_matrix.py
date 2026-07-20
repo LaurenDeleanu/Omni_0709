@@ -1,5 +1,7 @@
 import logging
 import json
+import uuid
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, delete
@@ -163,7 +165,7 @@ async def extract_skills_from_text(text: str, user_id: str, source: str, db: Asy
             if level > profile.level:
                 profile.level = level
                 profile.source = source
-                profile.updated_at = datetime.utcnow()
+                profile.updated_at = datetime.now(timezone.utc)
         else:
             new_profile = SkillProfile(
                 id=uuid.uuid4().hex,

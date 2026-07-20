@@ -342,12 +342,16 @@ export default function IDECodeLabView() {
 
   const handleApplyAllProposals = useCallback(async () => {
     try {
-      await fetchClient("/omni/proposals/apply-all", { method: "POST" });
+      // Backend "apply all" is scoped to a branch session (POST /omni/branches/{id}/apply-all),
+      // which this view doesn't track — apply each listed proposal via the per-proposal route.
+      await Promise.all(
+        proposals.map((p) => fetchClient(`/omni/proposals/${p.id}/apply`, { method: "POST" }))
+      );
       setProposals([]);
       fetchFiles();
       fetchGitStatus();
     } catch (err) { console.error("Failed to apply all proposals:", err); }
-  }, [fetchFiles, fetchGitStatus]);
+  }, [proposals, fetchFiles, fetchGitStatus]);
 
   const activeLanguage = activeFilePath ? getLanguage(activeFilePath) : "plaintext";
 

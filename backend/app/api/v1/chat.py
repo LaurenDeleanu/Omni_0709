@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from app.api.dependencies import get_tenant_db, get_current_user, require_roles
+from app.api.dependencies import get_tenant_db, get_current_user, require_roles, _get_sessionmaker
 from app.models.user import User
 from app.models.chat import Team, TeamMember, ChatRoom, ChatRoomMember, ChatMessage
 from app.core.auth import auth_verifier
@@ -824,8 +824,9 @@ async def chat_websocket_endpoint(websocket: WebSocket):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    tenant_schema = f"tenant_{tenant_id}"
-    sessionmaker = _get_or_create_sessionmaker(tenant_schema)
+    # Sessionmaker global: el aislamiento por tenant se aplica vía RLS
+    # (mismo patrón que get_tenant_db en app/api/dependencies.py).
+    sessionmaker = _get_sessionmaker()
 
     # Registrar conexión
     await ws_manager.connect(user_id, websocket)
@@ -842,6 +843,8 @@ async def chat_websocket_endpoint(websocket: WebSocket):
                 continue
 
             async with sessionmaker() as db:
+                # Propagar el tenant a la sesión (RLS / autocompletado de tenant_id)
+                db.info["tenant_id"] = tenant_id
                 # Verificar membresía
                 mem_res = await db.execute(
                     select(ChatRoomMember).where(ChatRoomMember.room_id == room_id, ChatRoomMember.user_id == user_id)
@@ -1035,8 +1038,8 @@ async def collab_websocket_endpoint(websocket: WebSocket, room_id: str):
             content = data.get("content", "").strip()
             if not content:
                 continue
-            tenant_schema = f"tenant_{uid}"
-            sessionmaker = _get_or_create_sessionmaker(tenant_schema)
+            # Sessionmaker global: el aislamiento por tenant se aplica vía RLS
+            sessionmaker = _get_sessionmaker()
             async with sessionmaker() as db:
                 try:
                     result = await CollaborativeSession.send_user_message(room_id, uid, content, db)

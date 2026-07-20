@@ -137,7 +137,7 @@ export default function PayrollRunDetails() {
               <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium text-foreground">El ciclo está en borrador</h3>
               <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-                Haz clic en "Procesar Empleados" para generar las nóminas (payslips) en base a los salarios actuales y las reglas fiscales configuradas.
+                Haz clic en &quot;Procesar Empleados&quot; para generar las nóminas (payslips) en base a los salarios actuales y las reglas fiscales configuradas.
               </p>
             </div>
           ) : (

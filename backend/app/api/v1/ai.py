@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from typing import Literal, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -31,6 +32,12 @@ class AICopilotRequest(BaseModel):
 class NLQRequest(BaseModel):
     question: str
     model: str = "gpt-4o-mini"
+
+
+class CopilotFeedbackRequest(BaseModel):
+    message_id: str
+    rating: Literal["up", "down"]
+    comment: Optional[str] = None
 
 
 def _extract_user_payload(current_user: dict) -> dict:
@@ -425,6 +432,29 @@ async def stream_platform_copilot(
     except Exception as e:
         logger.error(f"Error en copiloto streaming: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/copilot/feedback")
+async def submit_copilot_feedback(
+    body: CopilotFeedbackRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Registra el feedback del usuario (pulgar arriba/abajo y comentario opcional)
+    sobre una respuesta del copiloto.
+
+    No existe todavía una tabla dedicada para este feedback, así que se registra
+    en el log del módulo para su análisis posterior.
+    """
+    user_payload = _extract_user_payload(current_user)
+    logger.info(
+        "Feedback del copiloto — usuario=%s message_id=%s rating=%s comment=%r",
+        user_payload["user_id"],
+        body.message_id,
+        body.rating,
+        body.comment or "",
+    )
+    return {"status": "ok"}
 
 
 # --- Session API endpoints ---

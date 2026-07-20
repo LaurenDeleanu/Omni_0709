@@ -183,9 +183,12 @@ export function AiChatWidget() {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
       
-      const body = action === "reject" ? JSON.stringify({ reason: "Rechazado por usuario en chat" }) : JSON.stringify({});
-      
-      const res = await fetch(`${API_BASE}/approvals/${msg.approvalRequestId}/${action}`, {
+      const body = JSON.stringify({
+        action: action === "approve" ? "APPROVED" : "REJECTED",
+        resolution_notes: action === "reject" ? "Rechazado por usuario en chat" : null,
+      });
+
+      const res = await fetch(`${API_BASE}/approvals/${msg.approvalRequestId}/resolve`, {
         method: "POST",
         headers,
         body,

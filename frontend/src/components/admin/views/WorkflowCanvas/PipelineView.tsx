@@ -60,7 +60,7 @@ export default function PipelineView({
   useEffect(() => {
     async function loadResources() {
       try {
-        const d = await fetchClient("/schedules");
+        const d = await fetchClient("/schedules/");
         setSchedules(Array.isArray(d) ? d : (d.schedules || d));
       } catch (e) {
         console.error("Failed loading schedules", e);

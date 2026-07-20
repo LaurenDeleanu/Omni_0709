@@ -478,7 +478,7 @@ export default function CalendarPage() {
                   </div>
                   <h4 className="text-sm font-semibold text-foreground leading-tight">{e.title}</h4>
                   {e.extra?.description && <p className="text-xs text-muted-foreground truncate">{e.extra.description}</p>}
-                  {e.extra?.reason && <p className="text-xs text-muted-foreground italic">" {e.extra.reason} "</p>}
+                  {e.extra?.reason && <p className="text-xs text-muted-foreground italic">&quot; {e.extra.reason} &quot;</p>}
                   
                   {/* Detailed Meta */}
                   <div className="flex flex-col gap-1 text-[11px] text-muted-foreground pt-1.5 border-t border-border/20 mt-1">

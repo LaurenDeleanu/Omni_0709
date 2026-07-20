@@ -196,9 +196,9 @@ async def run_ab_test(
     if not suite:
         raise HTTPException(status_code=404, detail="TestSuite not found")
 
+    from app.models.agent import Agent
     agent_res = await db.execute(select(Agent).where(Agent.id == agent_id))
     agent = agent_res.scalar_one_or_none()
-    from app.models.agent import Agent as AgentModel
 
     results = []
     for label, config in [("A", config_a), ("B", config_b)]:

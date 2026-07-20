@@ -12,7 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Static assets served as-is (not part of the TS build):
+    "public/**",
   ]),
+  {
+    rules: {
+      // API payloads are currently typed as `any` throughout the codebase;
+      // keep visible as warnings until proper payload types land.
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

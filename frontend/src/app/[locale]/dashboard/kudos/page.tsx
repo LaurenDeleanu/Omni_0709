@@ -180,7 +180,7 @@ export default function KudosWallPage() {
 
                     {/* Gratitude message */}
                     <div className="bg-muted/30 p-4 rounded-xl border border-border/40 text-sm text-foreground italic leading-relaxed break-words font-medium">
-                      "{k.message}"
+                      &quot;{k.message}&quot;
                     </div>
 
                     {/* Footer Interactions */}

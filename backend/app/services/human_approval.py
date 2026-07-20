@@ -55,15 +55,15 @@ async def request_approval(
 
 
 async def _notify_approvers(approval: HumanApprovalRequest, db: AsyncSession):
+    # Crea la notificación en BD y la empuja por WebSocket si hay conexión activa
     try:
-        from app.services.notification_sender import send_notification
-        await send_notification(
+        from app.services.notification_utils import create_and_push_notification
+        await create_and_push_notification(
+            db=db,
             user_id=approval.user_id,
             title=f"Approval required: {approval.action_type}",
-            body=f"{approval.action_description}\n\nRequest ID: {approval.id}",
-            category="approval_required",
-            metadata={"approval_request_id": approval.id},
-            db=db,
+            message=f"{approval.action_description}\n\nRequest ID: {approval.id}",
+            type_="approval_required",
         )
     except (ImportError, AttributeError):
         logger.info(f"Notification service not available — approval {approval.id} stored without push notification")

@@ -12,14 +12,14 @@ export interface Scorecard {
 }
 
 export const InterviewsAPI = {
-  getScorecards: () => fetchClient("/interviews/interview-scorecards"),
-  createScorecard: (data: any) => fetchClient("/interviews/interview-scorecards", { method: "POST", body: JSON.stringify(data) }),
-  getScorecard: (scorecardId: string) => fetchClient(`/interviews/interview-scorecards/${scorecardId}`),
-  deleteScorecard: (scorecardId: string) => fetchClient(`/interviews/interview-scorecards/${scorecardId}`, { method: "DELETE" }),
-  
-  getKits: () => fetchClient("/interviews/interview-kits"),
-  createKit: (data: any) => fetchClient("/interviews/interview-kits", { method: "POST", body: JSON.stringify(data) }),
-  
-  createEvaluation: (data: any) => fetchClient("/interviews/candidate-evaluations", { method: "POST", body: JSON.stringify(data) }),
-  getCandidateEvaluations: (candidateId: string) => fetchClient(`/interviews/candidate-evaluations/${candidateId}`),
+  getScorecards: () => fetchClient("/interview-scorecards"),
+  createScorecard: (data: any) => fetchClient("/interview-scorecards", { method: "POST", body: JSON.stringify(data) }),
+  getScorecard: (scorecardId: string) => fetchClient(`/interview-scorecards/${scorecardId}`),
+  deleteScorecard: (scorecardId: string) => fetchClient(`/interview-scorecards/${scorecardId}`, { method: "DELETE" }),
+
+  getKits: () => fetchClient("/interview-kits"),
+  createKit: (data: any) => fetchClient("/interview-kits", { method: "POST", body: JSON.stringify(data) }),
+
+  createEvaluation: (data: any) => fetchClient("/candidate-evaluations", { method: "POST", body: JSON.stringify(data) }),
+  getCandidateEvaluations: (candidateId: string) => fetchClient(`/candidate-evaluations/${candidateId}`),
 };

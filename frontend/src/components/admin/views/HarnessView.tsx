@@ -547,7 +547,7 @@ export default function HarnessView({ botId }: { botId: string }) {
                             {c.passed ? "PASSED" : "FAILED"}
                           </span>
                         </div>
-                        <p className="text-[11px] text-zinc-400 line-clamp-1"><strong>Output:</strong> "{c.output}"</p>
+                        <p className="text-[11px] text-zinc-400 line-clamp-1"><strong>Output:</strong> &quot;{c.output}&quot;</p>
                       </div>
                     ));
                   } catch (e) {
@@ -581,7 +581,7 @@ export default function HarnessView({ botId }: { botId: string }) {
                 </div>
                 <div className="bg-indigo-950/10 p-4 rounded-xl border border-indigo-500/20">
                   <span className="text-indigo-400 block mb-1.5 font-bold uppercase tracking-wider text-[10px]">Crítica y Veredicto del Juez:</span>
-                  <p className="text-zinc-200 text-[11.5px] italic leading-relaxed whitespace-pre-wrap">"{selectedCaseResult.critique}"</p>
+                  <p className="text-zinc-200 text-[11.5px] italic leading-relaxed whitespace-pre-wrap">&quot;{selectedCaseResult.critique}&quot;</p>
                   <div className="mt-2.5 pt-2 border-t border-white/5 text-[10.5px] text-zinc-400 font-mono">
                     Score de calidad asignado: <strong className="text-white">{selectedCaseResult.score} / 1.0</strong>
                   </div>

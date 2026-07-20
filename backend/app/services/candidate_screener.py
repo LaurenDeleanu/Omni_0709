@@ -55,6 +55,23 @@ Return ONLY valid JSON with:
 JSON:"""
 
 
+INTERVIEW_QUESTIONS_PROMPT = """Generate between 5 and 8 tailored interview questions for this candidate and job.
+
+Job Requirements:
+{job_requirements}
+
+Candidate Profile:
+{profile}
+
+Return ONLY valid JSON with:
+- questions: list of objects, each with:
+  - question: string (the interview question)
+  - category: string ("technical" | "behavioral" | "situational")
+  - rationale: string (1 sentence explaining why this question fits this candidate)
+
+JSON:"""
+
+
 class ParsedResume(BaseModel):
     full_name: str = ""
     email: str = ""
@@ -169,13 +186,10 @@ async def screen_resume_full(
     Full resume screening pipeline: extract text, parse, score against job.
     This is the function called by the existing POST /candidates/screen endpoint.
     """
-    import os
-    import io
-    from app.services.file_parser import extract_text
+    # file_parser expone parse_file_content(filename, content) — resuelve la extensión internamente
+    from app.services.file_parser import parse_file_content
 
-    ext = os.path.splitext(filename)[-1].lower()
-    reader = io.BytesIO(content)
-    resume_text = await extract_text(reader, ext)
+    resume_text = await parse_file_content(filename, content)
 
     if not resume_text or len(resume_text.strip()) < 50:
         raise ValueError("Could not extract sufficient text from the resume file.")
@@ -236,6 +250,113 @@ async def batch_screen_resumes(files: list[dict], job_id: str, db=None, model: s
         res["rank"] = i + 1
         
     return results
+
+
+async def rank_candidates(
+    candidate_ids: list,
+    job_id: str,
+    db=None,
+    model: str = "gpt-4o-mini",
+) -> list:
+    """
+    Puntúa y clasifica varios candidatos existentes frente a una oferta de trabajo.
+
+    Devuelve una lista ordenada (mejor puntuación primero) con sub-puntuaciones,
+    fortalezas, carencias y recomendación por candidato. Si la oferta o los
+    candidatos no existen, devuelve [{"error": ...}] para que el llamador lo gestione.
+    """
+    from sqlalchemy import select
+    from app.models.hire import Candidate, JobPosting
+
+    if db is None:
+        return [{"error": "Se requiere una sesión de base de datos para clasificar candidatos"}]
+
+    job_res = await db.execute(select(JobPosting).where(JobPosting.id == job_id))
+    job = job_res.scalar_one_or_none()
+    if not job:
+        return [{"error": f"Oferta de trabajo '{job_id}' no encontrada"}]
+
+    cand_res = await db.execute(select(Candidate).where(Candidate.id.in_(candidate_ids)))
+    candidates = cand_res.scalars().all()
+    if not candidates:
+        return [{"error": "No se encontró ningún candidato con los IDs proporcionados"}]
+
+    job_title = job.title or ""
+    requirements = job.description or ""
+
+    ranked = []
+    for candidate in candidates:
+        profile = {
+            "first_name": candidate.first_name,
+            "last_name": candidate.last_name,
+            "email": candidate.email,
+            "phone": candidate.phone,
+            "notes": candidate.notes,
+            "stage": candidate.stage,
+        }
+        score = await score_candidate(profile, job_title, requirements, model)
+        entry = {
+            "candidate_id": candidate.id,
+            "candidate_name": f"{candidate.first_name or ''} {candidate.last_name or ''}".strip(),
+            "email": candidate.email,
+            "stage": candidate.stage,
+        }
+        if score:
+            entry.update(score.model_dump())
+            entry["scoring_failed"] = False
+        else:
+            # Degradación honesta: sin puntuación LLM el candidato queda a 0 y marcado
+            entry.update(CandidateScore(reasoning="No se pudo generar la puntuación con el LLM").model_dump())
+            entry["scoring_failed"] = True
+        ranked.append(entry)
+
+    ranked.sort(key=lambda x: x.get("overall_score", 0), reverse=True)
+    for i, entry in enumerate(ranked):
+        entry["rank"] = i + 1
+
+    return ranked
+
+
+async def generate_interview_questions(
+    candidate_profile: dict,
+    job_requirements: str,
+    model: str = "gpt-4o-mini",
+) -> list:
+    """
+    Genera 5-8 preguntas de entrevista personalizadas según el perfil del
+    candidato y los requisitos del puesto. Devuelve una lista de objetos
+    {question, category, rationale}. Lanza ValueError si el LLM no devuelve
+    una lista válida.
+    """
+    profile_str = json.dumps(candidate_profile, indent=2, ensure_ascii=False, default=str)
+    prompt = INTERVIEW_QUESTIONS_PROMPT.format(
+        job_requirements=(job_requirements or "")[:2000],
+        profile=profile_str[:4000],
+    )
+
+    response = await _call_llm_cascade(
+        messages=[{"role": "user", "content": prompt}],
+        model=model,
+        temperature=0.4,
+        max_tokens=1200,
+    )
+    response = response.strip()
+    if response.startswith("```"):
+        response = response.split("```")[1]
+        if response.startswith("json"):
+            response = response[4:]
+
+    try:
+        data = json.loads(response)
+    except json.JSONDecodeError as e:
+        logger.error(f"Interview question generation returned invalid JSON: {e}")
+        raise ValueError("El LLM no devolvió JSON válido al generar preguntas de entrevista")
+
+    questions = data.get("questions", []) if isinstance(data, dict) else data
+    if not isinstance(questions, list) or not questions:
+        raise ValueError("El LLM no devolvió una lista válida de preguntas de entrevista")
+
+    return questions
 
 
 async def _get_job_requirements(job_id: str, db) -> str:

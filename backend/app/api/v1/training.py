@@ -337,10 +337,13 @@ async def export_fundae_xml(
     reparsed = minidom.parseString(xml_str)
     pretty_xml = reparsed.toprettyxml(indent="  ")
 
+    # El export abarca todas las matrículas elegibles (no un curso concreto),
+    # por lo que el nombre de archivo se deriva de la fecha de generación.
+    export_date = datetime.now(timezone.utc).strftime("%Y%m%d")
     return Response(
         content=pretty_xml,
         media_type="application/xml",
-        headers={"Content-Disposition": f"attachment; filename=fundae_{course_id}.xml"},
+        headers={"Content-Disposition": f"attachment; filename=fundae_{export_date}.xml"},
     )
 
 

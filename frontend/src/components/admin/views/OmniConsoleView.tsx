@@ -591,7 +591,7 @@ export default function OmniConsoleView({ botId }: OmniConsoleViewProps) {
                   <span className="text-3xl mb-3">🔎</span>
                   <p className="text-xs">No hay cambios cargados en el Inspector de Cambios.</p>
                   <p className="text-[10px] text-zinc-600 mt-1 max-w-[280px] text-center">
-                    Ejecuta una directiva y selecciona "Ver Diff" en el historial de trazas de un cambio.
+                    Ejecuta una directiva y selecciona &quot;Ver Diff&quot; en el historial de trazas de un cambio.
                   </p>
                 </div>
               )
@@ -798,7 +798,7 @@ export default function OmniConsoleView({ botId }: OmniConsoleViewProps) {
                               </div>
 
                               <p className="text-xs text-zinc-400 leading-relaxed italic bg-zinc-900/30 p-2 rounded-lg border border-zinc-800/40">
-                                "{step.thought}"
+                                &quot;{step.thought}&quot;
                               </p>
 
                               {/* Action Parameters and tool specific triggers */}

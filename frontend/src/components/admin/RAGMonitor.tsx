@@ -63,6 +63,9 @@ const MOCK_AGENTS = [
   },
 ];
 
+// Snapshot timestamp for the static mock data above (kept out of render for purity).
+const MOCK_NOW_TS = Date.now();
+
 const QUERY_STATS = [
   { agent: "HR Copilot", queries_24h: 342, avg_similarity: 0.78, avg_latency_ms: 120, cache_hit_rate: 45 },
   { agent: "IT Helpdesk", queries_24h: 512, avg_similarity: 0.82, avg_latency_ms: 95, cache_hit_rate: 62 },
@@ -116,7 +119,7 @@ export function RAGMonitor() {
               const maxChunks = MOCK_AGENTS.reduce((a, b) => Math.max(a, b.chunk_count), 0);
               const avgCharsPerDoc = agent.total_chars / Math.max(agent.doc_count, 1);
               const lastIndexed = new Date(agent.last_indexed);
-              const hoursAgo = Math.round((Date.now() - lastIndexed.getTime()) / 3600000);
+              const hoursAgo = Math.round((MOCK_NOW_TS - lastIndexed.getTime()) / 3600000);
 
               return (
                 <div key={agent.id} className="p-3 rounded-xl bg-muted/10 border border-border/30 hover:border-border/60 transition-colors">

@@ -169,9 +169,7 @@ function useAuth0UserSession() {
   return { user: null, error: undefined, isLoading: false, invalidate, logout };
 }
 
-export function useUser() {
-  if (isAuth0Configured) {
-    return useAuth0UserSession();
-  }
-  return useLocalUserSession();
-}
+// NEXT_PUBLIC_* vars are inlined at build time, so isAuth0Configured never
+// changes at runtime — selecting the implementation at module scope keeps
+// hook calls unconditional (rules-of-hooks).
+export const useUser = isAuth0Configured ? useAuth0UserSession : useLocalUserSession;

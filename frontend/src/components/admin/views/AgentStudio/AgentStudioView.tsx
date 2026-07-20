@@ -344,7 +344,7 @@ export default function AgentStudioView({
                 API Credentials (BYOK)
               </h3>
               <p className="text-xs text-muted-foreground font-light mb-6">
-                Configure your own API keys. These are encrypted and stored securely inside the tenant's settings database.
+                Configure your own API keys. These are encrypted and stored securely inside the tenant&apos;s settings database.
               </p>
               
               <div className="space-y-4">

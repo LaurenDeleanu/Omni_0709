@@ -50,7 +50,7 @@ export default function AINode({ data }: { data: any }) {
           <div className="flex flex-col gap-1 mt-1 border-t border-white/5 pt-2">
             <span className="text-[8px] text-indigo-400/80 font-black uppercase tracking-[0.15em]">System Prompt Override:</span>
             <p className="text-[10px] text-zinc-300 leading-relaxed line-clamp-3 italic">
-              "{config.systemPrompt || "Eres un agente amigable..."}"
+              &quot;{config.systemPrompt || "Eres un agente amigable..."}&quot;
             </p>
           </div>
         </div>

@@ -1540,7 +1540,8 @@ async def _tool_generate_interview_questions(db: AsyncSession, candidate_id: str
         candidate = result.scalar_one_or_none()
         if not candidate:
             return json.dumps({"error": f"Candidate {candidate_id} not found"})
-        job_requirements = await _get_job_requirements(db, job_id)
+        # La firma real en candidate_screener es _get_job_requirements(job_id, db)
+        job_requirements = await _get_job_requirements(job_id, db)
         if not job_requirements:
             return json.dumps({"error": f"Job {job_id} not found"})
         candidate_profile = {

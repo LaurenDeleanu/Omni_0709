@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime
 
 from app.api.dependencies import get_tenant_db, get_current_user, require_roles
-from app.models.legal import WhistleblowerReport, DSARTicket, Contract
+from app.models.legal import WhistleblowerReport, DSARTicket, Contract, ComplianceAudit
 from app.services.contract_lifecycle import (
     renew_contract,
     get_contract_timeline,
@@ -147,6 +147,56 @@ async def update_dsar_status(
     ticket.status = status_in.status
     await db.commit()
     return {"message": "DSAR status updated"}
+
+class ContractCreate(BaseModel):
+    title: str
+    party_name: str
+    description: Optional[str] = None
+    status: str = "draft"  # draft, pending_signature, active, expired
+    valid_from: Optional[datetime] = None
+    valid_until: Optional[datetime] = None
+    document_url: Optional[str] = None
+
+
+@router.get("/contracts")
+async def list_contracts(
+    db: AsyncSession = Depends(get_tenant_db),
+    _: dict = Depends(require_roles(["hr_admin", "admin", "legal_manager"]))
+):
+    """
+    Lista todos los contratos legales, ordenados por fecha de creación descendente.
+    """
+    result = await db.execute(select(Contract).order_by(Contract.created_at.desc()))
+    return result.scalars().all()
+
+
+@router.post("/contracts", status_code=status.HTTP_201_CREATED)
+async def create_contract(
+    contract_in: ContractCreate,
+    db: AsyncSession = Depends(get_tenant_db),
+    _: dict = Depends(require_roles(["hr_admin", "admin", "legal_manager"]))
+):
+    """
+    Crea un nuevo contrato legal.
+    """
+    if contract_in.status not in ["draft", "pending_signature", "active", "expired"]:
+        raise HTTPException(status_code=400, detail="Invalid contract status")
+
+    new_contract = Contract(
+        id=uuid.uuid4().hex,
+        title=contract_in.title,
+        description=contract_in.description,
+        party_name=contract_in.party_name,
+        status=contract_in.status,
+        valid_from=contract_in.valid_from,
+        valid_until=contract_in.valid_until,
+        document_url=contract_in.document_url,
+    )
+    db.add(new_contract)
+    await db.commit()
+    await db.refresh(new_contract)
+    return new_contract
+
 
 class RenewContractRequest(BaseModel):
     new_end_date: str

@@ -19,17 +19,17 @@ export default function ReviewsPage() {
 
   const { data: cycles, isLoading: cyclesLoading } = useQuery({
     queryKey: ["review-cycles"],
-    queryFn: () => fetchClient("/api/v1/reviews-360/cycles"),
+    queryFn: () => fetchClient("/reviews-360/cycles"),
   });
 
   const { data: categories } = useQuery({
     queryKey: ["review-categories"],
-    queryFn: () => fetchClient("/api/v1/reviews-360/categories"),
+    queryFn: () => fetchClient("/reviews-360/categories"),
   });
 
   const { data: cycleProgress, isLoading: progressLoading } = useQuery({
     queryKey: ["review-cycle-progress", selectedCycle],
-    queryFn: () => fetchClient(`/api/v1/reviews-360/cycles/${selectedCycle}/progress`),
+    queryFn: () => fetchClient(`/reviews-360/cycles/${selectedCycle}/progress`),
     enabled: !!selectedCycle,
   });
 

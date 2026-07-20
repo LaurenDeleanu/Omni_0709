@@ -125,8 +125,9 @@ export function UserAvatar() {
 
           {/* Logout */}
           <div className="p-1.5 border-t border-border/40">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- /auth/logout is an Auth0 v4 middleware route, not a Next page; full-page navigation is required */}
             <a
-              href="/api/auth/logout"
+              href="/auth/logout"
               onClick={handleLogout}
               className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
             >

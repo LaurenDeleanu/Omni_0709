@@ -19,22 +19,22 @@ export default function TimeTrackingPage() {
 
   const { data: activeSession, isLoading: sessionLoading } = useQuery({
     queryKey: ["active-session"],
-    queryFn: () => fetchClient("/api/v1/time-tracking/active"),
+    queryFn: () => fetchClient("/time-tracking/active"),
     refetchInterval: 30000,
   });
 
   const { data: logs } = useQuery({
     queryKey: ["time-logs"],
-    queryFn: () => fetchClient("/api/v1/time-tracking/logs?limit=20"),
+    queryFn: () => fetchClient("/time-tracking/logs?limit=20"),
   });
 
   const { data: summary } = useQuery({
     queryKey: ["time-summary"],
-    queryFn: () => fetchClient("/api/v1/time-tracking/summary"),
+    queryFn: () => fetchClient("/time-tracking/summary"),
   });
 
   const clockInMutation = useMutation({
-    mutationFn: () => fetchClient("/api/v1/time-tracking/in", {
+    mutationFn: () => fetchClient("/time-tracking/in", {
       method: "POST",
       body: JSON.stringify({ notes, project_id: projectId }),
     }),
@@ -48,7 +48,7 @@ export default function TimeTrackingPage() {
   });
 
   const clockOutMutation = useMutation({
-    mutationFn: () => fetchClient("/api/v1/time-tracking/out", { method: "POST", body: JSON.stringify({ notes: "" }) }),
+    mutationFn: () => fetchClient("/time-tracking/out", { method: "POST", body: JSON.stringify({ notes: "" }) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["active-session"] });
       queryClient.invalidateQueries({ queryKey: ["time-logs"] });

@@ -40,6 +40,14 @@ class KudosOut(BaseModel):
     class Config:
         from_attributes = True
 
+class KudosReceivedItem(KudosOut):
+    # Campos extra para el perfil del empleado (nombre del remitente y categoría del badge)
+    sender_name: str | None = None
+    category: str | None = None
+
+class KudosReceivedResponse(BaseModel):
+    items: List[KudosReceivedItem]
+
 def get_user_id(current_user: dict) -> str:
     sub = current_user.get("sub", "")
     return sub.split("|")[-1] if "|" in sub else sub
@@ -79,6 +87,48 @@ async def get_kudos_feed(
             )
         )
     return populated_kudos
+
+@router.get("/received", response_model=KudosReceivedResponse)
+async def get_kudos_received(
+    user_id: Optional[str] = None,
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Obtener los Kudos recibidos por un usuario (el actual si no se indica user_id), del más reciente al más antiguo."""
+    target_id = user_id or get_user_id(current_user)
+
+    result = await db.execute(
+        select(Kudos)
+        .where(Kudos.receiver_id == target_id)
+        .order_by(Kudos.created_at.desc())
+        .limit(50)
+    )
+    kudos_list = result.scalars().all()
+
+    # Poblamos sender y receiver dinámicamente, igual que en el feed global
+    items = []
+    for k in kudos_list:
+        sender_res = await db.execute(select(User).where(User.id == k.sender_id))
+        sender = sender_res.scalar_one_or_none()
+
+        receiver_res = await db.execute(select(User).where(User.id == k.receiver_id))
+        receiver = receiver_res.scalar_one_or_none()
+
+        items.append(
+            KudosReceivedItem(
+                id=k.id,
+                sender_id=k.sender_id,
+                sender=UserMini.model_validate(sender) if sender else None,
+                sender_name=(sender.full_name or sender.email) if sender else None,
+                receiver_id=k.receiver_id,
+                receiver=UserMini.model_validate(receiver) if receiver else None,
+                message=k.message,
+                badge=k.badge,
+                category=k.badge,
+                created_at=k.created_at
+            )
+        )
+    return KudosReceivedResponse(items=items)
 
 @router.post("", response_model=KudosOut, status_code=status.HTTP_201_CREATED)
 async def create_kudos(

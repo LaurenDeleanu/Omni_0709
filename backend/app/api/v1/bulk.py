@@ -91,8 +91,8 @@ async def bulk_assign_courses(
     if not body.ids:
         raise HTTPException(status_code=400, detail="No user ids provided")
 
-    course_res = await db.execute(select(Course).where(Course.id == course_id))
     from app.models.training import Course
+    course_res = await db.execute(select(Course).where(Course.id == course_id))
     course = course_res.scalar_one_or_none()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")

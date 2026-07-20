@@ -207,7 +207,7 @@ export default function PayrollHub() {
                           <div className="flex flex-col items-center justify-center text-muted-foreground">
                             <FileText className="w-12 h-12 mb-4 opacity-20" />
                             <p className="text-lg font-medium text-foreground">No hay nóminas procesadas</p>
-                            <p className="text-sm mt-1">Haz clic en "Nuevo Ciclo de Pago" para comenzar.</p>
+                            <p className="text-sm mt-1">Haz clic en &quot;Nuevo Ciclo de Pago&quot; para comenzar.</p>
                           </div>
                         </td>
                       </tr>

@@ -1,3 +1,4 @@
+import json
 import logging
 import httpx
 from typing import Optional
@@ -132,5 +133,4 @@ async def dispatch_slack_event(tenant_id: str, event_type: str, data: dict) -> b
         message = template.format(**data)
     except KeyError:
         message = f"Event: {event_type} — {json.dumps(data)}"
-    import json
     return await send_slack_notification(tenant_id, message, title=f"HR Event: {event_type}")

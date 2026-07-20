@@ -16,7 +16,7 @@ from app.schemas.user import UserCreate, UserResponse, UserUpdate, ProfileUpdate
 from app.models.push import PushSubscription
 import uuid
 import re
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from jose import jwt
 from datetime import datetime, timedelta, timezone
 from app.core.config import settings
@@ -412,7 +412,9 @@ async def delete_user(user_id: str, db: AsyncSession = Depends(get_tenant_db)):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-    tenant_id: Optional[str] = None
+    # validate_default fuerza a que el validador corra también cuando el campo
+    # se omite (Pydantic v2 se salta los defaults por defecto).
+    tenant_id: Optional[str] = Field(default=None, validate_default=True)
 
     @field_validator("tenant_id")
     @classmethod
@@ -447,7 +449,12 @@ async def login_local(req: LoginRequest, request: Request):
     from app.core.tenant_context import set_tenant_context
     
     async with AsyncSessionGlobal() as db:
-        await set_tenant_context(db, tenant_id)
+        try:
+            await set_tenant_context(db, tenant_id)
+        except Exception:
+            # SQLite (tests/dev) no soporta set_config; RLS solo existe en PostgreSQL.
+            if not is_sqlite:
+                raise
         result = await db.execute(select(User).where(User.email == req.email))
         user = result.scalar_one_or_none()
         

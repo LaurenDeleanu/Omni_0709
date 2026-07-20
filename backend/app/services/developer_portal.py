@@ -36,14 +36,16 @@ async def create_api_key(
     plain, hashed = await generate_api_key()
     key_id = uuid.uuid4().hex
 
+    # allowed_scopes/redirect_uris son columnas de texto separado por comas
+    # (mismo formato que oauth_service.py), no listas.
     client = OAuthClient(
         id=key_id,
         client_id=key_id,
         client_secret_hash=hashed,
-        client_name=name,
+        name=name,
         tenant_id=tenant_id,
-        allowed_scopes=scopes,
-        redirect_uris=[],
+        allowed_scopes=",".join(scopes) if scopes else "read:all",
+        redirect_uris="",
         is_active=True,
     )
     db.add(client)
@@ -71,8 +73,8 @@ async def list_api_keys(db: AsyncSession, tenant_id: str) -> list[dict]:
     return [
         {
             "id": c.id,
-            "name": c.client_name,
-            "scopes": c.allowed_scopes,
+            "name": c.name,
+            "scopes": c.allowed_scopes.split(",") if c.allowed_scopes else [],
             "is_active": c.is_active,
             "created_at": c.created_at.isoformat() if c.created_at else None,
         }

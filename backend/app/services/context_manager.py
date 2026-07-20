@@ -11,8 +11,11 @@ Uses tiktoken for accurate token counting.
 
 import logging
 import os
-from typing import List, Dict, Any, Optional, Tuple
+from typing import TYPE_CHECKING, List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
+
+if TYPE_CHECKING:
+    import tiktoken
 
 logger = logging.getLogger(__name__)
 

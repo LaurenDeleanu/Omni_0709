@@ -16,12 +16,12 @@ export default function EmailTemplatesAdmin() {
   const [form, setForm] = useState({ name: "", subject: "", body_html: "", is_default: false });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchTemplates(); }, []);
-
   const fetchTemplates = async () => {
     try { const d = await fetchClient("/email-templates"); setTemplates(d); } catch {}
     setLoading(false);
   };
+
+  useEffect(() => { fetchTemplates(); }, []);
 
   const saveTemplate = async () => {
     if (!form.name || !form.subject) return;
