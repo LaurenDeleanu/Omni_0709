@@ -23,7 +23,7 @@ class RedisTokenBucket:
                 return True
 
             key = self._key(identifier)
-            now = time.monotonic()
+            now = time.time()
 
             lua = """
             local key = KEYS[1]

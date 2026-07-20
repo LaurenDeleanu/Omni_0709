@@ -23,6 +23,7 @@ async def _get_report_data(tenant_id=None):
         bind=tenant_engine, class_=AsyncSession, expire_on_commit=False
     )
     async with AsyncSessionTenant() as db:
+        db.info["tenant_id"] = tenant_id
         # Aquí simplificamos consultando la tabla base User. 
         # En una app multi-tenant por schema, se debería configurar el search_path.
         total_result = await db.execute(select(func.count()).select_from(User))

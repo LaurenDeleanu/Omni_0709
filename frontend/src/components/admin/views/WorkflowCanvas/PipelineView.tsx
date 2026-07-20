@@ -14,10 +14,7 @@ import { usePipelineState } from "./hooks/usePipelineState";
 import { getLayoutedElements } from "./utils/layoutEngine";
 import { nodeIcons, NODE_CATEGORIES } from "./NodeCategories";
 import { getDefaultConfig } from "./utils/configDefaults";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL
-  ? process.env.NEXT_PUBLIC_API_URL.replace("/api/v1", "")
-  : "http://localhost:8080";
+import { fetchClient } from "@/lib/api/client";
 
 export default function PipelineView({
   workflowId,
@@ -63,11 +60,8 @@ export default function PipelineView({
   useEffect(() => {
     async function loadResources() {
       try {
-        const schRes = await fetch(`${API_BASE}/schedules`, { credentials: "include" });
-        if (schRes.ok) {
-          const d = await schRes.json();
-          setSchedules(d.schedules || d);
-        }
+        const d = await fetchClient("/schedules");
+        setSchedules(Array.isArray(d) ? d : (d.schedules || d));
       } catch (e) {
         console.error("Failed loading schedules", e);
       }

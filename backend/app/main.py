@@ -154,6 +154,7 @@ app = FastAPI(
 )
 
 UPLOADS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "uploads")
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 
 @app.middleware("http")
@@ -311,6 +312,10 @@ async def synthetic_history(limit: int = 20):
     return {"history": get_synthetic_history(limit)}
 
 
+
+@app.api_route("/", methods=["GET", "HEAD"], tags=["System"])
+async def root():
+    return {"status": "ok", "service": "SuccessCore API"}
 
 @app.get("/openapi.json", tags=["System"], include_in_schema=False)
 async def get_openapi_spec():

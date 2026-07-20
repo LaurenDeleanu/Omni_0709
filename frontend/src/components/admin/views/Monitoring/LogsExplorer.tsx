@@ -25,8 +25,8 @@ export default function LogsExplorer({ botId }: LogsExplorerProps) {
   const fetchLogs = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchClient(`/bots/${botId}/activity?limit=150`);
-      setLogs(data.activity || []);
+      const data = await fetchClient(`/agents/${botId}/execution-runs?limit=150`);
+      setLogs(data.runs || []);
     } catch (e) {
       console.error("Error loading explorer logs:", e);
     } finally {

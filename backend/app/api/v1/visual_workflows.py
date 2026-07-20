@@ -54,9 +54,10 @@ async def create_workflow(
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
 ):
+    tenant_id = db.info.get("tenant_id")
     workflow = VisualWorkflow(
         id=uuid.uuid4().hex,
-        tenant_id=current_user.get("tenant_id", "default"),
+        tenant_id=tenant_id,
         name=body.name,
         description=body.description,
         agent_id=body.agent_id
@@ -71,7 +72,8 @@ async def list_workflows(
     db: AsyncSession = Depends(get_tenant_db),
     current_user: dict = Depends(require_roles(["hr_admin", "sys_admin", "employee"]))
 ):
-    tenant_id = current_user.get("tenant_id", "default")
+    tenant_id = db.info.get("tenant_id")
+    # db.info["tenant_id"] correctly has the context
     result = await db.execute(select(VisualWorkflow).where(VisualWorkflow.tenant_id == tenant_id))
     return {"workflows": result.scalars().all()}
 
@@ -216,6 +218,51 @@ async def delete_step(
 
     await db.commit()
     return {"status": "deleted", "id": step_id}
+
+
+@router.post("/{workflow_id}/steps/{step_id}/duplicate", status_code=status.HTTP_201_CREATED)
+async def duplicate_step(
+    workflow_id: str,
+    step_id: str,
+    db: AsyncSession = Depends(get_tenant_db),
+    _: dict = Depends(require_roles(["hr_admin", "sys_admin"]))
+):
+    result = await db.execute(
+        select(WorkflowStep).where(WorkflowStep.id == step_id, WorkflowStep.workflow_id == workflow_id)
+    )
+    original = result.scalar_one_or_none()
+    if not original:
+        raise HTTPException(status_code=404, detail="Step not found")
+
+    max_order_result = await db.execute(
+        select(WorkflowStep.order).where(WorkflowStep.workflow_id == workflow_id).order_by(WorkflowStep.order.desc()).limit(1)
+    )
+    next_order = (max_order_result.scalar() or 0) + 1
+
+    # Offset the position so the duplicate doesn't stack exactly on top
+    config = original.config or "{}"
+    try:
+        cfg = json.loads(config)
+        if "position" in cfg:
+            cfg["position"] = {"x": cfg["position"].get("x", 0) + 40, "y": cfg["position"].get("y", 0) + 40}
+        config = json.dumps(cfg)
+    except Exception:
+        pass
+
+    clone = WorkflowStep(
+        id=uuid.uuid4().hex,
+        workflow_id=workflow_id,
+        type=original.type,
+        label=f"{original.label} (copia)",
+        config=config,
+        order=next_order,
+        next_nodes=[],
+        condition=original.condition,
+    )
+    db.add(clone)
+    await db.commit()
+    await db.refresh(clone)
+    return _step_to_dict(clone)
 
 
 # --- Triggers ---

@@ -37,4 +37,14 @@ from app.models.chat import Team, TeamMember, ChatRoom, ChatRoomMember, ChatMess
 from app.models.invoice import CustomerInvoice
 from app.models.tax_bracket import TaxBracket
 from app.models.search_index import SearchIndexEntry
+from app.models.plugin import Plugin, PluginInstall, PluginReview
+from app.models.push import PushSubscription
+from app.models.notification_prefs import NotificationPrefs
+from app.models.checklist import ChecklistTemplate, ChecklistTemplateTask, ActiveChecklist, ChecklistTask
+from app.models.comment import Comment
+from app.models.email_template import EmailTemplate
+from app.models.integration import UserIntegration
+from app.models.interview import InterviewScorecard, ScorecardCriterion, InterviewKit, InterviewStage, CandidateEvaluation, CriterionScore
+from app.models.oauth import OAuthClient, OAuthToken
+from app.models.review_360 import ReviewCycle, Review, ReviewRating
 

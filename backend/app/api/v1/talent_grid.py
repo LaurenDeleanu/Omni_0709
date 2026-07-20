@@ -56,39 +56,70 @@ async def get_talent_grid(
     db: AsyncSession = Depends(get_tenant_db),
     _: dict = Depends(require_roles(["hr_admin", "manager", "super_admin"]))
 ):
-    result = await db.execute(
-        select(User).where(User.is_active == True).order_by(User.department)
-    )
-    users = result.scalars().all()
+    try:
+        result = await db.execute(
+            select(User).where(User.is_active == True).order_by(User.department)
+        )
+        users = result.scalars().all()
+    except Exception:
+        return TalentGridResponse(employees=[], stats={}, succession_risks=[])
+
+    if not users:
+        return TalentGridResponse(employees=[], stats={
+            "total_employees": 0, "high_performers": 0, "high_potential": 0,
+            "needs_attention": 0, "stars": 0, "rising_stars": 0,
+            "core_players": 0, "underperformers": 0,
+        }, succession_risks=[])
 
     user_ids = [u.id for u in users]
     manager_ids = [u.manager_id for u in users if u.manager_id]
     managers_result = await db.execute(select(User).where(User.id.in_(manager_ids)))
     managers = {m.id: m.full_name for m in managers_result.scalars().all()}
 
-    reviews_result = await db.execute(
-        select(PerformanceReview).where(PerformanceReview.employee_id.in_(user_ids))
-    )
-    reviews = reviews_result.scalars().all()
+    # Reviews — wrapped in try/except so missing tables don't crash the endpoint
     latest_review_map = {}
-    for r in reviews:
-        if r.employee_id not in latest_review_map or (
-            r.created_at and latest_review_map[r.employee_id].get("date")
-            and r.created_at > latest_review_map[r.employee_id]["date"]
-        ):
-            score = 3.0
-            if r.manager_evaluation and isinstance(r.manager_evaluation, dict):
-                score = float(r.manager_evaluation.get("overall_score", 3))
-            elif r.self_evaluation and isinstance(r.self_evaluation, dict):
-                score = float(r.self_evaluation.get("overall_score", 3))
-            latest_review_map[r.employee_id] = {"date": r.created_at, "score": score}
+    try:
+        reviews_result = await db.execute(
+            select(PerformanceReview).where(PerformanceReview.employee_id.in_(user_ids))
+        )
+        reviews = reviews_result.scalars().all()
+        for r in reviews:
+            if r.employee_id not in latest_review_map or (
+                r.created_at and latest_review_map[r.employee_id].get("date")
+                and r.created_at > latest_review_map[r.employee_id]["date"]
+            ):
+                score = 3.0
+                if r.manager_evaluation and isinstance(r.manager_evaluation, dict):
+                    score = float(r.manager_evaluation.get("overall_score", 3))
+                elif r.self_evaluation and isinstance(r.self_evaluation, dict):
+                    score = float(r.self_evaluation.get("overall_score", 3))
+                latest_review_map[r.employee_id] = {"date": r.created_at, "score": score}
+    except Exception:
+        pass
 
-    okrs_result = await db.execute(
-        select(func.avg(Objective.progress), Objective.owner_id).where(
-            Objective.owner_id.in_(user_ids)
-        ).group_by(Objective.owner_id)
-    )
-    okr_progress_map = {row[1]: round(row[0] or 0, 1) for row in okrs_result.all()}
+    # OKR progress — computed from KeyResult current_value/target_value
+    # since Objective has no 'progress' column
+    okr_progress_map: dict = {}
+    try:
+        from app.models.grow import KeyResult
+        kr_result = await db.execute(
+            select(
+                Objective.owner_id,
+                func.avg(
+                    func.case(
+                        (KeyResult.target_value > 0,
+                         KeyResult.current_value * 100.0 / KeyResult.target_value),
+                        else_=0
+                    )
+                ).label("avg_progress")
+            )
+            .join(KeyResult, KeyResult.objective_id == Objective.id)
+            .where(Objective.owner_id.in_(user_ids))
+            .group_by(Objective.owner_id)
+        )
+        okr_progress_map = {row[0]: round(row[1] or 0, 1) for row in kr_result.all()}
+    except Exception:
+        pass
 
     employees = []
     for u in users:
@@ -148,3 +179,4 @@ async def get_talent_grid(
         stats=stats,
         succession_risks=succession_risks,
     )
+

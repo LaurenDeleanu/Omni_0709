@@ -8,6 +8,7 @@ Routes tasks to appropriate model tier based on complexity analysis.
 import logging
 import json
 from typing import Dict, Any, Optional, Tuple, List
+from sqlalchemy.ext.asyncio import AsyncSession
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)

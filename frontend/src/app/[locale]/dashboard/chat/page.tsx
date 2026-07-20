@@ -7,6 +7,7 @@ import {
   Reply, XCircle
 } from "lucide-react";
 import { ChatAPI, ChatRoom, ChatMessage, SearchResult } from "@/lib/api/chat";
+import { API_BASE } from "@/lib/api/client";
 import { UserAPI, Employee } from "@/lib/api";
 import { useUser } from "@/hooks/use-user";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -106,13 +107,14 @@ export default function ChatDashboardPage() {
 
   useEffect(() => {
     const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsHost = window.location.host.includes("localhost") ? "localhost:8080" : window.location.host;
+    const baseUrl = API_BASE.startsWith("http") ? API_BASE : `${window.location.protocol}//${window.location.host}${API_BASE}`;
+    const wsUrl = baseUrl.replace(/^http/, "ws") + "/chat/ws";
 
     const connectWs = () => {
-      fetch(`http://localhost:8080/api/v1/chat/ws-token`, { credentials: "include" })
+      fetch(`${API_BASE}/chat/ws-token`, { credentials: "include" })
         .then(r => r.ok ? r.json() : Promise.reject("ws-token failed"))
-        .then(d => { openWs(`${wsProtocol}//${wsHost}/api/v1/chat/ws?token=${d.ws_token}`); })
-        .catch(() => { openWs(`${wsProtocol}//${wsHost}/api/v1/chat/ws`); });
+        .then(d => { openWs(`${wsUrl}?token=${d.ws_token}`); })
+        .catch(() => { openWs(`${wsUrl}`); });
     };
 
     const openWs = (url: string) => {

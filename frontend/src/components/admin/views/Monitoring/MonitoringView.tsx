@@ -19,7 +19,7 @@ export default function MonitoringView({ botId }: MonitoringViewProps) {
   const fetchRuns = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchClient(`/bots/${botId}/execution-runs?limit=50`);
+      const data = await fetchClient(`/agents/${botId}/execution-runs?limit=50`);
       setRuns(data.runs || []);
     } catch (e) {
       console.error("Error loading execution runs:", e);
