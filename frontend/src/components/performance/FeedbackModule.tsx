@@ -153,7 +153,7 @@ export function FeedbackModule() {
                 </div>
 
                 {oneonone.notes && (
-                  <p className="text-sm text-muted-foreground mt-2 ml-12 italic">"{oneonone.notes}"</p>
+                  <p className="text-sm text-muted-foreground mt-2 ml-12 italic">&quot;{oneonone.notes}&quot;</p>
                 )}
 
                 {oneonone.action_items.length > 0 && (

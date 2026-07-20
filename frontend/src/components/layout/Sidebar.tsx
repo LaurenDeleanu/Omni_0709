@@ -256,7 +256,7 @@ export function Sidebar({ className, variant = "desktop" }: { className?: string
         {isMobile && (
           // eslint-disable-next-line @next/next/no-html-link-for-pages
           <a
-            href="/api/auth/logout"
+            href="/auth/logout"
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-destructive hover:bg-destructive/10 transition-colors"
           >

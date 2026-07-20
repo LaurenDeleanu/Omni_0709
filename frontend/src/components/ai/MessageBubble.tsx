@@ -138,7 +138,7 @@ export function MessageBubble({
                     <div key={sIdx} className="relative text-[10px] leading-normal text-zinc-400">
                       <div className="absolute -left-[18.5px] top-1 w-1.5 h-1.5 rounded-full border border-violet-500 bg-zinc-950 shadow-[0_0_4px_rgba(139,92,246,0.6)]" />
                       <div className="font-semibold text-zinc-300 uppercase tracking-widest text-[9px] mb-0.5">Step {step.step}: {step.tool}</div>
-                      <p className="text-zinc-500 italic bg-black/30 p-1.5 rounded border border-zinc-900 leading-normal">"{step.thought}"</p>
+                      <p className="text-zinc-500 italic bg-black/30 p-1.5 rounded border border-zinc-900 leading-normal">&quot;{step.thought}&quot;</p>
                     </div>
                   ))}
                 </div>

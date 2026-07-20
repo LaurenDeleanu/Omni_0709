@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 export interface Bot {
   id: string;
@@ -49,6 +50,5 @@ export function Portal({ children }: { children: React.ReactNode }) {
   if (typeof window === "undefined") return null;
   const portalRoot = document.getElementById("portal-root");
   if (!portalRoot) return <>{children}</>;
-  const { createPortal } = require("react-dom");
   return createPortal(children, portalRoot);
 }

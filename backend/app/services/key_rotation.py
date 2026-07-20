@@ -14,28 +14,34 @@ _rotation_task = None
 
 
 async def check_and_rotate_keys(db):
-    from app.models.api_keys import ApiKey, if_missing_return_empty
+    """
+    Desactiva las claves API (OAuthClient del Developer Portal) con más de
+    KEY_ROTATION_DAYS días de antigüedad.
+
+    Nota: el secreto en texto plano solo se muestra al crear la clave, por lo
+    que no es posible generar automáticamente una clave de reemplazo utilizable
+    desde un proceso en segundo plano. En su lugar, se desactiva la clave
+    caducada y se avisa para que un administrador emita una nueva desde el
+    Developer Portal.
+    """
+    from app.models.oauth import OAuthClient
     cutoff = datetime.now(timezone.utc) - timedelta(days=KEY_ROTATION_DAYS)
     result = await db.execute(
-        select(ApiKey).where(ApiKey.created_at <= cutoff, ApiKey.is_active == True)
+        select(OAuthClient).where(OAuthClient.created_at <= cutoff, OAuthClient.is_active == True)
     )
     expired = result.scalars().all()
     rotated = 0
     for key in expired:
         key.is_active = False
-        new_key = ApiKey(
-            id=str(uuid.uuid4().hex) if hasattr(uuid, 'uuid4') else str(secrets.token_hex(16)),
-            user_id=key.user_id,
-            tenant_id=key.tenant_id,
-            key_hash=hashlib.sha256(f"sk-{secrets.token_hex(24)}".encode()).hexdigest(),
-            scopes=key.scopes,
-            label=f"{key.label or ''} (rotated {datetime.now(timezone.utc).strftime('%Y-%m-%d')})",
-        )
-        db.add(new_key)
         rotated += 1
+        logger.warning(
+            f"API key '{key.name}' ({key.id}) del tenant {key.tenant_id} desactivada "
+            f"por antigüedad (> {KEY_ROTATION_DAYS} días). "
+            "Emitir una nueva clave desde el Developer Portal."
+        )
     if rotated:
         await db.commit()
-        logger.info(f"Auto-rotated {rotated} API keys")
+        logger.info(f"Auto-rotated (deactivated) {rotated} expired API keys")
     return rotated
 
 

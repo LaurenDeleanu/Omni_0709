@@ -20,9 +20,9 @@ async def purge_old_audit_logs(global_db_session, tenant_db_session_factory, ret
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
     try:
-        from app.models.audit_log import AuditLog
+        from app.models.admin import AuditLog
         result = await global_db_session.execute(
-            delete(AuditLog).where(AuditLog.timestamp < cutoff)
+            delete(AuditLog).where(AuditLog.created_at < cutoff)
         )
         await global_db_session.commit()
         deleted = result.rowcount

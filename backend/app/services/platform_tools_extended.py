@@ -139,18 +139,19 @@ async def tool_get_compensation_benchmarks(db: AsyncSession, role: str = "", dep
 
 async def tool_update_deal_stage(db: AsyncSession, deal_id: str, new_stage: str, notes: str = "") -> str:
     try:
-        from app.models.crm import Deal
-        deal = await db.get(Deal, deal_id)
+        # El pipeline de ventas se modela con Lead (app.models.sales): un "deal" es un Lead
+        from app.models.sales import Lead
+        deal = await db.get(Lead, deal_id)
         if not deal:
             return json.dumps({"error": f"Deal {deal_id} not found"})
-        old_stage = getattr(deal, "stage", "")
-        setattr(deal, "stage", new_stage)
-        if notes:
-            existing = getattr(deal, "notes", "") or ""
-            setattr(deal, "notes", f"{existing}\n[{datetime.now(timezone.utc).strftime('%Y-%m-%d')}] {new_stage}: {notes}")
+        old_stage = deal.stage or ""
+        deal.stage = new_stage
         await db.commit()
+        if notes:
+            # Lead no tiene columna de notas; se registran en el log de la plataforma
+            logger.info(f"Deal {deal_id} note [{new_stage}]: {notes}")
         logger.info(f"Deal {deal_id} moved from {old_stage} to {new_stage}")
-        return json.dumps({"deal_id": deal_id, "old_stage": old_stage, "new_stage": new_stage, "success": True})
+        return json.dumps({"deal_id": deal_id, "old_stage": old_stage, "new_stage": new_stage, "notes": notes or None, "success": True})
     except Exception as e:
         return json.dumps({"error": str(e)})
 
@@ -193,10 +194,37 @@ async def tool_update_task_status(db: AsyncSession, task_id: str, new_status: st
 
 async def tool_get_my_okrs(db: AsyncSession, employee_id: str) -> str:
     try:
-        from app.models.grow import OKR
-        result = await db.execute(select(OKR).where(OKR.employee_id == employee_id).order_by(desc(OKR.created_at)).limit(20))
-        okrs = result.scalars().all()
-        return json.dumps({"employee_id": employee_id, "count": len(okrs), "okrs": [{"id": o.id, "objective": getattr(o, "objective", ""), "progress_pct": getattr(o, "progress_pct", 0), "status": getattr(o, "status", "active")} for o in okrs]}, ensure_ascii=False, default=str)
+        # Los OKR se modelan con Objective + KeyResult (app.models.grow)
+        from sqlalchemy.orm import selectinload
+        from app.models.grow import Objective
+        result = await db.execute(
+            select(Objective)
+            .options(selectinload(Objective.key_results))
+            .where(Objective.owner_id == employee_id)
+            .order_by(desc(Objective.created_at))
+            .limit(20)
+        )
+        objectives = result.scalars().all()
+
+        def _progress_pct(obj) -> float:
+            # Progreso medio de los key results (current/target, con tope del 100%)
+            krs = obj.key_results or []
+            if not krs:
+                return 0.0
+            ratios = [min(kr.current_value / kr.target_value, 1.0) if kr.target_value else 0.0 for kr in krs]
+            return round(sum(ratios) / len(ratios) * 100, 1)
+
+        return json.dumps({
+            "employee_id": employee_id,
+            "count": len(objectives),
+            "okrs": [{
+                "id": o.id,
+                "objective": o.title,
+                "progress_pct": _progress_pct(o),
+                "status": o.status or "On Track",
+                "key_results": [{"title": kr.title, "current": kr.current_value, "target": kr.target_value, "unit": kr.unit} for kr in (o.key_results or [])],
+            } for o in objectives],
+        }, ensure_ascii=False, default=str)
     except Exception as e:
         return json.dumps({"error": str(e)})
 
@@ -257,15 +285,26 @@ async def tool_get_workflow_templates(db: AsyncSession) -> str:
 
 async def tool_get_workflow_status(db: AsyncSession, workflow_id: str) -> str:
     try:
-        from app.models.workflows import WorkflowInstance
-        result = await db.execute(select(WorkflowInstance).where(WorkflowInstance.id == workflow_id))
+        # Los workflows activos por empleado se modelan con UserWorkflow (app.models.workflow)
+        from app.models.workflow import UserWorkflow
+        result = await db.execute(select(UserWorkflow).where(UserWorkflow.id == workflow_id))
         wf = result.scalar_one_or_none()
         if not wf:
             return json.dumps({"error": f"Workflow {workflow_id} not found"})
+        steps_status = wf.steps_status or {}
+        completed_steps = sum(
+            1 for v in steps_status.values()
+            if (v.get("completed") if isinstance(v, dict) else bool(v))
+        )
         return json.dumps({
-            "id": wf.id, "status": getattr(wf, "status", "unknown"),
-            "current_step": getattr(wf, "current_step", ""),
-            "started_at": getattr(wf, "started_at", None).isoformat() if getattr(wf, "started_at", None) else None,
+            "id": wf.id,
+            "user_id": wf.user_id,
+            "template_id": wf.template_id,
+            "status": wf.status,
+            "completed_steps": completed_steps,
+            "total_steps_tracked": len(steps_status),
+            "steps_status": steps_status,
+            "started_at": wf.created_at.isoformat() if wf.created_at else None,
         }, ensure_ascii=False, default=str)
     except Exception as e:
         return json.dumps({"error": str(e)})
@@ -273,15 +312,15 @@ async def tool_get_workflow_status(db: AsyncSession, workflow_id: str) -> str:
 
 async def tool_get_user_notifications(db: AsyncSession, user_id: str, limit: int = 20, unread_only: bool = False) -> str:
     try:
-        from app.models.notifications import Notification
+        from app.models.notification import Notification
         query = select(Notification).where(Notification.user_id == user_id)
         if unread_only:
-            query = query.where(Notification.read == False)
+            query = query.where(Notification.is_read == False)
         result = await db.execute(query.order_by(desc(Notification.created_at)).limit(limit))
         notifs = result.scalars().all()
         return json.dumps({
             "user_id": user_id, "count": len(notifs),
-            "notifications": [{"id": n.id, "title": getattr(n, "title", ""), "message": getattr(n, "body", ""), "read": getattr(n, "read", False), "created_at": getattr(n, "created_at", "").isoformat() if getattr(n, "created_at", None) else None} for n in notifs],
+            "notifications": [{"id": n.id, "title": n.title, "message": n.message, "read": n.is_read, "created_at": n.created_at.isoformat() if n.created_at else None} for n in notifs],
         }, ensure_ascii=False, default=str)
     except Exception as e:
         return json.dumps({"error": str(e)})
@@ -289,11 +328,12 @@ async def tool_get_user_notifications(db: AsyncSession, user_id: str, limit: int
 
 async def tool_mark_notification_read(db: AsyncSession, notification_id: str) -> str:
     try:
-        from app.models.notifications import Notification
+        from app.models.notification import Notification
         n = await db.get(Notification, notification_id)
-        if n:
-            setattr(n, "read", True)
-            await db.commit()
+        if not n:
+            return json.dumps({"error": f"Notification {notification_id} not found"})
+        n.is_read = True
+        await db.commit()
         return json.dumps({"notification_id": notification_id, "read": True, "success": True})
     except Exception as e:
         return json.dumps({"error": str(e)})
@@ -331,14 +371,15 @@ async def tool_get_billing_status(db: AsyncSession, tenant_id: str = "") -> str:
 
 async def tool_get_surveys(db: AsyncSession, status: str = "active") -> str:
     try:
-        from app.models.survey import Survey
-        query = select(Survey)
+        # Las encuestas de la plataforma son PulseSurvey (app.models.survey)
+        from app.models.survey import PulseSurvey
+        query = select(PulseSurvey)
         if status:
-            query = query.where(Survey.status == status)
-        result = await db.execute(query.order_by(desc(Survey.created_at)).limit(10))
+            query = query.where(PulseSurvey.status == status)
+        result = await db.execute(query.order_by(desc(PulseSurvey.created_at)).limit(10))
         surveys = result.scalars().all()
         return json.dumps({
-            "surveys": [{"id": s.id, "title": getattr(s, "title", ""), "status": getattr(s, "status", ""), "type": getattr(s, "survey_type", "pulse")} for s in surveys],
+            "surveys": [{"id": s.id, "title": s.title, "status": s.status, "type": "pulse"} for s in surveys],
         }, ensure_ascii=False, default=str)
     except Exception as e:
         return json.dumps({"error": str(e)})
@@ -346,11 +387,16 @@ async def tool_get_surveys(db: AsyncSession, status: str = "active") -> str:
 
 async def tool_get_chat_channels(db: AsyncSession, user_id: str = "") -> str:
     try:
-        from app.models.chat import ChatChannel
-        result = await db.execute(select(ChatChannel).limit(20))
+        # Los canales de chat se modelan con ChatRoom (app.models.chat)
+        from app.models.chat import ChatRoom, ChatRoomMember
+        query = select(ChatRoom)
+        if user_id:
+            # Si se indica usuario, solo sus salas
+            query = query.join(ChatRoomMember, ChatRoomMember.room_id == ChatRoom.id).where(ChatRoomMember.user_id == user_id)
+        result = await db.execute(query.limit(20))
         channels = result.scalars().all()
         return json.dumps({
-            "channels": [{"id": c.id, "name": getattr(c, "name", ""), "type": getattr(c, "channel_type", "public")} for c in channels],
+            "channels": [{"id": c.id, "name": c.name or "(direct)", "type": c.room_type} for c in channels],
         }, ensure_ascii=False, default=str)
     except Exception as e:
         return json.dumps({"error": str(e)})

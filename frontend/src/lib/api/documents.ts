@@ -3,6 +3,6 @@ import { fetchClient } from './client';
 
 export const DocumentsAPI = {
   getTemplates: () => fetchClient("/documents/templates"),
-  previewDocument: (templateId: string, employeeId: string, customData?: any) => fetchClient("/documents/preview", { method: "POST", body: JSON.stringify({ template_id: templateId, employee_id: employeeId, custom_data: customData }) }),
-  generateDocument: (templateId: string, employeeId: string, customData?: any) => fetchClient("/documents/generate", { method: "POST", body: JSON.stringify({ template_id: templateId, employee_id: employeeId, custom_data: customData }) }),
+  previewDocument: (templateType: string, employeeId: string, variables?: any) => fetchClient("/documents/preview", { method: "POST", body: JSON.stringify({ template_type: templateType, variables: variables ?? {}, employee_id: employeeId }) }),
+  generateDocument: (templateType: string, employeeId: string, variables?: any) => fetchClient("/documents/generate", { method: "POST", body: JSON.stringify({ template_type: templateType, variables: variables ?? {}, employee_id: employeeId }) }),
 };

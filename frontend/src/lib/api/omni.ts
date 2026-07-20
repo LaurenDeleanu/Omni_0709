@@ -99,12 +99,8 @@ export const OmniAPI = {
     return fetchClient("/omni/git-status");
   },
 
-  async getBranches(): Promise<{ branches: OmniBranch[] }> {
-    return fetchClient("/omni/git/branches");
-  },
-
   async updateSettings(agentId: string, settings: OmniAgentSettings): Promise<{ success: boolean }> {
-    return fetchClient(`/api/v1/agents/${agentId}`, {
+    return fetchClient(`/agents/${agentId}`, {
       method: "PATCH",
       body: JSON.stringify({ agent_settings: settings }),
     });
@@ -134,7 +130,7 @@ export const OmniAPI = {
 
   async setEditMode(mode: string): Promise<{ success: boolean }> {
     return fetchClient("/omni/edit-mode", {
-      method: "POST",
+      method: "PATCH",
       body: JSON.stringify({ mode }),
     });
   },
@@ -146,8 +142,8 @@ export const OmniAPI = {
     });
   },
 
-  async getProposals(): Promise<{ proposals: OmniProposal[] }> {
-    return fetchClient("/omni/proposals");
+  async getProposals(branchId: string): Promise<{ proposals: OmniProposal[] }> {
+    return fetchClient(`/omni/branches/${branchId}/proposals`);
   },
 
   async getProposalDiff(proposalId: string): Promise<{ diffs: OmniProposalDiff[] }> {
@@ -166,15 +162,16 @@ export const OmniAPI = {
     });
   },
 
-  async applyAllProposals(): Promise<{ success: boolean; applied: number; message: string }> {
-    return fetchClient("/omni/proposals/apply-all", {
+  async applyAllProposals(branchId: string): Promise<{ applied: number; total: number; errors: string[]; branch_status: string }> {
+    return fetchClient(`/omni/branches/${branchId}/apply-all`, {
       method: "POST",
     });
   },
 
-  async createPR(proposalId: string): Promise<{ success: boolean; prUrl: string }> {
-    return fetchClient(`/omni/proposals/${proposalId}/pr`, {
+  async createPR(branchId: string, title: string, body: string = ""): Promise<{ commit_hash: string; branch: string; files_committed: number }> {
+    return fetchClient(`/omni/branches/${branchId}/pr`, {
       method: "POST",
+      body: JSON.stringify({ title, body }),
     });
   },
 };

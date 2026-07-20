@@ -935,6 +935,12 @@ async def resume_agent_run(
     if not agent:
         raise ValueError("Agent not found")
         
+    # Recuperar la traza existente del run pausado para continuar añadiendo pasos
+    try:
+        trace_steps = json.loads(run_log.execution_trace) if run_log.execution_trace else []
+    except Exception:
+        trace_steps = []
+
     # 3. Reconstruct tool observation based on approval
     last_step_info = paused_data.get("last_step", {})
     tool_name = last_step_info.get("action_name")
@@ -1011,12 +1017,7 @@ async def resume_agent_run(
     
     # Run post-processing
     from app.services.agent_executor import _apply_phase5_postprocessing, sanitize_output, moderate_content, detect_hallucination
-    # Parse trace steps
-    try:
-        trace_steps = json.loads(run_log.execution_trace) if run_log.execution_trace else []
-    except Exception:
-        trace_steps = []
-        
+
     trace_steps.append({
         "step": "react_resume_execution",
         "total_iterations": react_result.total_iterations,

@@ -10,6 +10,10 @@ from app.core.config import settings
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 CSRF_TTL_SECONDS = 28800
 
+# Despliegues de Vercel (p.ej. https://app-abc123.vercel.app); el patrón acaba
+# en (/|$) para que también valide contra un Referer con path.
+_VERCEL_DOMAIN_RE = re.compile(r"^https://[a-z0-9-]+(\.[a-z0-9-]+)*\.vercel\.app(/|$)", re.IGNORECASE)
+
 def _generate_csrf_token(session_id: str) -> str:
     raw = f"{session_id}:{int(time.time())}"
     sig = hmac.new(

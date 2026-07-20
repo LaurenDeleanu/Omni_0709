@@ -2,10 +2,10 @@
 import { fetchClient } from './client';
 
 export const DevPortalAPI = {
-  createApiKey: (label: string, scopes: string[]) => fetchClient("/dev_portal/api-keys", { method: "POST", body: JSON.stringify({ label, scopes }) }),
-  getApiKeys: () => fetchClient("/dev_portal/api-keys"),
-  deleteApiKey: (keyId: string) => fetchClient(`/dev_portal/api-keys/${keyId}`, { method: "DELETE" }),
-  getUsageStats: () => fetchClient("/dev_portal/usage"),
+  createApiKey: (label: string, scopes: string[]) => fetchClient("/dev/api-keys", { method: "POST", body: JSON.stringify({ name: label, scopes }) }),
+  getApiKeys: () => fetchClient("/dev/api-keys"),
+  deleteApiKey: (keyId: string) => fetchClient(`/dev/api-keys/${keyId}`, { method: "DELETE" }),
+  getUsageStats: () => fetchClient("/dev/usage"),
   
   createWebhook: (data: { url: string; events: string[]; description?: string }) => fetchClient("/webhooks", { method: "POST", body: JSON.stringify(data) }),
   getWebhooks: () => fetchClient("/webhooks"),

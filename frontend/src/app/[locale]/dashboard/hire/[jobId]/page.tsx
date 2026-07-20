@@ -26,6 +26,11 @@ function getInitials(name: string) {
   return name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() || "?";
 }
 
+// Kept at module scope: Math.random() must not run in render scope (react-hooks/purity).
+function generateTempPassword() {
+  return Math.random().toString(36).slice(-8);
+}
+
 const KANBAN_STAGES = [
   { id: "applied", name: "Nuevos", color: "bg-slate-50 dark:bg-slate-900/10 border-slate-200/60 dark:border-slate-800/40" },
   { id: "screening", name: "Screening", color: "bg-blue-50/40 dark:bg-blue-900/5 border-blue-200/50 dark:border-blue-900/10" },
@@ -331,7 +336,7 @@ export default function KanbanBoard() {
     });
     // Fill onboarding wizard with defaults
     setOnboardForm({
-      password: Math.random().toString(36).slice(-8), // Random initial pass
+      password: generateTempPassword(), // Random initial pass
       phone_number: c.phone || "",
       address: "",
       contract_type: "Indefinido",
@@ -719,7 +724,7 @@ export default function KanbanBoard() {
                               </div>
                               {inv.feedback_notes && (
                                 <p className="text-[11px] text-muted-foreground italic bg-muted/20 rounded border-l-2 border-primary/50 pl-2 py-1 mt-2">
-                                  "{inv.feedback_notes}"
+                                  &quot;{inv.feedback_notes}&quot;
                                 </p>
                               )}
                             </div>

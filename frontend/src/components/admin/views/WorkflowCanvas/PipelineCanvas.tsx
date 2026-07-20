@@ -252,7 +252,7 @@ export default function PipelineCanvas({
     if (handle.startsWith("option-")) {
       const idx = parseInt(handle.split("-")[1], 10);
       const optText = config.options?.[idx] || `Opción ${idx + 1}`;
-      let branches = Array.isArray(config.branches) ? [...config.branches] : [];
+      const branches = Array.isArray(config.branches) ? [...config.branches] : [];
       
       const existsIdx = branches.findIndex(b => b.match.toLowerCase() === optText.toLowerCase());
       if (existsIdx !== -1) {
@@ -264,7 +264,7 @@ export default function PipelineCanvas({
       config.branches = branches;
     } else if (handle.startsWith("branch-")) {
       const idx = parseInt(handle.split("-")[1], 10);
-      let branches = Array.isArray(config.branches) ? [...config.branches] : [];
+      const branches = Array.isArray(config.branches) ? [...config.branches] : [];
       if (branches[idx]) {
         branches[idx].goToStepId = targetStep.id;
         branches[idx].goToStepOrder = targetStep.order;

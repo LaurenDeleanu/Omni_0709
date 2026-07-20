@@ -16,22 +16,23 @@ async def power_automate_trigger_new_employee(
     limit: int = 10,
     db: AsyncSession = Depends(get_tenant_db_from_api_key)
 ):
-    """Retrieve recently added employees for Power Automate polling."""
-    from app.models.employee import Employee
+    """Recupera los empleados añadidos recientemente para el polling de Power Automate."""
+    # Los empleados se modelan como User en app.models.user (no existe un modelo Employee separado)
+    from app.models.user import User
     result = await db.execute(
-        select(Employee).order_by(Employee.created_at.desc()).limit(limit)
+        select(User).order_by(User.created_at.desc()).limit(limit)
     )
     employees = result.scalars().all()
     return [
         {
-            "id": e.id,
-            "first_name": e.first_name,
-            "last_name": e.last_name,
-            "email": e.email,
-            "department": e.department_id,
-            "created_at": e.created_at.isoformat() if e.created_at else None
+            "id": u.id,
+            "full_name": u.full_name,
+            "email": u.email,
+            "department": u.department,
+            "role": u.role,
+            "created_at": u.created_at.isoformat() if u.created_at else None
         }
-        for e in employees
+        for u in employees
     ]
 
 @router.get("/triggers/new-ticket")
@@ -61,17 +62,18 @@ async def power_automate_trigger_leave_requests(
     limit: int = 10,
     db: AsyncSession = Depends(get_tenant_db_from_api_key)
 ):
-    """Retrieve pending leave requests for Power Automate polling."""
-    from app.models.time_tracking import TimeOffRequest
+    """Recupera las solicitudes de ausencia pendientes para el polling de Power Automate."""
+    # Las ausencias/vacaciones viven en VacationRequest (app.models.calendar)
+    from app.models.calendar import VacationRequest
     result = await db.execute(
-        select(TimeOffRequest).where(TimeOffRequest.status == "pending").order_by(TimeOffRequest.created_at.desc()).limit(limit)
+        select(VacationRequest).where(VacationRequest.status == "pending").order_by(VacationRequest.created_at.desc()).limit(limit)
     )
     requests = result.scalars().all()
     return [
         {
             "id": r.id,
-            "employee_id": r.employee_id,
-            "type": r.type,
+            "employee_id": r.user_id,
+            "type": r.absence_type,
             "start_date": r.start_date.isoformat() if r.start_date else None,
             "end_date": r.end_date.isoformat() if r.end_date else None,
             "status": r.status,
@@ -155,7 +157,7 @@ async def power_automate_action_send_notification(
     db: AsyncSession = Depends(get_tenant_db_from_api_key)
 ):
     """Send an internal notification to an employee/user from Power Automate."""
-    from app.models.notifications import Notification
+    from app.models.notification import Notification
     import uuid
     
     new_notif = Notification(

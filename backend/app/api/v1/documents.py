@@ -22,6 +22,70 @@ class GenerateRequest(BaseModel):
     employee_id: Optional[str] = None
 
 
+def _get_user_id(current_user: dict) -> str:
+    """Extraer el sub (user id) del token JWT y limpiar el prefijo de proveedor."""
+    sub = current_user.get("sub", "unknown")
+    return sub.split("|")[-1] if "|" in sub else sub
+
+
+def _get_user_roles(current_user: dict) -> list:
+    """Extraer roles del token, misma lógica que require_roles."""
+    app_metadata = current_user.get("https://successcore.com/app_metadata", {})
+    roles = app_metadata.get("roles", [])
+    if not roles:
+        roles = current_user.get("https://successcore.com/roles", [])
+    if not roles:
+        roles = current_user.get("roles", [])
+    return roles or []
+
+
+@router.get("")
+async def list_documents(
+    user_id: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_tenant_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Listar documentos de un empleado (contratos legales asociados por nombre).
+
+    HR admin/manager pueden consultar cualquier empleado; el resto solo los suyos.
+    """
+    from sqlalchemy import select
+    from app.models.legal import Contract
+    from app.models.user import User
+
+    roles = set(_get_user_roles(current_user))
+    requester_id = _get_user_id(current_user)
+    target_id = user_id or requester_id
+
+    if target_id != requester_id and not roles & {"hr_admin", "super_admin", "manager"}:
+        raise HTTPException(status_code=403, detail="No autorizado para ver documentos de otros empleados")
+
+    result = await db.execute(select(User).where(User.id == target_id))
+    user = result.scalar_one_or_none()
+    if not user or not user.full_name:
+        return {"documents": []}
+
+    result = await db.execute(
+        select(Contract)
+        .where(Contract.party_name == user.full_name)
+        .order_by(Contract.created_at.desc())
+    )
+    contracts = result.scalars().all()
+    return {
+        "documents": [
+            {
+                "id": c.id,
+                "name": c.title,
+                "type": "contract",
+                "status": c.status or "active",
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+                "url": c.document_url,
+            }
+            for c in contracts
+        ]
+    }
+
+
 @router.get("/templates")
 async def list_templates(current_user: dict = Depends(get_current_user)):
     return {"templates": get_available_templates()}

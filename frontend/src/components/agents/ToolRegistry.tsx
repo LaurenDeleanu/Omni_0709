@@ -80,7 +80,7 @@ export function ToolRegistry() {
 
   const filteredTools = useMemo(() => {
     if (!data) return [];
-    let tools: (ToolDef & { module: string })[] = [];
+    const tools: (ToolDef & { module: string })[] = [];
     for (const mod of data.modules) {
       for (const tool of mod.tools) {
         if (selectedModule && mod.name !== selectedModule) continue;

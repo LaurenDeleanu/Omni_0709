@@ -38,7 +38,7 @@ export default function MonitoringPage() {
         <div>
           <h2 className="text-xl font-bold text-foreground">Observabilidad de IA</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            No tienes agentes activos. Por favor crea un agente en el "Estudio de Agentes" para monitorizar latencias y costos.
+            No tienes agentes activos. Por favor crea un agente en el &quot;Estudio de Agentes&quot; para monitorizar latencias y costos.
           </p>
         </div>
       </div>

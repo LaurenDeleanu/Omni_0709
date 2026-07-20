@@ -926,7 +926,7 @@ export default function ITDashboard() {
               {kbSearchResults.length === 0 ? (
                 <div className="bg-card/20 rounded-xl border border-border/30 p-8 text-center">
                   <BookOpen className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-                  <p className="text-muted-foreground">No se encontraron artículos para "{kbSearchQuery}"</p>
+                  <p className="text-muted-foreground">No se encontraron artículos para &quot;{kbSearchQuery}&quot;</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

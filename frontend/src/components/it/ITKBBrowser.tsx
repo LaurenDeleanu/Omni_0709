@@ -214,7 +214,7 @@ export function ITKBBrowser() {
       {searchMutation.data && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-bold">Resultados para "{searchQuery}"</h4>
+            <h4 className="text-sm font-bold">Resultados para &quot;{searchQuery}&quot;</h4>
             <Button variant="ghost" size="xs" onClick={() => { searchMutation.reset(); setSearchQuery(""); }}><X className="h-3 w-3 mr-1" /> Limpiar</Button>
           </div>
           <div className="grid gap-3 md:grid-cols-2">

@@ -8,6 +8,6 @@ export interface PageMetadata {
 
 export const MetadataAPI = {
   getPage: (moduleName: string, pageName: string) => fetchClient(`/metadata/${moduleName}/${pageName}`),
-  create: (data: any) => fetchClient("/metadata", { method: "POST", body: JSON.stringify(data) }),
+  create: (data: any) => fetchClient("/metadata/", { method: "POST", body: JSON.stringify(data) }),
   update: (moduleName: string, pageName: string, data: any) => fetchClient(`/metadata/${moduleName}/${pageName}`, { method: "PUT", body: JSON.stringify(data) })
 };

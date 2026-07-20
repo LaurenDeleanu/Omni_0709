@@ -221,7 +221,7 @@ export default function ShiftsPage() {
         // Calcular tiempo de trabajo transcurrido
         const startTime = new Date(activeLog.clock_in).getTime();
         const now = new Date().getTime();
-        let totalElapsed = Math.floor((now - startTime) / 1000);
+        const totalElapsed = Math.floor((now - startTime) / 1000);
 
         // Si el empleado está actualmente en descanso, calculamos el descanso acumulado
         if (activeBreak) {
@@ -241,8 +241,8 @@ export default function ShiftsPage() {
         });
 
         // El tiempo de trabajo efectivo es total transcurrido menos descansos completados y descanso activo
-        let activeBreakDuration = activeBreak ? Math.floor((now - new Date(activeBreak.start_time).getTime()) / 1000) : 0;
-        let effectiveWorking = totalElapsed - completedBreaksDuration - activeBreakDuration;
+        const activeBreakDuration = activeBreak ? Math.floor((now - new Date(activeBreak.start_time).getTime()) / 1000) : 0;
+        const effectiveWorking = totalElapsed - completedBreaksDuration - activeBreakDuration;
         
         setElapsedWorkingSeconds(effectiveWorking > 0 ? effectiveWorking : 0);
       }, 1000);

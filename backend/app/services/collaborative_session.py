@@ -12,6 +12,7 @@ from sqlalchemy import String, DateTime, ForeignKey, Boolean, Text
 from app.models.agent import Agent, AgentSession, AgentExecutionRun
 from app.models.agent import CollaborativeRoom, CollaborativeRoomParticipant, CollaborativeMessage
 
+logger = logging.getLogger("successcore.collab")
 
 
 class CollaborativeSession:

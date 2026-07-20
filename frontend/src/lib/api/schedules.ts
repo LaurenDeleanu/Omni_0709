@@ -11,8 +11,8 @@ export interface Schedule {
 }
 
 export const ScheduleAPI = {
-  list: () => fetchClient("/schedules"),
-  create: (data: any) => fetchClient("/schedules", { method: "POST", body: JSON.stringify(data) }),
+  list: () => fetchClient("/schedules/"),
+  create: (data: any) => fetchClient("/schedules/", { method: "POST", body: JSON.stringify(data) }),
   remove: (id: string) => fetchClient(`/schedules/${id}`, { method: "DELETE" }),
   trigger: (id: string) => fetchClient(`/schedules/${id}/trigger`, { method: "POST" })
 };

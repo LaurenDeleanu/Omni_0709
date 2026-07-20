@@ -119,38 +119,25 @@ async def store_scorm_course(
 
     course_id = uuid.uuid4().hex
 
-    from app.models.training import Course, Module
+    from app.models.training import Course
 
+    # El modelo Course guarda el paquete SCORM directamente (is_scorm, scorm_version,
+    # package_url); no existe un modelo de módulos, así que los recursos del manifest
+    # se devuelven en la respuesta y se registran en el log
     course = Course(
         id=course_id,
         title=course_name or manifest["title"],
         description=manifest["description"],
-        format="scorm",
-        metadata={
-            "scorm_version": manifest["format"],
-            "entry_point": manifest["entry_point"],
-            "total_sections": manifest["total_sections"],
-            "resources": manifest["resources"],
-        },
+        is_scorm=True,
+        scorm_version=manifest["format"].replace("SCORM ", ""),
+        package_url=manifest["entry_point"] or None,
     )
     db.add(course)
-
-    for i, resource in enumerate(manifest["resources"]):
-        module = Module(
-            id=uuid.uuid4().hex,
-            course_id=course_id,
-            title=resource.get("title", f"Module {i+1}"),
-            order=i,
-            content_type="scorm",
-            content_url=resource.get("href", ""),
-            metadata={"resource_id": resource.get("id", ""), "type": resource.get("type", ""), "is_scorm": resource.get("is_scorm", False)},
-        )
-        db.add(module)
 
     await db.commit()
     await db.refresh(course)
 
-    logger.info(f"SCORM course stored: {course.title} ({course_id[:8]}) with {len(manifest['resources'])} modules")
+    logger.info(f"SCORM course stored: {course.title} ({course_id[:8]}) with {len(manifest['resources'])} resources")
     return {
         "course_id": course_id,
         "title": course.title,
@@ -170,20 +157,40 @@ async def record_xapi_statement(
     log_id = uuid.uuid4().hex
 
     try:
-        from app.models.training import StudentProgress
+        # El progreso del alumno se modela con CourseEnrollment (app.models.training)
+        from app.models.training import CourseEnrollment
 
-        progress = StudentProgress(
-            id=log_id,
-            user_id=user_id,
-            course_id=parsed["activity_id"],
-            module_id=parsed.get("parent_activity", ""),
-            status="completed" if parsed.get("completion") else "in_progress",
-            score=float(parsed["score"]) if parsed.get("score") else None,
-            started_at=datetime.fromisoformat(parsed["timestamp"]) if parsed.get("timestamp") else datetime.now(timezone.utc),
-            completed_at=datetime.fromisoformat(parsed["timestamp"]) if parsed.get("completion") else None,
-            metadata=parsed,
+        result = await db.execute(
+            select(CourseEnrollment).where(
+                CourseEnrollment.user_id == user_id,
+                CourseEnrollment.course_id == parsed["activity_id"],
+            )
         )
-        db.add(progress)
+        enrollment = result.scalars().first()
+        if not enrollment:
+            enrollment = CourseEnrollment(
+                id=log_id,
+                user_id=user_id,
+                course_id=parsed["activity_id"],
+            )
+            db.add(enrollment)
+
+        if parsed.get("completion"):
+            enrollment.status = "completed"
+            enrollment.progress_percentage = 100.0
+            try:
+                enrollment.completed_at = (
+                    datetime.fromisoformat(parsed["timestamp"]) if parsed.get("timestamp") else datetime.now(timezone.utc)
+                )
+            except ValueError:
+                enrollment.completed_at = datetime.now(timezone.utc)
+        elif enrollment.status == "enrolled":
+            enrollment.status = "in_progress"
+
+        if parsed.get("score") is not None:
+            # xAPI entrega la puntuación "scaled" (0..1); se almacena como porcentaje
+            enrollment.score = round(float(parsed["score"]) * 100, 2)
+
         await db.commit()
         logger.info(f"xAPI statement recorded: {parsed['verb']} by {parsed['actor_name']}")
     except Exception as e:

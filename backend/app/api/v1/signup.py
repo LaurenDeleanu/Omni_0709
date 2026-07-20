@@ -140,10 +140,12 @@ async def signup(body: SignupRequest, request: Request, db: AsyncSession = Depen
     db.add(tenant)
     await db.flush()
 
-    # Provision tenant schema + roles + agents
+    # Crear el esquema del tenant (no-op en SQLite). provision_tenant() no sirve
+    # aquí: crea su propio registro Tenant, y este endpoint ya lo ha creado.
+    # Roles/departamentos/agentes se crean más abajo en el auto-onboarding.
     try:
-        from app.services.tenant_provisioning import provision_tenant
-        await provision_tenant(db, tenant)
+        from app.services.tenant_provisioning import create_tenant_schema
+        await create_tenant_schema(schema)
     except Exception as e:
         logger.warning(f"Tenant schema provisioning skipped: {e}")
 
@@ -162,10 +164,20 @@ async def signup(body: SignupRequest, request: Request, db: AsyncSession = Depen
     db.add(admin_user)
     await db.flush()
 
-    # Try to auto-onboard (create defaults)
+    # Persistimos tenant y admin antes del auto-onboarding: el servicio de
+    # onboarding gestiona su propia transacción (commit/rollback interno) y un
+    # rollback suyo no debe deshacer la creación del tenant.
+    await db.commit()
+
+    # Auto-onboarding del tenant: roles, departamentos y agentes por defecto
     try:
-        from app.api.v1.auto_onboard import onboard_tenant
-        await onboard_tenant(db, tenant)
+        from app.services.tenant_onboarding import provision_tenant_onboarding
+        await provision_tenant_onboarding(
+            tenant_id=tenant_id,
+            db=db,
+            admin_email=body.admin_email,
+            company_name=body.company_name.strip(),
+        )
     except Exception as e:
         logger.warning(f"Auto-onboard skipped: {e}")
 

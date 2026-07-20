@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/license-proprietary-red" alt="License" />
 </p>
 
-# SuccessCore HR
+# Omni HR
 
 **Plataforma SaaS empresarial de gestión de recursos humanos con agentes de inteligencia artificial nativos.**
 

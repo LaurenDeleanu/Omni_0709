@@ -165,17 +165,45 @@ async def provision_tenant_onboarding(
 
     try:
         # Create default roles
-        from app.models.rbac import Role
+        from sqlalchemy import select
+        from app.models.rbac import Role, Permission, RolePermission
 
         for role_data in DEFAULT_ROLES:
             try:
+                existing = await db.execute(
+                    select(Role).where(Role.name == role_data["name"], Role.tenant_id == tenant_id)
+                )
+                if existing.scalar_one_or_none():
+                    continue
+
                 role = Role(
                     tenant_id=tenant_id,
                     name=role_data["name"],
                     description=role_data["description"],
-                    permissions=role_data["permissions"],
                 )
                 db.add(role)
+                await db.flush()
+
+                # Role.permissions es una relación a RolePermission, no una lista de
+                # strings: cada "modulo:accion" se materializa como fila Permission
+                # (find-or-create) + su enlace RolePermission, igual que en admin.py.
+                for perm_str in role_data["permissions"]:
+                    module, _, action = perm_str.partition(":")
+                    action = action or "*"
+                    result = await db.execute(
+                        select(Permission).where(
+                            Permission.module == module,
+                            Permission.action == action,
+                            Permission.tenant_id == tenant_id,
+                        )
+                    )
+                    perm = result.scalar_one_or_none()
+                    if not perm:
+                        perm = Permission(tenant_id=tenant_id, module=module, action=action)
+                        db.add(perm)
+                        await db.flush()
+                    db.add(RolePermission(tenant_id=tenant_id, role_id=role.id, permission_id=perm.id))
+
                 results["roles_created"] += 1
             except Exception as e:
                 results["errors"].append(f"Role '{role_data['name']}': {str(e)}")
@@ -183,15 +211,28 @@ async def provision_tenant_onboarding(
         await db.flush()
 
         # Create default departments
-        from app.models.metadata import Metadata  # Assuming Metadata table for departments
+        # Los departamentos se guardan como entradas de PageMetadata (BD por tenant)
+        from app.models.metadata import PageMetadata
 
         for dept_data in DEFAULT_DEPARTMENTS:
             try:
-                dept = Metadata(
+                # (module_name, page_name) es UNIQUE: reejecutar el onboarding
+                # no debe duplicar ni abortar.
+                existing = await db.execute(
+                    select(PageMetadata).where(
+                        PageMetadata.module_name == "departments",
+                        PageMetadata.page_name == dept_data["code"],
+                    )
+                )
+                if existing.scalar_one_or_none():
+                    continue
+
+                dept = PageMetadata(
                     tenant_id=tenant_id,
-                    key=f"department:{dept_data['code']}",
-                    value=dept_data["name"],
-                    category="department",
+                    module_name="departments",
+                    page_name=dept_data["code"],
+                    description=dept_data["name"],
+                    schema_data={"code": dept_data["code"], "name": dept_data["name"], "category": "department"},
                 )
                 db.add(dept)
                 results["departments_created"] += 1
@@ -205,9 +246,16 @@ async def provision_tenant_onboarding(
 
         for agent_data in DEFAULT_AGENTS:
             try:
+                agent_name = f"{agent_data['name']} ({company_name or tenant_id})"
+                existing = await db.execute(
+                    select(Agent).where(Agent.name == agent_name, Agent.tenant_id == tenant_id)
+                )
+                if existing.scalar_one_or_none():
+                    continue
+
                 agent = Agent(
                     tenant_id=tenant_id,
-                    name=f"{agent_data['name']} ({company_name or tenant_id})",
+                    name=agent_name,
                     avatar=agent_data["avatar"],
                     agent_type=agent_data["agent_type"],
                     ai_model=agent_data["ai_model"],
@@ -220,6 +268,7 @@ async def provision_tenant_onboarding(
                 await db.flush()
 
                 config = AgentConfig(
+                    tenant_id=tenant_id,
                     agent_id=agent.id,
                     max_loops=10,
                     max_tokens_per_run=50000,

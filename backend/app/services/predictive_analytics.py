@@ -39,14 +39,20 @@ async def get_attrition_prediction(db: AsyncSession) -> Dict[str, Any]:
             
     dept_averages = {d: (sum(s) / len(s)) for d, s in dept_salaries.items() if s}
     
-    # Load pulse responses from FAKE_RESPONSES in pulse_surveys
+    # Estado de ánimo medio por usuario a partir de las respuestas reales de pulse surveys
+    # (media de las respuestas numéricas de los últimos 90 días, escala 1-5)
     pulse_moods = {}
     try:
-        from app.services.pulse_surveys import FAKE_RESPONSES
-        for uid, questions in FAKE_RESPONSES.items():
-            moods = questions.get("mood", [])
-            if moods:
-                pulse_moods[uid] = sum(moods) / len(moods)
+        from app.models.survey import PulseResponse
+        cutoff_pulse = now - timedelta(days=90)
+        pulse_stmt = select(PulseResponse).where(PulseResponse.submitted_at >= cutoff_pulse)
+        pulse_res = await db.execute(pulse_stmt)
+        mood_scores: Dict[str, List[int]] = {}
+        for r in pulse_res.scalars().all():
+            for v in (r.answers or {}).values():
+                if isinstance(v, int) and not isinstance(v, bool):
+                    mood_scores.setdefault(r.user_id, []).append(v)
+        pulse_moods = {uid: sum(vals) / len(vals) for uid, vals in mood_scores.items()}
     except Exception:
         pass
 

@@ -12,14 +12,14 @@ export default function InfrastructureAdmin() {
   const [backups, setBackups] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => { fetchAll(); }, []);
-
   const fetchAll = async () => {
     try { setStorage(await fetchClient("/admin/storage-usage")); } catch {}
     try { setPool(await fetchClient("/monitoring/pool-stats")); } catch {}
     try { setResidency(await fetchClient("/admin/data-residency-audit")); } catch {}
     try { const b = await fetchClient("/admin/backups"); setBackups(b.backups || []); } catch {}
   };
+
+  useEffect(() => { fetchAll(); }, []);
 
   const triggerBackup = async () => {
     try { await fetchClient("/admin/backup", { method: "POST" }); toast.success("Backup started"); setTimeout(fetchAll, 3000); } catch (e: any) { toast.error(e.message); }

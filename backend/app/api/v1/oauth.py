@@ -10,7 +10,8 @@ from slowapi.util import get_remote_address
 from app.api.dependencies import get_tenant_db, require_roles, get_current_user
 from app.services.oauth_service import (
     register_oauth_client, validate_client, exchange_code_for_tokens,
-    introspect_token, revoke_token, generate_authorization_code
+    exchange_refresh_token, introspect_token, revoke_token,
+    generate_authorization_code
 )
 from app.services.oauth_rate_limiter import check_oauth_rate_limit, get_oauth_rate_limit_status
 from app.services.integrations.google import GoogleWorkspaceIntegration

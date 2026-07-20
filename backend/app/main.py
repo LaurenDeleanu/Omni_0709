@@ -241,6 +241,16 @@ app.include_router(power_automate.router, prefix=f"{settings.API_V1_STR}/power-a
 app.include_router(announcements.router, prefix=f"{settings.API_V1_STR}/announcements", tags=["Announcements"])
 app.include_router(kudos.router,      prefix=f"{settings.API_V1_STR}/kudos",      tags=["Kudos Peer Recognition"])
 app.include_router(workflows.router,  prefix=f"{settings.API_V1_STR}/workflows",  tags=["Onboarding/Offboarding Workflows"])
+# Alias literal para GET /agents/budgets (sin barra final): el router anidado en
+# agents.py solo expone GET /agents/budgets/ y, sin este alias, la petición del
+# frontend cae en GET /agents/{agent_id} (agent_id="budgets") → 404. Debe
+# registrarse ANTES de agents.router para tener prioridad de coincidencia.
+app.add_api_route(
+    f"{settings.API_V1_STR}/agents/budgets",
+    agent_budgets.list_budgets,
+    methods=["GET"],
+    tags=["Agent Budgets"],
+)
 app.include_router(agents.router,     prefix=f"{settings.API_V1_STR}/agents",     tags=["AI Agents"])
 app.include_router(harness.router,   prefix=f"{settings.API_V1_STR}/harness",   tags=["Harness Test Suite"])
 app.include_router(crm.router,        prefix=f"{settings.API_V1_STR}/crm",        tags=["CRM & Contacts"])
@@ -274,7 +284,9 @@ app.include_router(checklists.router, prefix=f"{settings.API_V1_STR}/checklists"
 app.include_router(manager.router, prefix=f"{settings.API_V1_STR}/manager", tags=["Manager Command Center"])
 app.include_router(talent_grid.router, prefix=f"{settings.API_V1_STR}", tags=["Talent Grid"])
 app.include_router(job_board.router, prefix=f"{settings.API_V1_STR}", tags=["Job Board"])
-app.include_router(it_kb_enhanced.router, prefix=f"{settings.API_V1_STR}/it/kb", tags=["IT KB Enhanced"])
+# Prefijo "/it" (no "/it/kb"): las rutas del router ya empiezan por "/kb/",
+# así que quedan en /api/v1/it/kb/* junto a las rutas KB básicas de it.py.
+app.include_router(it_kb_enhanced.router, prefix=f"{settings.API_V1_STR}/it", tags=["IT KB Enhanced"])
 app.include_router(auto_onboard.router, prefix=f"{settings.API_V1_STR}", tags=["Auto-Onboard"])
 app.include_router(interview_scheduler.router, prefix=f"{settings.API_V1_STR}", tags=["Interview Scheduler"])
 app.include_router(it_auto_routing.router, prefix=f"{settings.API_V1_STR}", tags=["IT Auto-Routing"])

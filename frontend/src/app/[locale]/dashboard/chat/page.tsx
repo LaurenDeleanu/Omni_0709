@@ -397,7 +397,7 @@ export default function ChatDashboardPage() {
 
           {showSearchDropdown && searchQuery && searchResults.length === 0 && !isSearching && (
             <div className="absolute left-3 right-3 top-12 z-40 bg-slate-900 border border-border/30 rounded-xl shadow-2xl p-4 text-center">
-              <p className="text-[10px] text-zinc-500">Sin resultados para "{searchQuery}"</p>
+              <p className="text-[10px] text-zinc-500">Sin resultados para &quot;{searchQuery}&quot;</p>
             </div>
           )}
         </div>

@@ -33,7 +33,7 @@ export default function HarnessPage() {
         <div>
           <h2 className="text-xl font-bold text-foreground">AI Harness & Pruebas</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            No tienes agentes disponibles. Por favor crea un agente en el "Estudio de Agentes" para configurar suites de pruebas.
+            No tienes agentes disponibles. Por favor crea un agente en el &quot;Estudio de Agentes&quot; para configurar suites de pruebas.
           </p>
         </div>
       </div>

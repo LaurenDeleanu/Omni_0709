@@ -279,7 +279,7 @@ export default function DocsPage() {
             </Link>
             <div className="flex items-center gap-4">
               <Link
-                href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/docs`}
+                href={`${(process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080").replace("/api/v1", "")}/docs`}
                 target="_blank"
                 className="text-indigo-400 hover:text-indigo-300 text-sm transition-colors"
               >

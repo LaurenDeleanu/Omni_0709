@@ -4,10 +4,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import asyncio
 
-from app.api.dependencies import get_tenant_db, require_super_admin, get_current_user, require_roles
+from app.api.dependencies import get_tenant_db, require_super_admin, get_current_user, require_roles, _get_sessionmaker
 from app.models.pay import PayrollCycle, Payslip, TaxRule, PayslipLineItem, Bonus
 from app.models.finance import WorkSchedule, TimeLog, BreakLog
 from app.models.user import User
@@ -464,7 +464,9 @@ async def _process_single_employee(
     cycle_end_date,
     rules_dicts: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    sessionmaker = _get_or_create_sessionmaker(tenant_schema)
+    # Sessionmaker global: el aislamiento por tenant se aplica vía RLS
+    # (mismo patrón que get_tenant_db en app/api/dependencies.py).
+    sessionmaker = _get_sessionmaker()
     async with sessionmaker() as local_db:
         try:
             user_res = await local_db.execute(select(User).where(User.id == user_id))
@@ -960,7 +962,9 @@ async def export_siltra_afiliacion(
     current_user: dict = Depends(get_current_user),
     _: dict = Depends(require_roles(["hr_admin", "super_admin", "admin", "payroll_admin"]))
 ):
-    from app.services.siltra_sepe import generate_siltra_afiliacion_xml
+    # CONTRACT_TYPE_TO_SEPE: mapeo canónico tipo de contrato → código SEPE
+    # (indefinido=100, temporal=300, ...). Se usa .get() con "100" como fallback.
+    from app.services.siltra_sepe import generate_siltra_afiliacion_xml, CONTRACT_TYPE_TO_SEPE
     from app.models.user import User
 
     employees_res = await db.execute(select(User).where(User.is_active == True).limit(100))

@@ -18,8 +18,6 @@ export default function DeveloperPortal() {
   const [activeTab, setActiveTab] = useState<"clients" | "analytics" | "docs">("clients");
   const [analytics, setAnalytics] = useState<any>({});
 
-  useEffect(() => { fetchClients(); fetchAnalytics(); }, []);
-
   const fetchClients = async () => {
     setLoading(true);
     try { const data = await fetchClient("/oauth/clients"); setClients(data); } catch {}
@@ -29,6 +27,8 @@ export default function DeveloperPortal() {
   const fetchAnalytics = async () => {
     try { const data = await fetchClient("/oauth/analytics"); setAnalytics(data); } catch {}
   };
+
+  useEffect(() => { fetchClients(); fetchAnalytics(); }, []);
 
   const createClient = async () => {
     try {
@@ -77,7 +77,7 @@ export default function DeveloperPortal() {
         <>
           {newSecret && (
             <div className="mb-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-              <div className="flex items-center gap-2 mb-2"><Key size={16} className="text-yellow-400" /><span className="font-bold text-sm">New Client Secret — Copy this now. It won't be shown again.</span></div>
+              <div className="flex items-center gap-2 mb-2"><Key size={16} className="text-yellow-400" /><span className="font-bold text-sm">New Client Secret — Copy this now. It won&apos;t be shown again.</span></div>
               <code className="text-sm bg-background px-3 py-2 rounded block font-mono break-all">{newSecret}</code>
               <button onClick={() => { navigator.clipboard.writeText(newSecret); toast.success("Copied"); setNewSecret(null); }} className="mt-2 text-xs text-primary hover:underline">Copy and dismiss</button>
             </div>

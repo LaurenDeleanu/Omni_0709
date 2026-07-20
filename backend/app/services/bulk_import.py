@@ -104,15 +104,20 @@ async def import_csv(
                 errors.append({"row": i + 2, "error": str(e)[:200]})
 
     elif entity_type == "candidates":
+        # Candidate usa first_name/last_name y "stage" (no full_name/status)
         from app.models.hire import Candidate
         for i, row in enumerate(rows):
             try:
+                full_name = (row.get("full_name") or "").strip()
+                first_name, _, last_name = full_name.partition(" ")
                 candidate = Candidate(
                     id=uuid.uuid4().hex,
+                    job_id=row.get("job_id", ""),
                     email=row.get("email", ""),
-                    full_name=row.get("full_name", ""),
+                    first_name=row.get("first_name") or first_name or "N/A",
+                    last_name=row.get("last_name") or last_name or "N/A",
                     phone=row.get("phone", ""),
-                    status="new",
+                    stage="applied",
                     notes=row.get("notes", ""),
                 )
                 db.add(candidate)
@@ -121,15 +126,26 @@ async def import_csv(
                 errors.append({"row": i + 2, "error": str(e)[:200]})
 
     elif entity_type == "expenses":
-        from app.models.finance import Expense
+        # Las notas de gastos se modelan con ExpenseClaim (app.models.finance)
+        from datetime import date, datetime
+        from app.models.finance import ExpenseClaim
         for i, row in enumerate(rows):
             try:
-                expense = Expense(
+                expense_date = date.today()
+                if row.get("date"):
+                    try:
+                        expense_date = datetime.fromisoformat(row["date"]).date()
+                    except ValueError:
+                        pass
+                expense = ExpenseClaim(
                     id=uuid.uuid4().hex,
-                    description=row.get("description", ""),
-                    amount_cents=int(float(row.get("amount", "0").replace(",", ".")) * 100),
+                    user_id=user_id,
+                    merchant=row.get("merchant") or row.get("description") or "Desconocido",
+                    date=expense_date,
+                    total_amount=float(str(row.get("amount") or "0").replace(",", ".")),
                     category=row.get("category", "other"),
-                    submitted_by=user_id,
+                    comments=row.get("description", ""),
+                    status="pending",
                 )
                 db.add(expense)
                 imported += 1
@@ -140,11 +156,11 @@ async def import_csv(
         from app.models.training import Course
         for i, row in enumerate(rows):
             try:
+                # Course no tiene columna "format"; is_scorm=False (por defecto) indica curso estándar
                 course = Course(
                     id=uuid.uuid4().hex,
                     title=row.get("title", ""),
                     description=row.get("description", ""),
-                    format="self_paced",
                 )
                 db.add(course)
                 imported += 1

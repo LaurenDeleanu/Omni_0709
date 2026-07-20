@@ -552,7 +552,7 @@ export function NodeEditorFields(props: NodeEditorProps) {
           <div>
             <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">HTTP Request URL (from Power Automate)</label>
             <input className="input text-xs font-mono" placeholder="https://prod-1...logic.azure.com/workflows/..." value={config.flowUrl || ""} onChange={e => handleFieldChange("flowUrl", e.target.value.trim())} />
-            <p className="text-[9px] text-zinc-500 mt-1">Crea un flujo de Power Automate que inicie con "Cuando se recibe una solicitud HTTP" y pega la URL aquí.</p>
+            <p className="text-[9px] text-zinc-500 mt-1">Crea un flujo de Power Automate que inicie con &quot;Cuando se recibe una solicitud HTTP&quot; y pega la URL aquí.</p>
           </div>
           <div>
             <label className="label text-[10px] text-zinc-400 font-bold uppercase mb-1">Variable Guardar Respuesta</label>

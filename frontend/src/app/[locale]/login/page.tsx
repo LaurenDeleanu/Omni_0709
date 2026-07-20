@@ -287,8 +287,9 @@ export default function LoginPage() {
             </div>
 
             {/* Login button */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- /auth/login is an Auth0 v4 middleware route, not a Next page; full-page navigation is required */}
             <a
-              href="/api/auth/login?returnTo=/en/dashboard"
+              href="/auth/login?returnTo=/en/dashboard"
               className="group flex items-center justify-center gap-3 w-full py-2.5 px-4
                          bg-muted/20 border border-border
                          hover:bg-muted/40

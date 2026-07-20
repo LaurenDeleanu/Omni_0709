@@ -82,7 +82,7 @@ export default function AgentTestBench({ botId, agentModel }: AgentTestBenchProp
         headers["X-CSRF-Token"] = csrfToken;
       }
 
-      const response = await fetch(`${API_BASE}/agents/${botId}/run-stream`, {
+      const response = await fetch(`${API_BASE}/agents/${botId}/stream`, {
         method: "POST",
         headers,
         body: JSON.stringify({

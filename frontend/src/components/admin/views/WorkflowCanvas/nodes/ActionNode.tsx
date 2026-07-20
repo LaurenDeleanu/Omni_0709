@@ -119,7 +119,7 @@ export default function ActionNode({ data }: { data: any }) {
             Pausa la automatización del bot y notifica a soporte humano.
             {config.prompt && (
               <p className="mt-1.5 text-zinc-400 italic line-clamp-2 bg-black/20 p-1.5 rounded border border-white/5">
-                "{config.prompt}"
+                &quot;{config.prompt}&quot;
               </p>
             )}
           </div>
