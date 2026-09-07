@@ -225,8 +225,3 @@ SuccessCore HR © 2026
 
 ---
 
-## 📬 Contacto
-
-Para información sobre planes enterprise, integraciones personalizadas o programa de partners:  
-**Email**: enterprise@successcore.com  
-**Web**: [https://successcore.com](https://successcore.com)
